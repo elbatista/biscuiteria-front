@@ -131,16 +131,16 @@ const Footer = () => (
           <div>
             <div className="font-semibold text-zinc-900 mb-2">Pagamento</div>
             <div className="flex items-center gap-3">
-              <QrCode className="w-4 h-4" /> Pix
-              <CreditCard className="w-4 h-4 ml-3" /> Cartão
-              <FileText className="w-4 h-4 ml-3" /> Boleto
+              <QrCode className="w-4 h-4 min-w-4" /> Pix
+              <CreditCard className="w-4 h-4 ml-3 min-w-4" /> Cartão
+              <FileText className="w-4 h-4 ml-3 min-w-4" /> Boleto
             </div>
           </div>
 
           <div>
             <div className="font-semibold text-zinc-900 mb-2">Envio</div>
             <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4" />
+              <Truck className="w-4 h-4 min-w-4" />
               Correios / Todo o Brasil
             </div>
           </div>
@@ -148,8 +148,8 @@ const Footer = () => (
           <div>
             <div className="font-semibold text-zinc-900 mb-2">Segurança</div>
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4" />
-              <ShieldCheck className="w-4 h-4" />
+              <Lock className="w-4 h-4 min-w-4" />
+              <ShieldCheck className="w-4 h-4 min-w-4" />
               Conexão segura (SSL)
             </div>
           </div>
