@@ -130,10 +130,10 @@ const Footer = () => (
         <div className="space-y-5 text-sm text-[var(--text-muted)] lg:col-span-2">
           <div>
             <div className="font-semibold text-zinc-900 mb-2">Pagamento</div>
-            <div className="flex items-center gap-3">
-              <QrCode className="w-4 h-4 min-w-4" /> Pix
-              <CreditCard className="w-4 h-4 ml-3 min-w-4" /> Cartão
-              <FileText className="w-4 h-4 ml-3 min-w-4" /> Boleto
+            <div className="flex flex-col sm:flex-row align-start gap-3">
+              <div className="flex flex-row items-center"><QrCode className="w-4 h-4 min-w-4 mr-2" /> Pix</div>
+              <div className="flex flex-row items-center"><CreditCard className="w-4 h-4 min-w-4 mr-2" /> Cartão</div>
+              <div className="flex flex-row items-center"><FileText className="w-4 h-4 min-w-4 mr-2" /> Boleto</div>
             </div>
           </div>
 

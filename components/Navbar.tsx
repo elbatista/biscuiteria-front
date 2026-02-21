@@ -217,7 +217,7 @@ export default function Navbar() {
                 </nav>
 
                 {/* CTAs no rodapé */}
-                <div className="grid gap-3 pb-10">
+                <div className="grid gap-3 pb-30">
                   <Button href="/personalizados">Criar algo só meu</Button>
                   <Button href="/contato" variant="secondary">
                     Falar comigo
