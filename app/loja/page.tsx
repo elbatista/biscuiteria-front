@@ -5,12 +5,82 @@ import Section from "@/components/Section";
 import SectionTitle from "@/components/SectionTitle";
 import SimpleCard from "@/components/SimpleCard";
 import LinkCard from "@/components/LinkCard";
+import ProductCard from "@/components/ProductCard";
+import Link from "next/link";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
   description:
     "A loja da Biscuit_eria está em construção. Em breve: enfeites e acessórios para chimarrão, peças prontas e novidades.",
 };
+
+const products = [
+  {
+    name: "Enfeite Cuia Alice ou Chapeleiro",
+    price: 13.0,
+    slug: "enfeite-chimarrao-chapeleiro",
+    image: "/products/chapeleiro.jpg",
+    badge: "Mais vendidos",
+    linkext: "https://www.elo7.com.br/enfeite-cuia-alice-ou-chapeleiro/dp/18E3CA7",
+  },
+  {
+    name: "Enfeite Cuia Biscuit Variados",
+    price: 73.5,
+    slug: "Atacado-Enfeite-Cuia-Biscuit-Variados",
+    image: "/products/atacado.jpg",
+    badge: "Atacado - 15 unidades",
+    linkext: "https://www.elo7.com.br/atacado-enfeite-cuia-biscuit-variados/dp/199D41B",
+  },
+  {
+    name: "Cuias para chimarrão variadas",
+    price: 31.90,
+    slug: "Cuias-para-chimarrao-variadas",
+    image: "/products/cuias.jpg",
+    badge: "Kit",
+    linkext: "https://shopee.com.br/Cuias-para-chimarr%C3%A3o-variadas.-i.486802869.16113953396",
+  },
+  {
+    name: "Bomba de chimarrão inox variadas",
+    price: 29.9,
+    slug: "Bomba-de-chimarrao-inox-variadas",
+    image: "/products/bombas.jpeg",
+    badge: "Variadas",
+    linkext: "https://shopee.com.br/Bomba-de-chimarr%C3%A3o-inox-variadas-i.486802869.11088469641",
+  },
+
+  {
+    name: "Enfeite Cuia Menina Laço",
+    price: 11.0,
+    slug: "Enfeite-Cuia-Menina-Laco",
+    image: "/products/meninas.jpg",
+    badge: "Personalizável",
+    linkext: "https://www.elo7.com.br/enfeite-cuia-biscuit-menina-laco/dp/19684B1",
+  },
+  {
+    name: "Enfeite cuia plaquinha time futebol",
+    price: 9.9,
+    slug: "Enfeite-cuia-biscuit-plaquinha-times",
+    image: "/products/times.jpg",
+    badge: "Personalizável",
+    linkext: "https://www.elo7.com.br/enfeite-cuia-biscuit-plaquinha-times/dp/18C8215",
+  },
+  {
+    name: "Enfeite de Cuia Plaquinhas",
+    price: 11,
+    slug: "Enfeite-cuia-biscuit-plaquinha",
+    image: "/products/placas.jpg",
+    badge: "Personalizável",
+    linkext: "https://www.elo7.com.br/enfeite-de-cuia-plaquinhas-biscuit-g/dp/183D79B",
+  },
+  {
+    name: "Enfeite cuia biscuit menina fusca",
+    price: 14,
+    slug: "Enfeite-cuia-biscuit-menina-fusca",
+    image: "/products/meninafusca.jpg",
+    badge: "Personalizável",
+    linkext: "https://www.elo7.com.br/enfeite-cuia-biscuit-menina-fusca/dp/193BBE8",
+  },
+];
 
 export default function LojaPage() {
   const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
@@ -82,6 +152,42 @@ export default function LojaPage() {
           </div>
         </Container>
       </Section>
+
+
+      <Section>
+        <Container>
+          <SectionTitle
+            eyebrow="Disponível agora"
+            title="Enquanto a loja não abre…"
+            subtitle="Aqui estão alguns dos nossos principais produtos para você comprar pelas nossas lojas da Elo7 e Shopee."
+          />
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {products.map((p) => (
+              <ProductCard
+                key={p.slug}
+                name={p.name}
+                price={p.price}
+                slug={p.slug}
+                image={p.image}
+                badge={p.badge}
+                linkext={p.linkext}
+              />
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5">
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+              <strong className="text-zinc-900">Dica:</strong> se você não achar exatamente o que procura
+              nas lojas, você pode pedir um <strong>personalizado</strong> — é só {" "}
+              <Link href="personalizados" className="text-[var(--green-500)] hover:underline">
+                preencher o formulário
+              </Link> e enviar as referências pelo WhatsApp.
+            </p>
+          </div>
+        </Container>
+      </Section>
+
 
       {/* O QUE VAI TER */}
       <Section>

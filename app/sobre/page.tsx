@@ -80,7 +80,7 @@ export default function SobrePage() {
                 </div>
 
                 {/* Duas fotos menores */}
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 grid-cols-2">
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
                     <Image
                     src="/images/autora-2.jpeg"
