@@ -12,6 +12,22 @@ const steps = [
     {desc: "Entrega com carinho e cuidado", key: "entrega"},
 ];
 
+const processPhotos = [
+  {
+    src: "/processo/1.jpeg",
+    alt: "Modelagem manual da peça",
+  },
+  {
+    src: "/processo/2.jpeg",
+    alt: "Peças prontas e encomendas sob medida",
+  },
+  {
+    src: "/processo/3.jpeg",
+    alt: "Embalagem feita com cuidado para presentear",
+  },
+];
+
+
 export default function TheProcess() {
     return (
         <Section>
@@ -37,13 +53,41 @@ export default function TheProcess() {
               </div>
 
               <div className="rounded-[2rem] border border-[var(--rose-100)] bg-white p-6 shadow-sm">
-                <div className="aspect-[16/10] w-full rounded-[1.5rem] bg-gradient-to-br from-[var(--rose-100)] via-white to-[var(--green-50)]">
+                {/* <div className="aspect-[16/10] w-full rounded-[1.5rem] bg-gradient-to-br from-[var(--rose-100)] via-white to-[var(--green-50)]">
                   <Image 
                     src="/fotos/modelagem.jpeg" 
                     alt="Foto do processo de criação" 
                     width={600} 
                     height={600} 
                     className="object-cover rounded-[1.5rem] w-full h-full" /> 
+                </div> */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="relative aspect-[1.91/3] overflow-hidden rounded-[1.5rem] sm:row-span-2">
+                    <Image
+                      src={processPhotos[0].src}
+                      alt={processPhotos[0].alt}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem]">
+                    <Image
+                      src={processPhotos[1].src}
+                      alt={processPhotos[1].alt}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem]">
+                    <Image
+                      src={processPhotos[2].src}
+                      alt={processPhotos[2].alt}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
                 <div className="mt-5">
                   <div className="text-sm font-semibold text-zinc-900">

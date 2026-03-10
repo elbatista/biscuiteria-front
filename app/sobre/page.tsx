@@ -71,7 +71,7 @@ export default function SobrePage() {
                 {/* Foto principal */}
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 shadow-sm aspect-[4/3]">
                 <Image
-                    src="/images/autora-1.jpeg"
+                    src="/autora/autora-1.jpeg"
                     alt="Foto da autora do Biscuit_eria"
                     fill
                     className="object-cover"
@@ -83,7 +83,7 @@ export default function SobrePage() {
                 <div className="grid gap-4 grid-cols-2">
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
                     <Image
-                    src="/images/autora-2.jpeg"
+                    src="/autora/autora-2.jpeg"
                     alt="Bastidores: modelando uma peça em biscuit"
                     fill
                     className="object-cover"
@@ -91,7 +91,7 @@ export default function SobrePage() {
                 </div>
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
                     <Image
-                    src="/images/autora-4.jpeg"
+                    src="/autora/autora-4.jpeg"
                     alt="Bastidores: pintura e detalhes de acabamento"
                     fill
                     className="object-cover"
