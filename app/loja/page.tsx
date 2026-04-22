@@ -3,230 +3,168 @@ import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import Section from "@/components/Section";
 import SectionTitle from "@/components/SectionTitle";
-import SimpleCard from "@/components/SimpleCard";
 import LinkCard from "@/components/LinkCard";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
+import { getStoreProducts } from "../../lib/server/products";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
   description:
-    "A loja da Biscuit_eria está em construção. Em breve: enfeites e acessórios para chimarrão, peças prontas e novidades.",
+    "Conheça os produtos da Biscuit_eria: enfeites e acessórios para chimarrão, peças feitas à mão e itens especiais para deixar seu mate ainda mais bonito.",
 };
 
-const products = [
-  {
-    name: "Enfeite Cuia Alice ou Chapeleiro",
-    price: 13.0,
-    slug: "enfeite-chimarrao-chapeleiro",
-    image: "/products/chapeleiro.jpg",
-    badge: "Mais vendidos",
-    linkext: "https://www.elo7.com.br/enfeite-cuia-alice-ou-chapeleiro/dp/18E3CA7",
-  },
-  {
-    name: "Enfeite Cuia Biscuit Variados",
-    price: 73.5,
-    slug: "Atacado-Enfeite-Cuia-Biscuit-Variados",
-    image: "/products/atacado.jpg",
-    badge: "Atacado - 15 unidades",
-    linkext: "https://www.elo7.com.br/atacado-enfeite-cuia-biscuit-variados/dp/199D41B",
-  },
-  {
-    name: "Cuias para chimarrão variadas",
-    price: 31.90,
-    slug: "Cuias-para-chimarrao-variadas",
-    image: "/products/cuias.jpg",
-    badge: "Kit",
-    linkext: "https://shopee.com.br/Cuias-para-chimarr%C3%A3o-variadas.-i.486802869.16113953396",
-  },
-  {
-    name: "Bomba de chimarrão inox variadas",
-    price: 29.9,
-    slug: "Bomba-de-chimarrao-inox-variadas",
-    image: "/products/bombas.jpeg",
-    badge: "Variadas",
-    linkext: "https://shopee.com.br/Bomba-de-chimarr%C3%A3o-inox-variadas-i.486802869.11088469641",
-  },
-
-  {
-    name: "Enfeite Cuia Menina Laço",
-    price: 11.0,
-    slug: "Enfeite-Cuia-Menina-Laco",
-    image: "/products/meninas.jpg",
-    badge: "Personalizável",
-    linkext: "https://www.elo7.com.br/enfeite-cuia-biscuit-menina-laco/dp/19684B1",
-  },
-  {
-    name: "Enfeite cuia plaquinha time futebol",
-    price: 9.9,
-    slug: "Enfeite-cuia-biscuit-plaquinha-times",
-    image: "/products/times.jpg",
-    badge: "Personalizável",
-    linkext: "https://www.elo7.com.br/enfeite-cuia-biscuit-plaquinha-times/dp/18C8215",
-  },
-  {
-    name: "Enfeite de Cuia Plaquinhas",
-    price: 11,
-    slug: "Enfeite-cuia-biscuit-plaquinha",
-    image: "/products/placas.jpg",
-    badge: "Personalizável",
-    linkext: "https://www.elo7.com.br/enfeite-de-cuia-plaquinhas-biscuit-g/dp/183D79B",
-  },
-  {
-    name: "Enfeite cuia biscuit menina fusca",
-    price: 14,
-    slug: "Enfeite-cuia-biscuit-menina-fusca",
-    image: "/products/meninafusca.jpg",
-    badge: "Personalizável",
-    linkext: "https://www.elo7.com.br/enfeite-cuia-biscuit-menina-fusca/dp/193BBE8",
-  },
-];
-
-export default function LojaPage() {
+export default async function LojaPage() {
   const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
   const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
 
+  const products = await getStoreProducts();
+
   return (
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
-      {/* HERO */}
       <Section>
         <Container>
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <Badge>Loja</Badge>
 
-              <h1 className="font-playfair text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900">
-                🚧 🚜 👷🏼‍♀️
-              </h1>
-              <h1 className="font-playfair text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900">
-                Estamos preparando algo bem bonito 🧉✨
-              </h1>
+              <div className="space-y-3">
+                <h1 className="font-playfair text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
+                  Produtos para deixar seu chimarrão ainda mais especial 🧉✨
+                </h1>
 
-              <p className="max-w-xl text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                A loja está em construção — mas já já ela vai abrir com{" "}
-                <strong>enfeites e acessórios para chimarrão</strong>, peças prontas e
-                novidades em edição limitada.
-              </p>
-
-              <div className="rounded-2xl border border-[var(--rose-100)] bg-white/70 p-5">
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                  <strong className="text-zinc-900">Disponível em breve.</strong>{" "}
-                  As primeiras coleções vão sair em pequenos lotes e podem esgotar rápido.
-                  Se você quer ser um dos primeiros a saber, me chama no WhatsApp ou acompanha no Instagram.
+                <p className="max-w-xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+                  Aqui você encontra enfeites, acessórios e peças feitas à mão
+                  com carinho. A compra direta no site está chegando, mas você já
+                  pode conhecer a coleção e escolher os seus favoritos.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="rounded-2xl border border-[var(--rose-100)] bg-white/70 p-5">
+                <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+                  <strong className="text-zinc-900">
+                    Quer algo personalizado?
+                  </strong>{" "}
+                  Se você não encontrar exatamente o que procura, pode pedir uma
+                  peça sob medida e enviar suas referências pelo WhatsApp.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button target="_blank" href={whatsappHref} variant="primary">
-                  Entrar na lista do WhatsApp
+                  Falar no WhatsApp
                 </Button>
                 <Button target="_blank" href={instagramHref} variant="secondary">
                   Acompanhar no Instagram
                 </Button>
               </div>
-
             </div>
 
-            {/* Cards estilo home */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <SimpleCard
-                title="Primeiros lotes"
-                description="Pequenas quantidades, tudo artesanal — quando acaba, só no próximo."
-              />
-              <SimpleCard
-                title="Coleções temáticas"
-                description="Enfeites para chimarrão com temas e detalhes que mudam ao longo do ano."
-              />
-              <SimpleCard
-                title="Peças prontas"
-                description="Algumas peças já vão estar disponíveis para envio rápido."
+              <LinkCard
+                title="Peças artesanais"
+                description="Cada peça é feita com cuidado nos detalhes, acabamento e combinação das coleções."
+                href="/sobre"
+                linktext="Conhecer a história"
+                tag="🫶"
               />
               <LinkCard
                 title="Personalização"
-                description="Mesmo com a loja, você ainda vai poder pedir algo do seu jeito."
-                href="/contato"
-                linktext="Pedir orçamento"
+                description="Você pode pedir algo do seu jeito, com tema, cores e detalhes que combinem com a sua cuia."
+                href="/personalizados"
+                linktext="Pedir personalizado"
                 tag="🎨"
+              />
+              <LinkCard
+                title="Lotes pequenos"
+                description="Alguns produtos são feitos em pequenas quantidades e podem esgotar rapidamente."
+                href="/contato"
+                linktext="Tirar dúvidas"
+                tag="🌷"
+              />
+              <LinkCard
+                title="Novidades"
+                description="Acompanhe as próximas coleções, lançamentos e peças especiais pelo Instagram."
+                href={instagramHref || "#"}
+                linktext="Ver novidades"
+                tag="✨"
               />
             </div>
           </div>
         </Container>
       </Section>
 
-
       <Section>
         <Container>
           <SectionTitle
-            eyebrow="Disponível agora"
-            title="Enquanto a loja não abre…"
-            subtitle="Aqui estão alguns dos nossos principais produtos para você comprar pelas nossas lojas da Elo7 e Shopee."
+            eyebrow="Catálogo"
+            title="Produtos disponíveis"
+            subtitle="Veja os produtos disponíveis hoje. Em breve, a compra será feita diretamente aqui no site."
           />
 
-          <div className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-4">
-            {products.map((p) => (
-              <ProductCard
-                key={p.slug}
-                name={p.name}
-                price={p.price}
-                slug={p.slug}
-                image={p.image}
-                badge={p.badge}
-                linkext={p.linkext}
-              />
-            ))}
-          </div>
+          {products.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-[var(--rose-100)] bg-white/70 p-6">
+              <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+                Ainda estamos cadastrando os primeiros produtos. Volte em breve
+                ou fale comigo no WhatsApp para ver opções disponíveis.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  productId={product.id}
+                  name={product.name}
+                  price={product.priceInCents / 100}
+                  priceInCents={product.priceInCents}
+                  slug={product.slug}
+                  image={product.image}
+                  badge={product.featured ? "Destaque" : undefined}
+                  available={product.available}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="mt-6 rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5">
-            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              <strong className="text-zinc-900">Dica:</strong> se você não achar exatamente o que procura
-              nas lojas, você pode pedir um <strong>personalizado</strong> — é só {" "}
-              <Link href="personalizados" className="text-[var(--green-500)] hover:underline">
+            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+              <strong className="text-zinc-900">
+                Não achou exatamente o que queria?
+              </strong>{" "}
+              Você pode pedir um produto personalizado. É só{" "}
+              <Link
+                href="/personalizados"
+                className="text-[var(--green-500)] hover:underline"
+              >
                 preencher o formulário
-              </Link> e enviar as referências pelo WhatsApp.
+              </Link>{" "}
+              e enviar as referências.
             </p>
           </div>
         </Container>
       </Section>
 
-
-      {/* O QUE VAI TER */}
-      <Section>
-        <Container>
-          <SectionTitle
-            eyebrow="O que vem aí"
-            title="A loja vai abrir com novidades pensadas para o seu mate"
-            subtitle="Tudo feito à mão, com cuidado no acabamento e detalhes que deixam a cuia ainda mais especial."
-          />
-
-          <div className="grid gap-4 lg:grid-cols-3 mt-4">
-            <SimpleCard title="Enfeites de chimarrão" description="Detalhes que decoram a cuia e deixam seu ritual ainda mais único." icon="🌼"/>
-            <SimpleCard title="Acessórios" description="Pequenos complementos para o dia a dia do mate — práticos e bonitos." icon="🎀"/>
-            <SimpleCard title="Cuias selecionadas" description="Cuias e itens escolhidos com carinho para combinar com as coleções." icon="🧉"/>
-          </div>
-        </Container>
-      </Section>
-
-      {/* CTA FINAL */}
       <Section>
         <Container>
           <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-100)] p-8 sm:p-10">
             <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
               <div className="space-y-3">
-                <h2 className="font-playfair text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900">
-                  Quer pegar o primeiro lote?
+                <h2 className="font-playfair text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+                  Quer acompanhar os próximos lançamentos?
                 </h2>
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                  Me chama no WhatsApp e manda um “quero entrar na lista” 🧉  
-                  Assim você recebe o aviso antes de todo mundo quando a loja abrir.
+                <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+                  Me chama no WhatsApp ou acompanha no Instagram para ver novas
+                  coleções, peças especiais e produtos personalizados.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 lg:justify-end">
+              <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
                 <Button target="_blank" href={whatsappHref} variant="primary">
-                  Entrar na lista
+                  Falar no WhatsApp
                 </Button>
-                <Button href="/sobre" variant="secondary">
-                  Conhecer a história
+                <Button target="_blank" href={instagramHref} variant="secondary">
+                  Ir para o Instagram
                 </Button>
               </div>
             </div>

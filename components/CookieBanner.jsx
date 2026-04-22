@@ -23,15 +23,9 @@ export default function CookieBanner() {
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-3xl rounded-3xl border border-[var(--rose-100)] bg-white p-4 shadow-lg sm:p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-zinc-900">
-            Este site usa cookies
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
-            Usamos cookies para melhorar sua experiência de navegação. Ao clicar
-            em “Aceitar”, você concorda com o uso de cookies.
-          </p>
+          <p className="text-sm font-semibold text-zinc-900">Este site usa cookies </p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">Usamos cookies para melhorar sua experiência de navegação. Ao clicar em “Aceitar”, você concorda com o uso de cookies.</p>
         </div>
-
         <div className="flex gap-3">
           <button
             onClick={acceptCookies}
