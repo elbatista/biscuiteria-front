@@ -37,3 +37,5 @@ next-env.d.ts
 
 # prisma generated client
 generated/prisma
+
+middleware*
