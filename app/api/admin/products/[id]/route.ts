@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireAdminAuth } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/prisma";
-import { parsePriceToCents } from "@/lib/server/product-utils";
+import { parsePriceToCents, slugify } from "@/lib/server/product-utils";
 
 type RouteContext = {
   params: Promise<{
@@ -12,23 +12,22 @@ type RouteContext = {
 };
 
 const updateProductSchema = z.object({
-  name: z.string().min(2, "Nome do produto é obrigatório."),
-  shortDescription: z
-    .string()
-    .min(1, "Descrição curta é obrigatória.")
-    .max(300, "Descrição curta muito longa."),
-  description: z.string().min(1, "Descrição completa é obrigatória."),
+  name: z.string().min(2, "Nome muito curto."),
+  shortDescription: z.string().max(300).optional().or(z.literal("")),
+  description: z.string().optional().or(z.literal("")),
   price: z.string().min(1, "Preço obrigatório."),
   compareAtPrice: z.string().optional().or(z.literal("")),
   featured: z.boolean(),
   active: z.boolean(),
-  weightGrams: z.string().min(1, "Peso é obrigatório."),
-  heightCm: z.string().min(1, "Altura é obrigatória."),
-  widthCm: z.string().min(1, "Largura é obrigatória."),
-  lengthCm: z.string().min(1, "Comprimento é obrigatório."),
+  weightGrams: z.string().optional().or(z.literal("")),
+  heightCm: z.string().optional().or(z.literal("")),
+  widthCm: z.string().optional().or(z.literal("")),
+  lengthCm: z.string().optional().or(z.literal("")),
+  categoryIds: z.array(z.number().int().positive()).default([]),
+  collectionIds: z.array(z.number().int().positive()).default([]),
 });
 
-function parsePositiveInteger(value: string) {
+function parseProductId(value: string) {
   const parsed = Number(value);
 
   if (!Number.isInteger(parsed) || parsed <= 0) {
@@ -38,14 +37,61 @@ function parsePositiveInteger(value: string) {
   return parsed;
 }
 
+async function generateUniqueSlug(name: string, currentProductId: number) {
+  const baseSlug = slugify(name) || "produto";
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (
+    await prisma.product.findFirst({
+      where: {
+        slug,
+        id: { not: currentProductId },
+      },
+      select: { id: true },
+    })
+  ) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  return slug;
+}
+
+async function validateExistingCategoryIds(categoryIds: number[]) {
+  if (categoryIds.length === 0) return true;
+
+  const found = await prisma.category.findMany({
+    where: {
+      id: { in: categoryIds },
+    },
+    select: { id: true },
+  });
+
+  return found.length === categoryIds.length;
+}
+
+async function validateExistingCollectionIds(collectionIds: number[]) {
+  if (collectionIds.length === 0) return true;
+
+  const found = await prisma.collection.findMany({
+    where: {
+      id: { in: collectionIds },
+    },
+    select: { id: true },
+  });
+
+  return found.length === collectionIds.length;
+}
+
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     await requireAdminAuth(request);
 
     const { id } = await context.params;
-    const productId = Number(id);
+    const productId = parseProductId(id);
 
-    if (!Number.isInteger(productId) || productId <= 0) {
+    if (!productId) {
       return NextResponse.json(
         { message: "ID do produto inválido." },
         { status: 400 }
@@ -54,30 +100,38 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      select: {
-        id: true,
-        slug: true,
-        sku: true,
-        name: true,
-        shortDescription: true,
-        description: true,
-        priceInCents: true,
-        compareAtPriceInCents: true,
-        currency: true,
-        active: true,
-        featured: true,
-        weightGrams: true,
-        heightCm: true,
-        widthCm: true,
-        lengthCm: true,
+      include: {
         images: {
           orderBy: { sortOrder: "asc" },
-          select: {
-            id: true,
-            url: true,
-            thumbUrl: true,
-            altText: true,
-            sortOrder: true,
+        },
+        categories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+          orderBy: {
+            categoryId: "asc",
+          },
+        },
+        collections: {
+          include: {
+            collection: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                coverImageUrl: true,
+                coverImageThumbUrl: true,
+              },
+            },
+          },
+          orderBy: {
+            collectionId: "asc",
           },
         },
       },
@@ -109,9 +163,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     await requireAdminAuth(request);
 
     const { id } = await context.params;
-    const productId = Number(id);
+    const productId = parseProductId(id);
 
-    if (!Number.isInteger(productId) || productId <= 0) {
+    if (!productId) {
       return NextResponse.json(
         { message: "ID do produto inválido." },
         { status: 400 }
@@ -121,14 +175,12 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const body = await request.json();
     const data = updateProductSchema.parse(body);
 
-    const existing = await prisma.product.findUnique({
+    const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
-      select: {
-        id: true,
-      },
+      select: { id: true },
     });
 
-    if (!existing) {
+    if (!existingProduct) {
       return NextResponse.json(
         { message: "Produto não encontrado." },
         { status: 404 }
@@ -157,12 +209,18 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       );
     }
 
-    const weightGrams = parsePositiveInteger(data.weightGrams);
-    const heightCm = parsePositiveInteger(data.heightCm);
-    const widthCm = parsePositiveInteger(data.widthCm);
-    const lengthCm = parsePositiveInteger(data.lengthCm);
+    const weightGrams = data.weightGrams ? Number(data.weightGrams) : null;
+    const heightCm = data.heightCm ? Number(data.heightCm) : null;
+    const widthCm = data.widthCm ? Number(data.widthCm) : null;
+    const lengthCm = data.lengthCm ? Number(data.lengthCm) : null;
 
-    if (!weightGrams || !heightCm || !widthCm || !lengthCm) {
+    const logisticsValues = [weightGrams, heightCm, widthCm, lengthCm];
+
+    if (
+      logisticsValues.some(
+        (value) => value !== null && (!Number.isInteger(value) || value <= 0)
+      )
+    ) {
       return NextResponse.json(
         {
           message:
@@ -172,53 +230,124 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       );
     }
 
-    const product = await prisma.product.update({
+    const [validCategories, validCollections] = await Promise.all([
+      validateExistingCategoryIds(data.categoryIds),
+      validateExistingCollectionIds(data.collectionIds),
+    ]);
+
+    if (!validCategories) {
+      return NextResponse.json(
+        { message: "Uma ou mais categorias informadas não existem." },
+        { status: 400 }
+      );
+    }
+
+    if (!validCollections) {
+      return NextResponse.json(
+        { message: "Uma ou mais coleções informadas não existem." },
+        { status: 400 }
+      );
+    }
+
+    const slug = await generateUniqueSlug(data.name, productId);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id: productId },
+        data: {
+          name: data.name,
+          slug,
+          shortDescription: data.shortDescription || null,
+          description: data.description || null,
+          priceInCents,
+          compareAtPriceInCents,
+          active: data.active,
+          featured: data.featured,
+          weightGrams,
+          heightCm,
+          widthCm,
+          lengthCm,
+          metaTitle: data.name,
+          metaDescription: data.shortDescription || null,
+        },
+      });
+
+      await tx.productCategory.deleteMany({
+        where: { productId },
+      });
+
+      await tx.productCollection.deleteMany({
+        where: { productId },
+      });
+
+      if (data.categoryIds.length > 0) {
+        await tx.productCategory.createMany({
+          data: data.categoryIds.map((categoryId) => ({
+            productId,
+            categoryId,
+          })),
+        });
+      }
+
+      if (data.collectionIds.length > 0) {
+        await tx.productCollection.createMany({
+          data: data.collectionIds.map((collectionId) => ({
+            productId,
+            collectionId,
+          })),
+        });
+      }
+    });
+
+    const updatedProduct = await prisma.product.findUnique({
       where: { id: productId },
-      data: {
-        name: data.name,
-        shortDescription: data.shortDescription,
-        description: data.description,
-        priceInCents,
-        compareAtPriceInCents,
-        active: data.active,
-        featured: data.featured,
-        weightGrams,
-        heightCm,
-        widthCm,
-        lengthCm,
-        metaTitle: data.name,
-        metaDescription: data.shortDescription,
-      },
-      select: {
-        id: true,
-        slug: true,
-        sku: true,
-        name: true,
-        shortDescription: true,
-        description: true,
-        priceInCents: true,
-        compareAtPriceInCents: true,
-        currency: true,
-        active: true,
-        featured: true,
-        weightGrams: true,
-        heightCm: true,
-        widthCm: true,
-        lengthCm: true,
+      include: {
         images: {
           orderBy: { sortOrder: "asc" },
-          select: {
-            id: true,
-            url: true,
-            thumbUrl: true,
-            altText: true,
-            sortOrder: true,
+        },
+        categories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+          orderBy: {
+            categoryId: "asc",
+          },
+        },
+        collections: {
+          include: {
+            collection: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                coverImageUrl: true,
+                coverImageThumbUrl: true,
+              },
+            },
+          },
+          orderBy: {
+            collectionId: "asc",
           },
         },
       },
     });
 
-    return NextResponse.json(product);
+    if (!updatedProduct) {
+      return NextResponse.json(
+        { message: "Produto não encontrado após atualização." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(updatedProduct);
+
+    
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -244,44 +373,37 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     await requireAdminAuth(request);
 
     const { id } = await context.params;
-    const productId = Number(id);
+    const productId = parseProductId(id);
 
-    if (!Number.isInteger(productId) || productId <= 0) {
+    if (!productId) {
       return NextResponse.json(
         { message: "ID do produto inválido." },
         { status: 400 }
       );
     }
 
-    const existing = await prisma.product.findUnique({
+    const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
-      select: {
-        id: true,
-        name: true,
+      include: {
+        orderItems: {
+          select: { id: true },
+          take: 1,
+        },
       },
     });
 
-    if (!existing) {
+    if (!existingProduct) {
       return NextResponse.json(
         { message: "Produto não encontrado." },
         { status: 404 }
       );
     }
 
-    const soldOrderItem = await prisma.orderItem.findFirst({
-      where: {
-        productId: productId,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (soldOrderItem) {
+    if (existingProduct.orderItems.length > 0) {
       return NextResponse.json(
         {
           message:
-            "Este produto não pode ser excluído porque já foi vendido. Mas você pode desativá-lo para que não apareça mais na loja.",
+            "Este produto não pode ser excluído porque já foi usado em pedidos.",
         },
         { status: 409 }
       );

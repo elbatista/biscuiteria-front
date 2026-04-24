@@ -19,6 +19,12 @@ export function uniqueFileBase(slug: string, index: number) {
   return `${slug}-${Date.now()}-${index + 1}`;
 }
 
+export function uniqueStorageBase(name: string, suffix?: string | number) {
+  const base = slugify(name) || "arquivo";
+  const extra = suffix !== undefined ? `-${suffix}` : "";
+  return `${base}-${Date.now()}${extra}`;
+}
+
 export function parsePriceToCents(value: string) {
   const normalized = value.replace(/\./g, "").replace(",", ".");
   const numberValue = Number(normalized);

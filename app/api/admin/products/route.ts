@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import sharp from "sharp";
 import { z } from "zod";
-import { put } from "@vercel/blob";
 
 import { prisma } from "@/lib/prisma";
 import { requireAdminAuth } from "@/lib/auth/require-auth";
@@ -11,11 +9,9 @@ import {
   slugify,
   uniqueFileBase,
 } from "@/lib/server/product-utils";
+import { uploadImageWithThumb } from "@/lib/server/blob-storage";
 
 export const runtime = "nodejs";
-
-const MAX_FILE_SIZE = 1 * 1024 * 1024;
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const productSchema = z.object({
   name: z.string().min(2, "Nome muito curto."),
@@ -30,6 +26,56 @@ const productSchema = z.object({
   widthCm: z.string().optional().or(z.literal("")),
   lengthCm: z.string().optional().or(z.literal("")),
 });
+
+function parseIdArray(value: FormDataEntryValue | null) {
+  if (typeof value !== "string" || value.trim() === "") {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
+
+    const ids = parsed.map((item) => Number(item));
+
+    if (ids.some((id) => !Number.isInteger(id) || id <= 0)) {
+      return null;
+    }
+
+    return [...new Set(ids)];
+  } catch {
+    return null;
+  }
+}
+
+async function validateExistingCategoryIds(categoryIds: number[]) {
+  if (categoryIds.length === 0) return true;
+
+  const found = await prisma.category.findMany({
+    where: {
+      id: { in: categoryIds },
+    },
+    select: { id: true },
+  });
+
+  return found.length === categoryIds.length;
+}
+
+async function validateExistingCollectionIds(collectionIds: number[]) {
+  if (collectionIds.length === 0) return true;
+
+  const found = await prisma.collection.findMany({
+    where: {
+      id: { in: collectionIds },
+    },
+    select: { id: true },
+  });
+
+  return found.length === collectionIds.length;
+}
 
 async function generateUniqueSlug(name: string) {
   const baseSlug = slugify(name) || "produto";
@@ -52,19 +98,6 @@ async function generateUniqueSku(name: string) {
   }
 
   return sku;
-}
-
-function getExtensionFromMime(type: string) {
-  switch (type) {
-    case "image/jpeg":
-      return "jpg";
-    case "image/png":
-      return "png";
-    case "image/webp":
-      return "webp";
-    default:
-      return "bin";
-  }
 }
 
 export async function GET(request: NextRequest) {
@@ -126,6 +159,42 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
 
+    const categoryIds = parseIdArray(formData.get("categoryIds"));
+    const collectionIds = parseIdArray(formData.get("collectionIds"));
+
+    if (categoryIds === null) {
+      return NextResponse.json(
+        { message: "Categorias inválidas." },
+        { status: 400 }
+      );
+    }
+
+    if (collectionIds === null) {
+      return NextResponse.json(
+        { message: "Coleções inválidas." },
+        { status: 400 }
+      );
+    }
+
+    const [validCategories, validCollections] = await Promise.all([
+      validateExistingCategoryIds(categoryIds),
+      validateExistingCollectionIds(collectionIds),
+    ]);
+
+    if (!validCategories) {
+      return NextResponse.json(
+        { message: "Uma ou mais categorias informadas não existem." },
+        { status: 400 }
+      );
+    }
+
+    if (!validCollections) {
+      return NextResponse.json(
+        { message: "Uma ou mais coleções informadas não existem." },
+        { status: 400 }
+      );
+    }
+
     const parsed = productSchema.safeParse({
       name: String(formData.get("name") || "").trim(),
       shortDescription: String(formData.get("shortDescription") || "").trim(),
@@ -158,22 +227,6 @@ export async function POST(request: NextRequest) {
         { message: "Envie pelo menos uma imagem." },
         { status: 400 }
       );
-    }
-
-    for (const file of files) {
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        return NextResponse.json(
-          { message: `Tipo não permitido: ${file.type}` },
-          { status: 400 }
-        );
-      }
-
-      if (file.size > MAX_FILE_SIZE) {
-        return NextResponse.json(
-          { message: `A imagem "${file.name}" excede 1MB.` },
-          { status: 400 }
-        );
-      }
     }
 
     const priceInCents = parsePriceToCents(data.price);
@@ -228,41 +281,48 @@ export async function POST(request: NextRequest) {
 
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
-      const ext = getExtensionFromMime(file.type);
       const baseName = uniqueFileBase(slug, index);
 
-      const originalFilename = `products/${baseName}.${ext}`;
-      const thumbFilename = `products/thumbs/${baseName}.webp`;
+      try {
+        const uploadedImage = await uploadImageWithThumb({
+          file,
+          directory: "products",
+          baseName,
+          thumb: {
+            width: 400,
+            height: 400,
+            fit: "cover",
+            quality: 82,
+          },
+        });
 
-      const originalBlob = await put(originalFilename, file, {
-        access: "public",
-        addRandomSuffix: false,
-      });
+        savedImages.push({
+          url: uploadedImage.url,
+          thumbUrl: uploadedImage.thumbUrl,
+          altText: data.name,
+          sortOrder: index,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message.startsWith("INVALID_FILE_TYPE:")) {
+            const invalidType = error.message.split(":")[1];
+            return NextResponse.json(
+              { message: `Tipo não permitido: ${invalidType}` },
+              { status: 400 }
+            );
+          }
 
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+          if (error.message.startsWith("FILE_TOO_LARGE:")) {
+            const fileName = error.message.split(":")[1];
+            return NextResponse.json(
+              { message: `A imagem "${fileName}" excede 1MB.` },
+              { status: 400 }
+            );
+          }
+        }
 
-      const thumbBuffer = await sharp(buffer)
-        .resize({
-          width: 400,
-          height: 400,
-          fit: "cover",
-        })
-        .webp({ quality: 82 })
-        .toBuffer();
-
-      const thumbBlob = await put(thumbFilename, thumbBuffer, {
-        access: "public",
-        contentType: "image/webp",
-        addRandomSuffix: false,
-      });
-
-      savedImages.push({
-        url: originalBlob.url,
-        thumbUrl: thumbBlob.url,
-        altText: data.name,
-        sortOrder: index,
-      });
+        throw error;
+      }
     }
 
     const product = await prisma.product.create({
@@ -283,6 +343,16 @@ export async function POST(request: NextRequest) {
         lengthCm,
         metaTitle: data.name,
         metaDescription: data.shortDescription || null,
+        categories: {
+          create: categoryIds.map((categoryId) => ({
+            categoryId,
+          })),
+        },
+        collections: {
+          create: collectionIds.map((collectionId) => ({
+            collectionId,
+          })),
+        },
         images: {
           create: savedImages.map((image) => ({
             url: image.url,

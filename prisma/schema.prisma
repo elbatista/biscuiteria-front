@@ -65,6 +65,9 @@ model Product {
   images                ProductImage[]
   orderItems            OrderItem[]
 
+  categories        ProductCategory[]
+  collections       ProductCollection[]
+
   @@map("products")
 }
 
@@ -236,4 +239,72 @@ model AdminUser {
   updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   @@map("admin_users")
+}
+
+model Category {
+  id         Int               @id @default(autoincrement())
+  name       String
+  slug       String            @unique
+  isActive   Boolean           @default(true) @map("is_active")
+  sortOrder  Int               @default(0) @map("sort_order")
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  products   ProductCategory[]
+
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("categories")
+}
+
+model Collection {
+  id            Int                 @id @default(autoincrement())
+  title         String
+  slug          String              @unique
+  description   String?
+  coverImageUrl      String?             @map("cover_image_url")
+  coverImageThumbUrl String?             @map("cover_image_thumb_url")
+  coverImageAlt      String?             @map("cover_image_alt")
+  isActive      Boolean             @default(true) @map("is_active")
+  isFeatured    Boolean             @default(false) @map("is_featured")
+  sortOrder     Int                 @default(0) @map("sort_order")
+  startsAt      DateTime?           @map("starts_at") @db.Timestamptz(6)
+  endsAt        DateTime?           @map("ends_at") @db.Timestamptz(6)
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  products      ProductCollection[]
+
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([sortOrder])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@map("collections")
+}
+
+model ProductCategory {
+  productId   Int      @map("product_id")
+  categoryId  Int      @map("category_id")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+  @@map("product_categories")
+}
+
+model ProductCollection {
+  productId     Int        @map("product_id")
+  collectionId  Int        @map("collection_id")
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection    Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+  @@index([collectionId])
+  @@map("product_collections")
 }
