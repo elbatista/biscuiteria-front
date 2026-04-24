@@ -15,6 +15,7 @@ type NavItem = { label: string; href: string };
 const nav: NavItem[] = [
   { label: "Início", href: "/" },
   { label: "Loja", href: "/loja" },
+  { label: "Coleções", href: "/colecoes" },
   { label: "Personalizados", href: "/personalizados" },
   { label: "Sobre", href: "/sobre" },
   { label: "Contato", href: "/contato" },
@@ -28,6 +29,13 @@ function isNavItemActive(href: string, pathname: string) {
       pathname.startsWith("/carrinho") ||
       pathname.startsWith("/checkout") ||
       pathname.startsWith("/pedido")
+    );
+  }
+
+  if (href === "/colecoes") {
+    return (
+      pathname === "/colecoes" ||
+      pathname.startsWith("/colecoes")
     );
   }
 

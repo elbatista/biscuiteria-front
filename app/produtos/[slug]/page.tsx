@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
 import Container from "@/components/Container";
-import ProductGallery from "@/components/product/ProductGallery";
 import ProductDetailsPanel from "@/components/product/ProductDetailsPanel";
+import ProductGallery from "@/components/product/ProductGallery";
 import RelatedProducts from "@/components/product/RelatedProducts";
 import {
   getRelatedStoreProducts,
@@ -49,7 +50,10 @@ export default async function ProductDetailsPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedProducts = await getRelatedStoreProducts(product.id);
+  const related = await getRelatedStoreProducts(product.id);
+
+  const primaryCollection = product.collections[0] ?? null;
+  const primaryCategory = product.categories[0] ?? null;
 
   return (
     <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
@@ -75,6 +79,28 @@ export default async function ProductDetailsPage({ params }: PageProps) {
               Loja
             </Link>
 
+            {primaryCollection ? (
+              <>
+                <span>/</span>
+                <Link
+                  href={`/colecoes/${primaryCollection.slug}`}
+                  className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+                >
+                  {primaryCollection.title}
+                </Link>
+              </>
+            ) : primaryCategory ? (
+              <>
+                <span>/</span>
+                <Link
+                  href={`/loja?categoria=${primaryCategory.slug}`}
+                  className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+                >
+                  {primaryCategory.name}
+                </Link>
+              </>
+            ) : null}
+
             <span>/</span>
 
             <span className="text-zinc-900">{product.name}</span>
@@ -96,10 +122,26 @@ export default async function ProductDetailsPage({ params }: PageProps) {
               compareAtPriceInCents={product.compareAtPriceInCents}
               featured={product.featured}
               imageUrl={product.images[0]?.thumbUrl ?? product.images[0]?.url ?? null}
+              primaryCollection={
+                primaryCollection
+                  ? {
+                      title: primaryCollection.title,
+                      slug: primaryCollection.slug,
+                    }
+                  : null
+              }
+              categories={product.categories.map((category) => ({
+                name: category.name,
+                slug: category.slug,
+              }))}
             />
           </div>
 
-          <RelatedProducts products={relatedProducts} />
+          <RelatedProducts
+            title={related.title}
+            subtitle={related.subtitle}
+            products={related.products}
+          />
         </div>
       </Container>
     </main>

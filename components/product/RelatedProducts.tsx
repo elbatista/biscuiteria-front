@@ -11,10 +11,14 @@ interface RelatedProduct {
 }
 
 interface RelatedProductsProps {
+  title?: string;
+  subtitle?: string;
   products: RelatedProduct[];
 }
 
 export default function RelatedProducts({
+  title = "Você também pode gostar",
+  subtitle = "Veja outros produtos relacionados.",
   products,
 }: RelatedProductsProps) {
   if (products.length === 0) return null;
@@ -23,10 +27,10 @@ export default function RelatedProducts({
     <section className="mt-14">
       <div className="mb-6">
         <h2 className="font-playfair text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-900">
-          Você também pode gostar
+          {title}
         </h2>
         <p className="mt-2 text-sm sm:text-base text-[var(--text-muted)]">
-          Veja outros produtos da coleção.
+          {subtitle}
         </p>
       </div>
 
@@ -34,8 +38,10 @@ export default function RelatedProducts({
         {products.map((product) => (
           <ProductCard
             key={product.id}
+            productId={product.id}
             name={product.name}
             price={product.priceInCents / 100}
+            priceInCents={product.priceInCents}
             slug={product.slug}
             image={product.image}
             badge={product.featured ? "Destaque" : undefined}

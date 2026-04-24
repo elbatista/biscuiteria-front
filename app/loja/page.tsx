@@ -1,94 +1,135 @@
-import Container from "@/components/Container";
-import Badge from "@/components/Badge";
-import Button from "@/components/Button";
-import Section from "@/components/Section";
-import SectionTitle from "@/components/SectionTitle";
-import LinkCard from "@/components/LinkCard";
-import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
-import { getStoreProducts } from "../../lib/server/products";
+
+import Button from "@/components/Button";
+import Container from "@/components/Container";
+import Section from "@/components/Section";
+import CatalogToolbar from "@/components/catalog/CatalogToolbar";
+import LatestCollectionsPreview from "@/components/store/LatestCollectionsPreview";
+import StoreCategoryFilters from "@/components/store/StoreCategoryFilters";
+import StoreEmptyState from "@/components/store/StoreEmptyState";
+import StoreHero from "@/components/store/StoreHero";
+import StoreProductsGrid from "@/components/store/StoreProductsGrid";
+import { buildStoreHref } from "@/components/store/store-query";
+import { getStorePageData } from "@/lib/server/store";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
   description:
-    "Conheça os produtos da Biscuit_eria: enfeites e acessórios para chimarrão, peças feitas à mão e itens especiais para deixar seu mate ainda mais bonito.",
+    "Explore a loja da Biscuit_eria por coleções e categorias. Descubra enfeites, acessórios e peças feitas à mão para deixar seu chimarrão ainda mais especial.",
 };
 
-export default async function LojaPage() {
+type LojaPageSearchParams = {
+  categoria?: string | string[];
+  colecao?: string | string[];
+  sort?: string | string[];
+};
+
+type LojaPageProps = {
+  searchParams?: Promise<LojaPageSearchParams>;
+};
+
+export default async function LojaPage({ searchParams }: LojaPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+
   const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
   const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
 
-  const products = await getStoreProducts();
+  const data = await getStorePageData({
+    categorySlug: resolvedSearchParams?.categoria,
+    collectionSlug: resolvedSearchParams?.colecao,
+    sort: resolvedSearchParams?.sort,
+  });
+
+  const activeFilters = [
+    data.selectedCollection
+      ? { label: `Coleção: ${data.selectedCollection.title}` }
+      : null,
+    data.selectedCategory
+      ? { label: `Categoria: ${data.selectedCategory.name}` }
+      : null,
+  ].filter(Boolean) as Array<{ label: string }>;
 
   return (
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
       <Section>
         <Container>
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div className="space-y-6">
-              <Badge>Loja</Badge>
+          <div className="space-y-8">
+            <StoreHero
+              whatsappHref={whatsappHref}
+              instagramHref={instagramHref}
+            />
 
-              <div className="space-y-3">
-                <h1 className="font-playfair text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
-                  Produtos para deixar seu chimarrão ainda mais especial 🧉✨
-                </h1>
+            <StoreCategoryFilters
+              categories={data.categories}
+              activeCategorySlug={data.selectedCategory?.slug ?? null}
+              currentCollectionSlug={data.selectedCollection?.slug ?? null}
+              currentSort={data.sort}
+            />
 
-                <p className="max-w-xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                  Aqui você encontra enfeites, acessórios e peças feitas à mão
-                  com carinho. A compra direta no site está chegando, mas você já
-                  pode conhecer a coleção e escolher os seus favoritos.
-                </p>
-              </div>
+            <CatalogToolbar
+              totalItems={data.totalProducts}
+              sortOptions={[
+                {
+                  label: "Destaques",
+                  href: buildStoreHref({
+                    categoria: data.selectedCategory?.slug ?? null,
+                    colecao: data.selectedCollection?.slug ?? null,
+                    sort: "featured",
+                  }),
+                  active: data.sort === "featured",
+                },
+                {
+                  label: "Mais recentes",
+                  href: buildStoreHref({
+                    categoria: data.selectedCategory?.slug ?? null,
+                    colecao: data.selectedCollection?.slug ?? null,
+                    sort: "recent",
+                  }),
+                  active: data.sort === "recent",
+                },
+                {
+                  label: "Menor preço",
+                  href: buildStoreHref({
+                    categoria: data.selectedCategory?.slug ?? null,
+                    colecao: data.selectedCollection?.slug ?? null,
+                    sort: "price-asc",
+                  }),
+                  active: data.sort === "price-asc",
+                },
+                {
+                  label: "Maior preço",
+                  href: buildStoreHref({
+                    categoria: data.selectedCategory?.slug ?? null,
+                    colecao: data.selectedCollection?.slug ?? null,
+                    sort: "price-desc",
+                  }),
+                  active: data.sort === "price-desc",
+                },
+              ]}
+              activeFilters={activeFilters}
+              clearFiltersHref={activeFilters.length > 0 ? "/loja" : null}
+            />
 
-              <div className="rounded-2xl border border-[var(--rose-100)] bg-white/70 p-5">
-                <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                  <strong className="text-zinc-900">
-                    Quer algo personalizado?
-                  </strong>{" "}
-                  Se você não encontrar exatamente o que procura, pode pedir uma
-                  peça sob medida e enviar suas referências pelo WhatsApp.
-                </p>
-              </div>
+            {data.products.length === 0 ? (
+              <StoreEmptyState hasFilters={activeFilters.length > 0} />
+            ) : (
+              <StoreProductsGrid products={data.products} />
+            )}
+          </div>
+        </Container>
+      </Section>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Button target="_blank" href={whatsappHref} variant="primary">
-                  Falar no WhatsApp
-                </Button>
-                <Button target="_blank" href={instagramHref} variant="secondary">
-                  Acompanhar no Instagram
-                </Button>
-              </div>
-            </div>
+      <Section color="green">
+        <Container>
+          <div className="space-y-6">
+            <LatestCollectionsPreview collections={data.latestCollections} />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <LinkCard
-                title="Peças artesanais"
-                description="Cada peça é feita com cuidado nos detalhes, acabamento e combinação das coleções."
-                href="/sobre"
-                linktext="Conhecer a história"
-                tag="🫶"
-              />
-              <LinkCard
-                title="Personalização"
-                description="Você pode pedir algo do seu jeito, com tema, cores e detalhes que combinem com a sua cuia."
-                href="/personalizados"
-                linktext="Pedir personalizado"
-                tag="🎨"
-              />
-              <LinkCard
-                title="Lotes pequenos"
-                description="Alguns produtos são feitos em pequenas quantidades e podem esgotar rapidamente."
-                href="/contato"
-                linktext="Tirar dúvidas"
-                tag="🌷"
-              />
-              <LinkCard
-                title="Novidades"
-                description="Acompanhe as próximas coleções, lançamentos e peças especiais pelo Instagram."
-                href={instagramHref || "#"}
-                linktext="Ver novidades"
-                tag="✨"
-              />
+            <div>
+              <div>
+  <Button href="/colecoes" variant="secondary">
+    Ver todas as coleções
+  </Button>
+</div>
             </div>
           </div>
         </Container>
@@ -96,76 +137,43 @@ export default async function LojaPage() {
 
       <Section>
         <Container>
-          <SectionTitle
-            eyebrow="Catálogo"
-            title="Produtos disponíveis"
-            subtitle="Veja os produtos disponíveis hoje. Em breve, a compra será feita diretamente aqui no site."
-          />
-
-          {products.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-[var(--rose-100)] bg-white/70 p-6">
-              <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                Ainda estamos cadastrando os primeiros produtos. Volte em breve
-                ou fale comigo no WhatsApp para ver opções disponíveis.
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5">
+              <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+                <strong className="text-zinc-900">
+                  Não achou exatamente o que queria?
+                </strong>{" "}
+                Você pode pedir um produto personalizado. É só{" "}
+                <Link
+                  href="/personalizados"
+                  className="text-[var(--green-500)] hover:underline"
+                >
+                  preencher o formulário
+                </Link>{" "}
+                e enviar as referências.
               </p>
             </div>
-          ) : (
-            <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  productId={product.id}
-                  name={product.name}
-                  price={product.priceInCents / 100}
-                  priceInCents={product.priceInCents}
-                  slug={product.slug}
-                  image={product.image}
-                  badge={product.featured ? "Destaque" : undefined}
-                  available={product.available}
-                />
-              ))}
-            </div>
-          )}
 
-          <div className="mt-6 rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5">
-            <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              <strong className="text-zinc-900">
-                Não achou exatamente o que queria?
-              </strong>{" "}
-              Você pode pedir um produto personalizado. É só{" "}
-              <Link
-                href="/personalizados"
-                className="text-[var(--green-500)] hover:underline"
-              >
-                preencher o formulário
-              </Link>{" "}
-              e enviar as referências.
-            </p>
-          </div>
-        </Container>
-      </Section>
+            <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-100)] p-8 sm:p-10">
+              <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
+                <div className="space-y-3">
+                  <h2 className="font-playfair text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+                    Quer acompanhar os próximos lançamentos?
+                  </h2>
+                  <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+                    Me chama no WhatsApp ou acompanha no Instagram para ver novas
+                    coleções, peças especiais e produtos personalizados.
+                  </p>
+                </div>
 
-      <Section>
-        <Container>
-          <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-100)] p-8 sm:p-10">
-            <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
-              <div className="space-y-3">
-                <h2 className="font-playfair text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-                  Quer acompanhar os próximos lançamentos?
-                </h2>
-                <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                  Me chama no WhatsApp ou acompanha no Instagram para ver novas
-                  coleções, peças especiais e produtos personalizados.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                <Button target="_blank" href={whatsappHref} variant="primary">
-                  Falar no WhatsApp
-                </Button>
-                <Button target="_blank" href={instagramHref} variant="secondary">
-                  Ir para o Instagram
-                </Button>
+                <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+                  <Button target="_blank" href={whatsappHref} variant="primary">
+                    Falar no WhatsApp
+                  </Button>
+                  <Button target="_blank" href={instagramHref} variant="secondary">
+                    Ir para o Instagram
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -111,7 +111,7 @@ export default function ProductGallery({
                   className={[
                     "relative aspect-square cursor-pointer overflow-hidden rounded-2xl border bg-white transition",
                     isActive
-                      ? "border-zinc-900 ring-1 ring-zinc-900"
+                      ? "border-[var(--rose-300)] ring-2 ring-[var(--rose-500)]"
                       : "border-[var(--rose-100)] hover:border-zinc-300",
                   ].join(" ")}
                 >

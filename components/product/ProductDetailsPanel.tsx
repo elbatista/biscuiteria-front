@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import QuantitySelector from "./QuantitySelector";
 import ShareButtons from "./ShareButton";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import ProductContextLinks from "./ProductContextLinks";
 
 interface ProductDetailsPanelProps {
   productId: number;
@@ -15,6 +16,14 @@ interface ProductDetailsPanelProps {
   compareAtPriceInCents: number | null;
   featured: boolean;
   imageUrl?: string | null;
+  primaryCollection?: {
+    title: string;
+    slug: string;
+  } | null;
+  categories?: Array<{
+    name: string;
+    slug: string;
+  }>;
 }
 
 function formatBRL(valueInCents: number) {
@@ -34,6 +43,8 @@ export default function ProductDetailsPanel({
   compareAtPriceInCents,
   featured,
   imageUrl = null,
+  primaryCollection = null,
+  categories = [],
 }: ProductDetailsPanelProps) {
   const [quantity, setQuantity] = useState(1);
 
@@ -69,6 +80,11 @@ export default function ProductDetailsPanel({
         </p>
       ) : null}
 
+      <ProductContextLinks
+        collection={primaryCollection}
+        categories={categories}
+      />
+
       <div className="mt-6 flex items-center justify-between gap-3">
         <div>
           <div className="text-3xl font-bold text-zinc-900">
@@ -76,7 +92,7 @@ export default function ProductDetailsPanel({
           </div>
 
           {compareAtPriceInCents ? (
-            <div className="text-lg text-zinc-400 line-through">
+            <div className="mt-1 text-sm text-[var(--text-muted)] line-through">
               {formatBRL(compareAtPriceInCents)}
             </div>
           ) : null}
@@ -87,10 +103,19 @@ export default function ProductDetailsPanel({
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
           Disponível
         </span>
+
+        {/* {primaryCollection ? (
+          <a
+            href={`/colecoes/${primaryCollection.slug}`}
+            className="inline-flex items-center rounded-full border border-[var(--green-200)] bg-[var(--green-50)] px-3 py-1 text-sm font-medium text-[var(--green-500)] transition hover:bg-[var(--green-100)]"
+          >
+            Ver coleção
+          </a>
+        ) : null} */}
       </div>
 
       <div className="mt-6">
@@ -98,10 +123,7 @@ export default function ProductDetailsPanel({
       </div>
 
       <div className="mt-6 space-y-3">
-       
-
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-           
           <AddToCartButton
             productId={productId}
             slug={slug}
@@ -109,9 +131,11 @@ export default function ProductDetailsPanel({
             priceInCents={priceInCents}
             imageUrl={imageUrl}
             quantity={quantity}
-            fullWidth>
+            fullWidth
+          >
             Adicionar ao carrinho
           </AddToCartButton>
+
           <AddToCartButton
             productId={productId}
             slug={slug}
@@ -124,7 +148,6 @@ export default function ProductDetailsPanel({
           >
             Comprar agora
           </AddToCartButton>
-
         </div>
       </div>
 

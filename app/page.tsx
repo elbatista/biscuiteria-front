@@ -10,14 +10,14 @@ import Cta from "@/components/home/Cta";
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--rose-50)] text-[var(--text-main)]">
-        <Hero />
-        <BestSellersSection/>
-        <Relate />
-        <Collections />
-        <TheProcess />
-        <Customization />
-        <SocialProof />
-        <Cta />
+      <Hero />
+      <Collections />
+      <BestSellersSection />
+      <Relate />
+      <TheProcess />
+      <Customization />
+      <SocialProof />
+      <Cta />
     </div>
   );
 }
