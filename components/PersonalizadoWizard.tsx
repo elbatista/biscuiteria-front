@@ -77,7 +77,11 @@ function Pill({
   );
 }
 
-export default function PersonalizadoWizard() {
+export default function PersonalizadoWizard({
+  whatsappBaseUrl,
+}: {
+  whatsappBaseUrl: string;
+}) {
   const totalSteps = 5;
   const [step, setStep] = useState(1);
 
@@ -100,9 +104,6 @@ export default function PersonalizadoWizard() {
   const [cidadeEstado, setCidadeEstado] = useState("");
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
-
-  // WhatsApp (preencha depois com seu link real)
-  const WHATSAPP_BASE = process.env.NEXT_PUBLIC_WHATSAPP_URL;
 
   const resumo = useMemo(() => {
     const linhas: string[] = [];
@@ -151,9 +152,15 @@ export default function PersonalizadoWizard() {
   ]);
 
   const whatsappLink = useMemo(() => {
+    if (!whatsappBaseUrl) {
+      return "";
+    }
+
+    const separator = whatsappBaseUrl.includes("?") ? "&" : "?";
     const text = encodeURIComponent(resumo);
-    return `${WHATSAPP_BASE}?text=${text}`;
-  }, [resumo]);
+
+    return `${whatsappBaseUrl}${separator}text=${text}`;
+  }, [resumo, whatsappBaseUrl]);
 
   const canNext = useMemo(() => {
     // Regras simples por passo (guiado, mas sem travar demais)
@@ -424,14 +431,23 @@ export default function PersonalizadoWizard() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition bg-[var(--green-500)] text-white hover:bg-[var(--green-300)] shadow-sm"
-                >
-                  Enviar no WhatsApp
-                </a>
+                {whatsappLink ? (
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition bg-[var(--green-500)] text-white hover:bg-[var(--green-300)] shadow-sm"
+                  >
+                    Enviar no WhatsApp
+                  </a>
+                ) : (
+                  <a
+                    href="/contato"
+                    className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition bg-[var(--green-500)] text-white hover:bg-[var(--green-300)] shadow-sm"
+                  >
+                    Entrar em contato
+                  </a>
+                )}
 
                 <a
                   href="/contato"

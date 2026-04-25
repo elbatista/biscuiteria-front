@@ -5,10 +5,17 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import OrderSummaryCard from "@/components/checkout/OrderSummaryCard";
+import ContactSupportCard from "@/components/store/ContactSupportCard";
+import StoreUnavailableCard from "@/components/store/StoreUnavailableCard";
 import { useCartStore } from "@/stores/cart-store";
 import type { ShippingOption } from "@/lib/checkout/shipping";
+import type { PublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
-export default function CheckoutPageClient() {
+type CheckoutPageClientProps = {
+  contact: PublicStoreContactSettings;
+};
+
+export default function CheckoutPageClient({ contact }: CheckoutPageClientProps) {
   const items = useCartStore((state) => state.items);
 
   const subtotalInCents = useCartStore((state) =>
@@ -20,7 +27,9 @@ export default function CheckoutPageClient() {
   );
 
   const [error, setError] = useState<string | null>(null);
-  const [shippingOption, setShippingOption] = useState<ShippingOption | null>(null);
+  const [shippingOption, setShippingOption] = useState<ShippingOption | null>(
+    null
+  );
   const [shippingError, setShippingError] = useState<string | null>(null);
   const [formState, setFormState] = useState({
     submitting: false,
@@ -35,11 +44,29 @@ export default function CheckoutPageClient() {
     formState.redirecting ||
     formState.quotingShipping;
 
+  if (!contact.canAcceptOrders) {
+    return (
+      <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
+        <Container>
+          <div className="space-y-6 py-10">
+            <StoreUnavailableCard settings={contact} />
+
+            <ContactSupportCard
+              contact={contact}
+              title="Precisa falar conosco?"
+              description="Entre em contato pelo WhatsApp ou e-mail para tirar dúvidas."
+            />
+          </div>
+        </Container>
+      </main>
+    );
+  }
+
   if (items.length === 0 && !isBusy) {
     return (
       <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
         <Container>
-          <div className="py-10">
+          <div className="space-y-6 py-10">
             <div className="rounded-3xl border border-[var(--rose-100)] bg-white p-8 sm:p-10">
               <h1 className="font-playfair text-3xl font-semibold tracking-tight text-zinc-900">
                 Seu carrinho está vazio
@@ -58,6 +85,12 @@ export default function CheckoutPageClient() {
                 </Link>
               </div>
             </div>
+
+            <ContactSupportCard
+              contact={contact}
+              title="Está com alguma dúvida?"
+              description="Fale conosco se precisar de ajuda antes de montar seu pedido."
+            />
           </div>
         </Container>
       </main>
@@ -106,17 +139,20 @@ export default function CheckoutPageClient() {
               onStateChange={setFormState}
             />
 
-            <OrderSummaryCard
-              items={items}
-              subtotalInCents={subtotalInCents}
-              totalItems={totalItems}
-              shippingOption={shippingOption}
-              isShippingRequired
-              shippingError={shippingError}
-              submitting={formState.submitting || formState.redirecting}
-              loadingZipCode={formState.loadingZipCode}
-              quotingShipping={formState.quotingShipping}
-            />
+            <div className="space-y-6">
+              <OrderSummaryCard
+                items={items}
+                subtotalInCents={subtotalInCents}
+                totalItems={totalItems}
+                shippingOption={shippingOption}
+                isShippingRequired
+                shippingError={shippingError}
+                submitting={formState.submitting || formState.redirecting}
+                loadingZipCode={formState.loadingZipCode}
+                quotingShipping={formState.quotingShipping}
+              />
+
+            </div>
           </div>
         </div>
       </Container>

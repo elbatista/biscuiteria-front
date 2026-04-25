@@ -6,6 +6,7 @@ import SectionTitle from "@/components/SectionTitle";
 import SimpleCard from "@/components/SimpleCard";
 import LinkCard from "@/components/LinkCard";
 import Image from "next/image";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Sobre | Biscuit_eria",
@@ -13,94 +14,93 @@ export const metadata = {
     "Conheça a história da Biscuit_eria, o cuidado por trás das peças artesanais em biscuit e como funciona o processo de criação.",
 };
 
-export default function SobrePage() {
-  // Preencha com seus dados reais
-  const brand = "Biscuit_eria";
+export default async function SobrePage() {
+  const contact = await getPublicStoreContactSettings();
+
+  const brand = contact.storeName;
   const makerName = "Eliadi";
   const city = "São Leopoldo / RS";
   const years = "desde 2021";
-  const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
-  const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const whatsappHref = contact.whatsappUrl || "/contato";
+  const instagramHref = contact.instagramUrl || "/contato";
 
   return (
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
       {/* HERO */}
       <Section>
         <Container>
-            <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             {/* Texto */}
             <div className="space-y-6">
-                <Badge>Sobre a autora</Badge>
+              <Badge>Sobre a autora</Badge>
 
-                <h2 className="font-playfair text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900">
+              <h2 className="font-playfair text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900">
                 Oi! Eu sou a <span className="italic">Eliadi</span> 👋
-                </h2>
+              </h2>
 
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
-                  Eu crio peças em biscuit com um objetivo simples: transformar momentos em lembranças que dão vontade de guardar. Cada encomenda passa por um processo artesanal — do modelado à pintura — com atenção aos detalhes e muito carinho.
-                </p>
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
-                  Sou <strong>gaúcha</strong>, apaixonada por <strong>chimarrão</strong>, daqueles que acompanham o dia inteiro. Gosto de enfeitar a cuia, cuidar dos detalhes e aproveitar essa <strong>tradição</strong> ao lado do meu marido, Emerson. Acho que esse cuidado, essa pausa e esse afeto acabam aparecendo também nas minhas peças.
-                </p>
+              <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
+                Eu crio peças em biscuit com um objetivo simples: transformar momentos em lembranças que dão vontade de guardar. Cada encomenda passa por um processo artesanal — do modelado à pintura — com atenção aos detalhes e muito carinho.
+              </p>
+              <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
+                Sou <strong>gaúcha</strong>, apaixonada por <strong>chimarrão</strong>, daqueles que acompanham o dia inteiro. Gosto de enfeitar a cuia, cuidar dos detalhes e aproveitar essa <strong>tradição</strong> ao lado do meu marido, Emerson. Acho que esse cuidado, essa pausa e esse afeto acabam aparecendo também nas minhas peças.
+              </p>
 
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
+              <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
                 <strong>Bora tomar um chima!</strong>
-                </p>
+              </p>
 
-                {/* “Provas rápidas” */}
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <SimpleCard title={"100% artesanal"} description="Feito à mão, peça a peça" icon="🖐🏻" />
-                  <SimpleCard title={"Sob encomenda"} description="Personalizo do seu jeito" icon="🎨" />
-                  <SimpleCard title={"Tudo para o seu chima!"} description="Pra nao deixar a tradicao morrer" icon="🧉" />
-                </div>
+              {/* “Provas rápidas” */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <SimpleCard title={"100% artesanal"} description="Feito à mão, peça a peça" icon="🖐🏻" />
+                <SimpleCard title={"Sob encomenda"} description="Personalizo do seu jeito" icon="🎨" />
+                <SimpleCard title={"Tudo para o seu chima!"} description="Pra nao deixar a tradicao morrer" icon="🧉" />
+              </div>
 
-                {/* CTA */}
-                <div className="flex flex-col sm:flex-row gap-3">
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button href="/contato" variant="primary">
-                    Falar comigo
+                  Falar comigo
                 </Button>
                 <Button href="/loja" variant="secondary">
-                    Ver Loja
+                  Ver Loja
                 </Button>
-                </div>
-
+              </div>
             </div>
 
             {/* Fotos */}
             <div className="grid gap-4">
-                {/* Foto principal */}
-                <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 shadow-sm aspect-[4/3]">
+              {/* Foto principal */}
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 shadow-sm aspect-[4/3]">
                 <Image
-                    src="/autora/autora-1.jpeg"
-                    alt="Foto da autora do Biscuit_eria"
-                    fill
-                    className="object-cover"
-                    priority
+                  src="/autora/autora-1.jpeg"
+                  alt={`Foto da autora do ${brand}`}
+                  fill
+                  className="object-cover"
+                  priority
                 />
-                </div>
+              </div>
 
-                {/* Duas fotos menores */}
-                <div className="grid gap-4 grid-cols-2">
+              {/* Duas fotos menores */}
+              <div className="grid gap-4 grid-cols-2">
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
-                    <Image
+                  <Image
                     src="/autora/autora-2.jpeg"
                     alt="Bastidores: modelando uma peça em biscuit"
                     fill
                     className="object-cover"
-                    />
+                  />
                 </div>
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
-                    <Image
+                  <Image
                     src="/autora/autora-4.jpeg"
                     alt="Bastidores: pintura e detalhes de acabamento"
                     fill
                     className="object-cover"
-                    />
+                  />
                 </div>
-                </div>
-
+              </div>
             </div>
-            </div>
+          </div>
         </Container>
       </Section>
 
@@ -126,8 +126,10 @@ export default function SobrePage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
-
-                <Button target="_blank" href={whatsappHref}>
+                <Button
+                  target={contact.whatsappUrl ? "_blank" : undefined}
+                  href={whatsappHref}
+                >
                   Falar comigo no whats
                 </Button>
               </div>
@@ -179,14 +181,13 @@ export default function SobrePage() {
             <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-6 lg:col-span-2">
               <div className="space-y-4">
                 <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                  Tudo começou em torno do <strong>chimarrão</strong>. Entre uma cuia e outra, fui percebendo que os presentes mais especiais são aqueles que contam uma <strong>história e carregam afeto</strong>. 
+                  Tudo começou em torno do <strong>chimarrão</strong>. Entre uma cuia e outra, fui percebendo que os presentes mais especiais são aqueles que contam uma <strong>história e carregam afeto</strong>.
                   A tradição do mate, tão presente no meu dia a dia, despertou a vontade de criar enfeites para chimarrão, peças que deixassem esse momento ainda mais bonito e cheio de significado.
                 </p>
 
                 <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
                   A partir daí, o <strong>biscuit</strong> virou a matéria-prima perfeita para transformar ideias em <strong>enfeites, acessórios e detalhes para chimarrão</strong>, além de miniaturas e lembranças personalizadas. Cada peça é feita à mão, com calma, delicadeza e atenção ao acabamento — do jeitinho que acredito que o artesanal deve ser. Assim, consigo adaptar cada encomenda para o que você realmente quer, sem “cara de produto pronto”.
                 </p>
-
               </div>
             </div>
 
@@ -258,7 +259,11 @@ export default function SobrePage() {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 lg:justify-end">
-                <Button target="_blank" href={instagramHref} variant="primary">
+                <Button
+                  target={contact.instagramUrl ? "_blank" : undefined}
+                  href={instagramHref}
+                  variant="primary"
+                >
                   Ver Instagram
                 </Button>
                 <Button href="/loja" variant="secondary">

@@ -5,12 +5,14 @@ import Container from "@/components/Container";
 import Section from "@/components/Section";
 import CatalogToolbar from "@/components/catalog/CatalogToolbar";
 import LatestCollectionsPreview from "@/components/store/LatestCollectionsPreview";
+import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner";
 import StoreCategoryFilters from "@/components/store/StoreCategoryFilters";
 import StoreEmptyState from "@/components/store/StoreEmptyState";
 import StoreHero from "@/components/store/StoreHero";
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { buildStoreHref } from "@/components/store/store-query";
 import { getStorePageData } from "@/lib/server/store";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
@@ -31,14 +33,17 @@ type LojaPageProps = {
 export default async function LojaPage({ searchParams }: LojaPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
-  const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
+  const [contact, data] = await Promise.all([
+    getPublicStoreContactSettings(),
+    getStorePageData({
+      categorySlug: resolvedSearchParams?.categoria,
+      collectionSlug: resolvedSearchParams?.colecao,
+      sort: resolvedSearchParams?.sort,
+    }),
+  ]);
 
-  const data = await getStorePageData({
-    categorySlug: resolvedSearchParams?.categoria,
-    collectionSlug: resolvedSearchParams?.colecao,
-    sort: resolvedSearchParams?.sort,
-  });
+  const whatsappHref = contact.whatsappUrl || "/contato";
+  const instagramHref = contact.instagramUrl || "/contato";
 
   const activeFilters = [
     data.selectedCollection
@@ -58,6 +63,8 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
               whatsappHref={whatsappHref}
               instagramHref={instagramHref}
             />
+
+            <StoreAvailabilityBanner settings={contact} />
 
             <StoreCategoryFilters
               categories={data.categories}
@@ -113,7 +120,11 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
             {data.products.length === 0 ? (
               <StoreEmptyState hasFilters={activeFilters.length > 0} />
             ) : (
-              <StoreProductsGrid products={data.products} />
+              <StoreProductsGrid
+                products={data.products}
+                canAcceptOrders={contact.canAcceptOrders}
+                orderUnavailableReason={contact.orderUnavailableReason}
+              />
             )}
           </div>
         </Container>
@@ -126,10 +137,10 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
 
             <div>
               <div>
-  <Button href="/colecoes" variant="secondary">
-    Ver todas as coleções
-  </Button>
-</div>
+                <Button href="/colecoes" variant="secondary">
+                  Ver todas as coleções
+                </Button>
+              </div>
             </div>
           </div>
         </Container>
@@ -167,10 +178,19 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                  <Button target="_blank" href={whatsappHref} variant="primary">
+                  <Button
+                    target={contact.whatsappUrl ? "_blank" : undefined}
+                    href={whatsappHref}
+                    variant="primary"
+                  >
                     Falar no WhatsApp
                   </Button>
-                  <Button target="_blank" href={instagramHref} variant="secondary">
+
+                  <Button
+                    target={contact.instagramUrl ? "_blank" : undefined}
+                    href={instagramHref}
+                    variant="secondary"
+                  >
                     Ir para o Instagram
                   </Button>
                 </div>

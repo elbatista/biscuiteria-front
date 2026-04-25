@@ -10,6 +10,7 @@ import {
   getRelatedStoreProducts,
   getStoreProductBySlug,
 } from "@/lib/server/products";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 type PageProps = {
   params: Promise<{
@@ -44,7 +45,11 @@ export async function generateMetadata({
 
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = await getStoreProductBySlug(slug);
+
+  const [product, contact] = await Promise.all([
+    getStoreProductBySlug(slug),
+    getPublicStoreContactSettings(),
+  ]);
 
   if (!product) {
     notFound();
@@ -122,6 +127,8 @@ export default async function ProductDetailsPage({ params }: PageProps) {
               compareAtPriceInCents={product.compareAtPriceInCents}
               featured={product.featured}
               imageUrl={product.images[0]?.thumbUrl ?? product.images[0]?.url ?? null}
+              canAcceptOrders={contact.canAcceptOrders}
+              orderUnavailableReason={contact.orderUnavailableReason}
               primaryCollection={
                 primaryCollection
                   ? {
@@ -141,6 +148,8 @@ export default async function ProductDetailsPage({ params }: PageProps) {
             title={related.title}
             subtitle={related.subtitle}
             products={related.products}
+            canAcceptOrders={contact.canAcceptOrders}
+            orderUnavailableReason={contact.orderUnavailableReason}
           />
         </div>
       </Container>

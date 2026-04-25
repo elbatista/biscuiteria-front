@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { quoteShipmentWithMelhorEnvio } from "@/lib/server/melhor-envio";
+import { getStoreSettings } from "@/lib/server/store-settings";
 
 export type ShippingQuoteInput = {
   zipCode: string;
@@ -99,14 +100,21 @@ export async function getShippingQuote({
   items,
 }: ShippingQuoteInput): Promise<NormalizedShippingOption[]> {
   const destinationZipCode = onlyDigits(zipCode);
-  const originZipCode = onlyDigits(process.env.MELHOR_ENVIO_ORIGIN_ZIP_CODE || "");
+
+  const settings = await getStoreSettings();
+
+  const originZipCode = onlyDigits(
+    settings.originZipCode || process.env.MELHOR_ENVIO_ORIGIN_ZIP_CODE || ""
+  );
 
   if (destinationZipCode.length !== 8) {
     throw new Error("CEP de destino inválido para cotação.");
   }
 
   if (originZipCode.length !== 8) {
-    throw new Error("MELHOR_ENVIO_ORIGIN_ZIP_CODE inválido ou não configurado.");
+    throw new Error(
+      "CEP de origem da loja inválido ou não configurado. Configure nas configurações da loja ou em MELHOR_ENVIO_ORIGIN_ZIP_CODE."
+    );
   }
 
   if (!items.length) {

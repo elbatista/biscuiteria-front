@@ -7,8 +7,10 @@ import CollectionCategoryFilters from "@/components/collections/CollectionCatego
 import CollectionEmptyState from "@/components/collections/CollectionEmptyState";
 import CollectionHero from "@/components/collections/CollectionHero";
 import { buildCollectionHref } from "@/components/collections/collection-query";
+import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner";
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { getCollectionPageData } from "@/lib/server/collections";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 type CollectionPageSearchParams = {
   categoria?: string | string[];
@@ -29,11 +31,14 @@ export default async function CollectionPage({
   const resolvedParams = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const data = await getCollectionPageData({
-    slug: resolvedParams.slug,
-    categorySlug: resolvedSearchParams?.categoria,
-    sort: resolvedSearchParams?.sort,
-  });
+  const [data, contact] = await Promise.all([
+    getCollectionPageData({
+      slug: resolvedParams.slug,
+      categorySlug: resolvedSearchParams?.categoria,
+      sort: resolvedSearchParams?.sort,
+    }),
+    getPublicStoreContactSettings(),
+  ]);
 
   if (!data) {
     notFound();
@@ -55,6 +60,8 @@ export default async function CollectionPage({
       <Section>
         <Container>
           <div className="space-y-8">
+            <StoreAvailabilityBanner settings={contact} />
+
             <CollectionCategoryFilters
               collectionSlug={data.collection.slug}
               categories={data.categories}
@@ -100,7 +107,9 @@ export default async function CollectionPage({
               ]}
               activeFilters={activeFilters}
               clearFiltersHref={
-                activeFilters.length > 0 ? `/colecoes/${data.collection.slug}` : null
+                activeFilters.length > 0
+                  ? `/colecoes/${data.collection.slug}`
+                  : null
               }
             />
 
@@ -110,7 +119,11 @@ export default async function CollectionPage({
                 hasCategoryFilter={Boolean(data.selectedCategory)}
               />
             ) : (
-              <StoreProductsGrid products={data.products} />
+              <StoreProductsGrid
+                products={data.products}
+                canAcceptOrders={contact.canAcceptOrders}
+                orderUnavailableReason={contact.orderUnavailableReason}
+              />
             )}
           </div>
         </Container>

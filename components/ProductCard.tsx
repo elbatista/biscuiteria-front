@@ -14,6 +14,8 @@ interface ProductCardProps {
   image?: string | null;
   badge?: string;
   available?: boolean;
+  canAcceptOrders?: boolean;
+  orderUnavailableReason?: string | null;
 }
 
 const FALLBACK_IMAGE = "/placeholder.png";
@@ -27,9 +29,22 @@ const ProductCard: FC<ProductCardProps> = ({
   image,
   badge,
   available = true,
+  canAcceptOrders = true,
+  orderUnavailableReason = null,
 }) => {
   const href = `/produtos/${slug}`;
   const imageSrc = image || FALLBACK_IMAGE;
+  const purchasingDisabled = !available || !canAcceptOrders;
+
+  const unavailableLabel = !available
+    ? "Produto indisponível"
+    : "Loja pausada";
+
+  const statusText = available
+    ? canAcceptOrders
+      ? "Disponível"
+      : "Compras pausadas"
+    : "Indisponível";
 
   return (
     <div className="flex flex-col justify-between overflow-hidden rounded-3xl border border-[var(--rose-100)] bg-white shadow-sm transition hover:shadow-md">
@@ -60,8 +75,14 @@ const ProductCard: FC<ProductCardProps> = ({
           </div>
 
           <div className="mt-2 text-xs text-[var(--text-muted)]">
-            {available ? "Disponível" : "Indisponível"}
+            {statusText}
           </div>
+
+          {!canAcceptOrders && available && orderUnavailableReason ? (
+            <div className="mt-2 line-clamp-2 text-xs leading-relaxed text-amber-700">
+              {orderUnavailableReason}
+            </div>
+          ) : null}
         </div>
       </Link>
 
@@ -73,6 +94,8 @@ const ProductCard: FC<ProductCardProps> = ({
           priceInCents={priceInCents}
           imageUrl={imageSrc}
           fullWidth
+          disabled={purchasingDisabled}
+          disabledLabel={unavailableLabel}
         />
 
         <AddToCartButton
@@ -83,16 +106,11 @@ const ProductCard: FC<ProductCardProps> = ({
           imageUrl={imageSrc}
           fullWidth
           redirectToCart
+          disabled={purchasingDisabled}
+          disabledLabel={unavailableLabel}
         >
           Comprar agora
         </AddToCartButton>
-
-        {/* <Link
-          href={href}
-          className="inline-flex w-full items-center justify-center rounded-2xl border border-[var(--rose-100)] bg-white px-5 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-[var(--rose-50)]"
-        >
-          Ver produto
-        </Link> */}
       </div>
     </div>
   );

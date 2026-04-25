@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import QuantitySelector from "./QuantitySelector";
 import ShareButtons from "./ShareButton";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -16,6 +16,8 @@ interface ProductDetailsPanelProps {
   compareAtPriceInCents: number | null;
   featured: boolean;
   imageUrl?: string | null;
+  canAcceptOrders: boolean;
+  orderUnavailableReason?: string | null;
   primaryCollection?: {
     title: string;
     slug: string;
@@ -43,22 +45,12 @@ export default function ProductDetailsPanel({
   compareAtPriceInCents,
   featured,
   imageUrl = null,
+  canAcceptOrders,
+  orderUnavailableReason = null,
   primaryCollection = null,
   categories = [],
 }: ProductDetailsPanelProps) {
   const [quantity, setQuantity] = useState(1);
-
-  const whatsappHref = useMemo(() => {
-    const base = process.env.NEXT_PUBLIC_WHATSAPP_URL || "";
-    if (!base) return "#";
-
-    const separator = base.includes("?") ? "&" : "?";
-    const message = encodeURIComponent(
-      `Olá! Tenho interesse em ${quantity} unidade(s) do produto "${name}" (${slug}).`
-    );
-
-    return `${base}${separator}text=${message}`;
-  }, [name, slug, quantity]);
 
   return (
     <div className="flex flex-col justify-start">
@@ -104,19 +96,24 @@ export default function ProductDetailsPanel({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
-          Disponível
+        <span
+          className={[
+            "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium",
+            canAcceptOrders
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-amber-50 text-amber-700",
+          ].join(" ")}
+        >
+          {canAcceptOrders ? "Disponível" : "Compras pausadas"}
         </span>
-
-        {/* {primaryCollection ? (
-          <a
-            href={`/colecoes/${primaryCollection.slug}`}
-            className="inline-flex items-center rounded-full border border-[var(--green-200)] bg-[var(--green-50)] px-3 py-1 text-sm font-medium text-[var(--green-500)] transition hover:bg-[var(--green-100)]"
-          >
-            Ver coleção
-          </a>
-        ) : null} */}
       </div>
+
+      {!canAcceptOrders ? (
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
+          {orderUnavailableReason ||
+            "No momento não estamos aceitando novos pedidos."}
+        </div>
+      ) : null}
 
       <div className="mt-6">
         <QuantitySelector value={quantity} onChange={setQuantity} max={100} />
@@ -132,6 +129,8 @@ export default function ProductDetailsPanel({
             imageUrl={imageUrl}
             quantity={quantity}
             fullWidth
+            disabled={!canAcceptOrders}
+            disabledLabel="Loja pausada"
           >
             Adicionar ao carrinho
           </AddToCartButton>
@@ -145,6 +144,8 @@ export default function ProductDetailsPanel({
             quantity={quantity}
             fullWidth
             redirectToCart
+            disabled={!canAcceptOrders}
+            disabledLabel="Loja pausada"
           >
             Comprar agora
           </AddToCartButton>

@@ -3,6 +3,9 @@ import Badge from "@/components/Badge";
 import Link from "next/link";
 import Button from "@/components/Button";
 import { FalarWhats, InnerSection, LastUpdate, Note, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
+import FaqPreview from "@/components/faq/FaqPreview";
+import { getPublicFaqPreview } from "@/lib/server/public-faq";
+import Section from "@/components/Section";
 
 export const metadata = {
   title: "Trocas & Envio | Biscuit_eria",
@@ -10,10 +13,10 @@ export const metadata = {
     "Saiba como funcionam envio, prazos, trocas, devoluções, cancelamentos e avarias em pedidos da Biscuit_eria.",
 };
 
-export default function TrocasEEnvioPage() {
+export default async function TrocasEEnvioPage() {
+  const faqItems = await getPublicFaqPreview(4);
   const shippingMethods = "Correios";
   const shippingCoverage = "todo Brasil";
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
 
   // Regras sugeridas (você ajusta)
   const damageReportWindow = "24 horas";
@@ -173,10 +176,6 @@ export default function TrocasEEnvioPage() {
                   <li>Fotos (e vídeo, se tiver) do item e da embalagem</li>
                 </Ul>
 
-                <P>
-                  Contato: <strong>{contactEmail}</strong> • <FalarWhats/>
-                </P>
-
                 <div className="pt-2">
                   <Button href="/contato">
                     Ir para contato
@@ -206,9 +205,21 @@ export default function TrocasEEnvioPage() {
                   .
                 </P>
               </InnerSection>
+              {faqItems.length > 0 ? (
+                <Section>
+                  <Container>
+                    <FaqPreview
+                      items={faqItems}
+                      title="Ainda ficou com dúvida?"
+                      subtitle="Veja respostas rápidas sobre pedidos, produção, personalização e envio."
+                    />
+                  </Container>
+                </Section>
+              ) : null}
             </div>
           </div>
         </div>
+        
       </Container>
     </div>
   );

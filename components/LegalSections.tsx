@@ -52,8 +52,19 @@ export function InnerSection({ children }: { children: React.ReactNode }) {
 export function LastUpdate ({ children }: { children: React.ReactNode }){
     return (<P> <strong className="text-[var(--rose-300)]">Última atualização: {children}</strong> </P>);
 }
-const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_URL;
 
-export function FalarWhats(){
-    return whatsapp && <Link className="hover:underline text-[var(--green-500)]" target="_blank" href={whatsapp}><strong>Falar no WhatsApp</strong></Link>
+export function FalarWhats({ href }: { href?: string | null }) {
+  if (!href) {
+    return null;
+  }
+
+  return (
+    <Link
+      className="hover:underline text-[var(--green-500)]"
+      target="_blank"
+      href={href}
+    >
+      <strong>Falar no WhatsApp</strong>
+    </Link>
+  );
 }

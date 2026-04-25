@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Container from "@/components/Container";
+import ContactSupportCard from "@/components/store/ContactSupportCard";
 import { formatBRLFromCents } from "@/lib/format-price";
 import { getOrderByPublicId } from "@/lib/server/orders";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 type PageProps = {
   params: Promise<{
@@ -45,7 +47,11 @@ function statusLabel(status: string) {
 
 export default async function OrderPage({ params }: PageProps) {
   const { publicId } = await params;
-  const order = await getOrderByPublicId(publicId);
+
+  const [order, contact] = await Promise.all([
+    getOrderByPublicId(publicId),
+    getPublicStoreContactSettings(),
+  ]);
 
   if (!order) {
     notFound();
@@ -64,7 +70,7 @@ export default async function OrderPage({ params }: PageProps) {
               {order.publicId}
             </h1>
 
-            <p className="mt-3 max-w-2xl text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
               Seu pedido foi criado com sucesso. O próximo passo será integrar o
               pagamento, então por enquanto ele ficará como pendente.
             </p>
@@ -166,14 +172,16 @@ export default async function OrderPage({ params }: PageProps) {
                   <div className="mt-5 space-y-2 text-sm text-[var(--text-muted)]">
                     <p>{order.shippingAddress.recipientName}</p>
                     <p>
-                      {order.shippingAddress.street}, {order.shippingAddress.number}
+                      {order.shippingAddress.street},{" "}
+                      {order.shippingAddress.number}
                     </p>
                     {order.shippingAddress.complement ? (
                       <p>{order.shippingAddress.complement}</p>
                     ) : null}
                     <p>{order.shippingAddress.neighborhood}</p>
                     <p>
-                      {order.shippingAddress.city} - {order.shippingAddress.state}
+                      {order.shippingAddress.city} -{" "}
+                      {order.shippingAddress.state}
                     </p>
                     <p>CEP: {order.shippingAddress.zipCode}</p>
                   </div>
@@ -202,6 +210,12 @@ export default async function OrderPage({ params }: PageProps) {
                   </div>
                 </div>
               </section>
+
+              <ContactSupportCard
+                contact={contact}
+                title="Dúvidas sobre seu pedido?"
+                description="Fale conosco pelo WhatsApp ou e-mail informando o número do pedido."
+              />
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({children}:{children: React.ReactNode;}){
     <html lang="pt-BR">
       <body className={`${inter.variable} ${playfair.variable} min-h-screen bg-rose-50 text-zinc-800 antialiased`}>
         <Navbar/>
+        <AnnouncementBar />
         {children}
         <Footer/>
         <CookieBanner/>

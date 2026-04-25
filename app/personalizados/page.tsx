@@ -4,13 +4,16 @@ import Section from "@/components/Section";
 import SectionTitle from "@/components/SectionTitle";
 import SimpleCard from "@/components/SimpleCard";
 import PersonalizadoWizard from "@/components/PersonalizadoWizard";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Personalizados | Biscuit_eria",
   description: "Monte seu pedido personalizado de forma guiada. No final, envie tudo pelo WhatsApp (incluindo fotos e vídeos).",
 };
 
-export default function PersonalizadosPage() {
+export default async function PersonalizadosPage() {
+  const contact = await getPublicStoreContactSettings();
+
   return (
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
       {/* HERO */}
@@ -75,7 +78,7 @@ export default function PersonalizadosPage() {
           />
 
           <div className="mt-6">
-            <PersonalizadoWizard />
+            <PersonalizadoWizard whatsappBaseUrl={contact.whatsappUrl || ""} />
           </div>
         </Container>
       </Section>

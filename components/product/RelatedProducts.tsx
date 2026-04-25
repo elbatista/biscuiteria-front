@@ -14,12 +14,16 @@ interface RelatedProductsProps {
   title?: string;
   subtitle?: string;
   products: RelatedProduct[];
+  canAcceptOrders: boolean;
+  orderUnavailableReason?: string | null;
 }
 
 export default function RelatedProducts({
   title = "Você também pode gostar",
   subtitle = "Veja outros produtos relacionados.",
   products,
+  canAcceptOrders,
+  orderUnavailableReason = null,
 }: RelatedProductsProps) {
   if (products.length === 0) return null;
 
@@ -34,7 +38,7 @@ export default function RelatedProducts({
         </p>
       </div>
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -46,6 +50,8 @@ export default function RelatedProducts({
             image={product.image}
             badge={product.featured ? "Destaque" : undefined}
             available={product.available}
+            canAcceptOrders={canAcceptOrders}
+            orderUnavailableReason={orderUnavailableReason}
           />
         ))}
       </div>

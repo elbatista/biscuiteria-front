@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { assertStoreCanAcceptOrders } from "@/lib/server/store-settings";
 
 export const checkoutSchema = z.object({
   customer: z.object({
@@ -41,6 +42,9 @@ function normalizeZipCode(zipCode: string) {
 }
 
 export async function createCheckoutOrder(data: CheckoutInput) {
+
+  await assertStoreCanAcceptOrders();
+
   const uniqueProductIds = [...new Set(data.items.map((item) => item.productId))];
 
   const products = await prisma.product.findMany({

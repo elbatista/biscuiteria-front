@@ -3,6 +3,7 @@ import Badge from "@/components/Badge";
 import Link from "next/link";
 import Button from "@/components/Button";
 import { FalarWhats, InnerSection, LastUpdate, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Termos de Uso | Biscuit_eria",
@@ -10,14 +11,15 @@ export const metadata = {
     "Termos e condições para uso do site e compra de peças artesanais sob encomenda na Biscuit_eria.",
 };
 
-export default function TermosDeUsoPage() {
-  const brand = process.env.NEXT_PUBLIC_APP_NAME;
+export default async function TermosDeUsoPage() {
+  const contact = await getPublicStoreContactSettings();
+
+  const brand = contact.storeName;
   const lastUpdated = "Fevereiro de 2026";
 
-  // Dados do responsável (use os mesmos da política)
-  const legalName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL;
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
-  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_URL;
+  const legalName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL || contact.storeName;
+  const contactEmail = contact.contactEmail;
+  const whatsappHref = contact.whatsappUrl;
 
   // Regras comerciais (ajuste conforme seu processo real)
   const productionTime = "5 a 20 dias úteis (varia por quantidade de peças)";
@@ -69,8 +71,8 @@ export default function TermosDeUsoPage() {
                 <SectionHeading>2) Quem somos</SectionHeading>
                 <P>
                   O site e os produtos são oferecidos por <strong>{legalName}</strong>.
-                  Para contato, utilize <strong>{contactEmail}</strong> ou{" "}
-                  <FalarWhats/>.
+                  Para contato, utilize{" "} <strong>{contactEmail || "a página de contato"}</strong> ou{" "}
+                  <FalarWhats href={whatsappHref}/>.
                 </P>
               </InnerSection>
 

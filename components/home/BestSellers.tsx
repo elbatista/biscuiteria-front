@@ -4,9 +4,13 @@ import SectionTitle from "../SectionTitle";
 import Section from "../Section";
 import ProductCard from "../ProductCard";
 import { getHomeBestSellers } from "@/lib/server/home";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export default async function BestSellersSection() {
-  const bestSellers = await getHomeBestSellers(4);
+  const [bestSellers, contact] = await Promise.all([
+    getHomeBestSellers(4),
+    getPublicStoreContactSettings(),
+  ]);
 
   if (bestSellers.length === 0) {
     return null;
@@ -23,14 +27,14 @@ export default async function BestSellersSection() {
               subtitle="Os produtos que os clientes mais compraram até agora."
             />
 
-            <div className="hidden lg:flex gap-3">
+            <div className="hidden gap-3 lg:flex">
               <Button href="/loja" variant="secondary">
                 Ver loja completa
               </Button>
             </div>
           </div>
 
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {bestSellers.map((product, index) => (
               <ProductCard
                 key={product.slug}
@@ -41,6 +45,8 @@ export default async function BestSellersSection() {
                 slug={product.slug}
                 image={product.image}
                 badge={index === 0 ? "Top 1" : "Mais vendido"}
+                canAcceptOrders={contact.canAcceptOrders}
+                orderUnavailableReason={contact.orderUnavailableReason}
               />
             ))}
           </div>

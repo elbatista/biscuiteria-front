@@ -2,22 +2,22 @@ import Container from "@/components/Container";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import { FalarWhats, InnerSection, LastUpdate, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
-import Link from "next/link";
+import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Política de Privacidade | Biscuit_eria",
   description: "Saiba como a Biscuit_eria coleta, usa e protege seus dados pessoais, e como você pode exercer seus direitos.",
 };
 
-export default function PoliticaDePrivacidadePage() {
-  const lastUpdated = "Fevereiro de 2026";
-  const brand = process.env.NEXT_PUBLIC_APP_NAME;
+export default async function PoliticaDePrivacidadePage() {
+  const contact = await getPublicStoreContactSettings();
 
-  // Dados do controlador (preciso que você confirme)
-  const controllerName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL;
+  const lastUpdated = "Fevereiro de 2026";
+  const brand = contact.storeName;
+  const controllerName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL || contact.storeName;
   const controllerAddress = "São Leopoldo, RS, Brasil";
-  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
-  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_URL;
+  const contactEmail = contact.contactEmail;
+  const whatsappHref = contact.whatsappUrl;
 
   // Terceiros / ferramentas (preencher só o que você usa)
   const paymentProvider = "Mercado Pago / PagSeguro";
@@ -57,7 +57,7 @@ export default function PoliticaDePrivacidadePage() {
                   <br />
                   <strong>E-mail:</strong> {contactEmail}
                   <br />
-                  <FalarWhats/>
+                  <FalarWhats href={whatsappHref} />
                 </P>
               </InnerSection>
 
@@ -180,7 +180,7 @@ export default function PoliticaDePrivacidadePage() {
                 </P>
 
                 <P>
-                  Para exercer seus direitos, entre em contato pelo e-mail <strong>{contactEmail}</strong>.
+                  Para exercer seus direitos, entre em contato pelo e-mail{" "}<strong>{contactEmail || "informado na página de contato"}</strong>.
                   Podemos solicitar informações adicionais para confirmar sua identidade e proteger seus dados.
                 </P>
               </InnerSection>

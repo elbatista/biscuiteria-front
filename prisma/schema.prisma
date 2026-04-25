@@ -308,3 +308,55 @@ model ProductCollection {
   @@index([collectionId])
   @@map("product_collections")
 }
+
+model StoreSettings {
+  id Int @id @default(1)
+
+  storeName            String? @map("store_name")
+  storeStatus          String  @default("open") @map("store_status")
+  storeClosedMessage   String? @map("store_closed_message")
+
+  vacationEnabled      Boolean   @default(false) @map("vacation_enabled")
+  vacationStartsAt     DateTime? @map("vacation_starts_at") @db.Timestamptz(6)
+  vacationEndsAt       DateTime? @map("vacation_ends_at") @db.Timestamptz(6)
+  vacationMessage      String?   @map("vacation_message")
+
+  originZipCode        String? @map("origin_zip_code")
+  originStreet         String? @map("origin_street")
+  originNumber         String? @map("origin_number")
+  originComplement     String? @map("origin_complement")
+  originDistrict       String? @map("origin_district")
+  originCity           String? @map("origin_city")
+  originState          String? @map("origin_state")
+  originCountry        String? @default("BR") @map("origin_country")
+
+  announcementEnabled  Boolean @default(false) @map("announcement_enabled")
+  announcementMessage  String? @map("announcement_message")
+  announcementLinkLabel String? @map("announcement_link_label")
+  announcementLinkUrl  String? @map("announcement_link_url")
+
+  whatsapp             String?
+  instagramUrl         String? @map("instagram_url")
+  contactEmail         String? @map("contact_email")
+
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("store_settings")
+}
+
+model FaqItem {
+  id Int @id @default(autoincrement())
+
+  question  String
+  answer    String
+  position  Int     @default(0)
+  active    Boolean @default(true)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([active])
+  @@index([position])
+  @@map("faq_items")
+}

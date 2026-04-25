@@ -21,7 +21,7 @@ export default function ShareButtons({ title }: ShareButtonsProps) {
 
   return (
     <div className="flex flex-col items-start gap-2">
-      <span className="text-sm font-medium text-zinc-900">Compartilhar:</span>
+      <span className="text-sm font-medium text-[var(--text-muted)]">COMPARTILHAR:</span>
         <div className="flex flex-wrap items-center gap-3">
 
         <WhatsappShareButton

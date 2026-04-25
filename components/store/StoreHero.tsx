@@ -2,8 +2,8 @@ import Button from "@/components/Button";
 import Badge from "@/components/Badge";
 
 type StoreHeroProps = {
-  whatsappHref?: string;
-  instagramHref?: string;
+  whatsappHref: string;
+  instagramHref: string;
 };
 
 export default function StoreHero({
@@ -27,10 +27,19 @@ export default function StoreHero({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button target="_blank" href={whatsappHref} variant="primary">
+          <Button
+            target={whatsappHref.startsWith("http") ? "_blank" : undefined}
+            href={whatsappHref}
+            variant="primary"
+          >
             Falar no WhatsApp
           </Button>
-          <Button target="_blank" href={instagramHref} variant="secondary">
+
+          <Button
+            target={instagramHref.startsWith("http") ? "_blank" : undefined}
+            href={instagramHref}
+            variant="secondary"
+          >
             Ver Instagram
           </Button>
         </div>
