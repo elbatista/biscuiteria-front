@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { assertStoreCanAcceptOrders } from "@/lib/server/store-settings";
+import { revalidateTag } from "next/cache";
 
 export const checkoutSchema = z.object({
   customer: z.object({
@@ -161,6 +162,8 @@ export async function createCheckoutOrder(data: CheckoutInput) {
 
     return createdOrder;
   });
+
+  revalidateTag("best-sellers", "max");
 
   return {
     publicId: order.publicId,

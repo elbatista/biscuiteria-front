@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { StoreCollectionSummary } from "@/lib/server/store";
+import { cacheLife, cacheTag } from "next/cache";
 
 export type HomeBestSellerProduct = {
   id: number;
@@ -11,6 +12,12 @@ export type HomeBestSellerProduct = {
 };
 
 export async function getHomeBestSellers(limit = 4): Promise<HomeBestSellerProduct[]> {
+
+  "use cache";
+
+  cacheTag("best-sellers");
+  cacheLife("minutes");
+
   const grouped = await prisma.orderItem.groupBy({
     by: ["productId"],
     _sum: {
