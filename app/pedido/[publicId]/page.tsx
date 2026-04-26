@@ -7,9 +7,6 @@ import { formatBRLFromCents } from "@/lib/format-price";
 import { getOrderByPublicId } from "@/lib/server/orders";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 type PageProps = {
   params: Promise<{
     publicId: string;

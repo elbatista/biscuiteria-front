@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import CheckoutPageClient from "@/components/checkout/CheckoutPageClient";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 export const metadata: Metadata = {
   title: "Checkout | Biscuit_eria",
   description: "Finalize seu pedido na Biscuit_eria.",

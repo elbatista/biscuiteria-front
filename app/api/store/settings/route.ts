@@ -6,9 +6,6 @@ import {
   isStoreInVacation,
 } from "@/lib/server/store-settings";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 export async function GET() {
   try {
     const settings = await getStoreSettings();

@@ -12,8 +12,6 @@ import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { getCollectionPageData } from "@/lib/server/collections";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
-export const revalidate = 60*60; // 1 hour
-
 type CollectionPageSearchParams = {
   categoria?: string | string[];
   sort?: string | string[];
