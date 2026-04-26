@@ -9,6 +9,8 @@ import Section from "@/components/Section";
 import FaqPreview from "@/components/faq/FaqPreview";
 import { getPublicFaqPreview } from "@/lib/server/public-faq";
 
+export const revalidate = 60*60; // 1 hour
+
 export default async function HomePage() {
   const faqItems = await getPublicFaqPreview(4);
 

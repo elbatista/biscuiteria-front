@@ -14,6 +14,8 @@ import { buildStoreHref } from "@/components/store/store-query";
 import { getStorePageData } from "@/lib/server/store";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
+export const revalidate = 60*60; // 1 hour
+
 export const metadata = {
   title: "Loja | Biscuit_eria",
   description:

@@ -6,6 +6,9 @@ import {
   isStoreInVacation,
 } from "@/lib/server/store-settings";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const settings = await getStoreSettings();
@@ -23,7 +26,7 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       storeName: settings.storeName,
 
       storeStatus: settings.storeStatus,
@@ -46,6 +49,14 @@ export async function GET() {
 
       faqItems,
     });
+
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, max-age=0"
+    );
+
+    return response;
+
   } catch (error) {
     console.error("STORE_SETTINGS_GET_ERROR", error);
 

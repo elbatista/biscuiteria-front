@@ -12,6 +12,9 @@ import {
 } from "@/lib/server/products";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type PageProps = {
   params: Promise<{
     slug: string;
