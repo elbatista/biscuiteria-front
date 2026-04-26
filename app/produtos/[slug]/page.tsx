@@ -11,6 +11,7 @@ import {
   getStoreProductBySlug,
 } from "@/lib/server/products";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import { connection } from "next/server";
 
 type PageProps = {
   params: Promise<{
@@ -21,6 +22,7 @@ type PageProps = {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
+  await connection();
   const { slug } = await params;
   const product = await getStoreProductBySlug(slug);
 

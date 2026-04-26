@@ -13,6 +13,7 @@ import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { buildStoreHref } from "@/components/store/store-query";
 import { getStorePageData } from "@/lib/server/store";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import { connection } from "next/server";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
@@ -31,6 +32,7 @@ type LojaPageProps = {
 };
 
 export default async function LojaPage({ searchParams }: LojaPageProps) {
+  await connection();
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   const [contact, data] = await Promise.all([

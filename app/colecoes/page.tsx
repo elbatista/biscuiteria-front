@@ -3,6 +3,7 @@ import Section from "@/components/Section";
 import Badge from "@/components/Badge";
 import CollectionsGrid from "@/components/collections/CollectionsGrid";
 import { getCollectionsIndexPageData } from "@/lib/server/collections";
+import { connection } from "next/server";
 
 export const metadata = {
   title: "Coleções | Biscuit_eria",
@@ -11,6 +12,7 @@ export const metadata = {
 };
 
 export default async function CollectionsIndexPage() {
+  await connection();
   const collections = await getCollectionsIndexPageData();
 
   return (

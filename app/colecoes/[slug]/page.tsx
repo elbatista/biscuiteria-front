@@ -11,6 +11,7 @@ import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner"
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { getCollectionPageData } from "@/lib/server/collections";
 import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import { connection } from "next/server";
 
 type CollectionPageSearchParams = {
   categoria?: string | string[];
@@ -28,6 +29,7 @@ export default async function CollectionPage({
   params,
   searchParams,
 }: CollectionPageProps) {
+  await connection();
   const resolvedParams = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
