@@ -39,3 +39,9 @@ next-env.d.ts
 generated/prisma
 
 middleware*
+.DS_Store
+__MACOSX/
+.env
+.env.local
+.next/
+node_modules/
