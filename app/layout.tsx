@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import { Analytics } from "@vercel/analytics/next";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -17,7 +18,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Biscuit_eria — Afeto moldado à mão",
+  title: "Biscuit_eria | Tudo para o seu chimarrão",
   description: "Peças artesanais em biscuit feitas à mão para celebrar pessoas, momentos e memórias.",
 };
 
@@ -30,6 +31,7 @@ export default function RootLayout({children}:{children: React.ReactNode;}){
         {children}
         <Footer/>
         <CookieBanner/>
+        <Analytics />
       </body>
     </html>
   );
