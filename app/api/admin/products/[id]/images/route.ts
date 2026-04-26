@@ -5,8 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { slugify, uniqueFileBase } from "@/lib/server/product-utils";
 import { uploadImageWithThumb } from "@/lib/server/blob-storage";
 
-export const runtime = "nodejs";
-
 type RouteContext = {
   params: Promise<{
     id: string;
