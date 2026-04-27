@@ -10,8 +10,7 @@ import { buildCollectionHref } from "@/components/collections/collection-query";
 import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner";
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { getCollectionPageData } from "@/lib/server/collections";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
-import { connection } from "next/server";
+import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
 
 type CollectionPageSearchParams = {
   categoria?: string | string[];
@@ -29,17 +28,16 @@ export default async function CollectionPage({
   params,
   searchParams,
 }: CollectionPageProps) {
-  await connection();
   const resolvedParams = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const [data, contact] = await Promise.all([
+  const [data, settings] = await Promise.all([
     getCollectionPageData({
       slug: resolvedParams.slug,
       categorySlug: resolvedSearchParams?.categoria,
       sort: resolvedSearchParams?.sort,
     }),
-    getPublicStoreContactSettings(),
+    getPublicStoreSettings(),
   ]);
 
   if (!data) {
@@ -62,7 +60,7 @@ export default async function CollectionPage({
       <Section>
         <Container>
           <div className="space-y-8">
-            <StoreAvailabilityBanner settings={contact} />
+            <StoreAvailabilityBanner settings={settings} />
 
             <CollectionCategoryFilters
               collectionSlug={data.collection.slug}
@@ -123,8 +121,8 @@ export default async function CollectionPage({
             ) : (
               <StoreProductsGrid
                 products={data.products}
-                canAcceptOrders={contact.canAcceptOrders}
-                orderUnavailableReason={contact.orderUnavailableReason}
+                canAcceptOrders={settings.canAcceptOrders}
+                orderUnavailableReason={settings.orderUnavailableReason}
               />
             )}
           </div>

@@ -6,7 +6,6 @@ import SectionTitle from "@/components/SectionTitle";
 import SimpleCard from "@/components/SimpleCard";
 import LinkCard from "@/components/LinkCard";
 import Image from "next/image";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Sobre | Biscuit_eria",
@@ -14,15 +13,14 @@ export const metadata = {
     "Conheça a história da Biscuit_eria, o cuidado por trás das peças artesanais em biscuit e como funciona o processo de criação.",
 };
 
-export default async function SobrePage() {
-  const contact = await getPublicStoreContactSettings();
+export default function SobrePage() {
 
-  const brand = contact.storeName;
+  const brand = "Biscuit_eria";
   const makerName = "Eliadi";
   const city = "São Leopoldo / RS";
   const years = "desde 2021";
-  const whatsappHref = contact.whatsappUrl || "/contato";
-  const instagramHref = contact.instagramUrl || "/contato";
+  const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL || "/contato";
+  const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "/contato";
 
   return (
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
@@ -127,7 +125,7 @@ export default async function SobrePage() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
-                  target={contact.whatsappUrl ? "_blank" : undefined}
+                  target={whatsappHref ? "_blank" : undefined}
                   href={whatsappHref}
                 >
                   Falar comigo no whats
@@ -260,7 +258,7 @@ export default async function SobrePage() {
               </div>
               <div className="flex flex-col sm:flex-row gap-3 lg:justify-end">
                 <Button
-                  target={contact.instagramUrl ? "_blank" : undefined}
+                  target={instagramHref ? "_blank" : undefined}
                   href={instagramHref}
                   variant="primary"
                 >

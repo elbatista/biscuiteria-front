@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
-import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
-import AnnouncementBar from "@/components/AnnouncementBar";
 import { Analytics } from "@vercel/analytics/next";
+import "./globals.css";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -27,7 +26,6 @@ export default function RootLayout({children}:{children: React.ReactNode;}){
     <html lang="pt-BR">
       <body className={`${inter.variable} ${playfair.variable} min-h-screen bg-rose-50 text-zinc-800 antialiased`}>
         <Navbar/>
-        <AnnouncementBar />
         {children}
         <Footer/>
         <CookieBanner/>

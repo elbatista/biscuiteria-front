@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
 import Container from "@/components/Container";
 import ProductDetailsPanel from "@/components/product/ProductDetailsPanel";
 import ProductGallery from "@/components/product/ProductGallery";
@@ -10,8 +9,7 @@ import {
   getRelatedStoreProducts,
   getStoreProductBySlug,
 } from "@/lib/server/products";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
-import { connection } from "next/server";
+import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
 
 type PageProps = {
   params: Promise<{
@@ -22,7 +20,6 @@ type PageProps = {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  await connection();
   const { slug } = await params;
   const product = await getStoreProductBySlug(slug);
 
@@ -48,9 +45,9 @@ export async function generateMetadata({
 export default async function ProductDetailsPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const [product, contact] = await Promise.all([
+  const [product, settings] = await Promise.all([
     getStoreProductBySlug(slug),
-    getPublicStoreContactSettings(),
+    getPublicStoreSettings(),
   ]);
 
   if (!product) {
@@ -129,8 +126,8 @@ export default async function ProductDetailsPage({ params }: PageProps) {
               compareAtPriceInCents={product.compareAtPriceInCents}
               featured={product.featured}
               imageUrl={product.images[0]?.thumbUrl ?? product.images[0]?.url ?? null}
-              canAcceptOrders={contact.canAcceptOrders}
-              orderUnavailableReason={contact.orderUnavailableReason}
+              canAcceptOrders={settings.canAcceptOrders}
+              orderUnavailableReason={settings.orderUnavailableReason}
               primaryCollection={
                 primaryCollection
                   ? {
@@ -150,8 +147,8 @@ export default async function ProductDetailsPage({ params }: PageProps) {
             title={related.title}
             subtitle={related.subtitle}
             products={related.products}
-            canAcceptOrders={contact.canAcceptOrders}
-            orderUnavailableReason={contact.orderUnavailableReason}
+            canAcceptOrders={settings.canAcceptOrders}
+            orderUnavailableReason={settings.orderUnavailableReason}
           />
         </div>
       </Container>

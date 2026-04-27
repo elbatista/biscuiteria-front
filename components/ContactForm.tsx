@@ -83,7 +83,7 @@ export default function ContactForm({
         <p className="text-xs text-[var(--text-muted)]">
           {whatsappLink
             ? "Ao clicar, você será redirecionado para o WhatsApp para continuar a conversa."
-            : "Configure o WhatsApp no admin para habilitar o envio direto."}
+            : "Configure o WhatsApp no ENV para habilitar o envio direto."}
         </p>
       </div>
     </div>

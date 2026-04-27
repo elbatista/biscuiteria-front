@@ -12,8 +12,7 @@ import StoreHero from "@/components/store/StoreHero";
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { buildStoreHref } from "@/components/store/store-query";
 import { getStorePageData } from "@/lib/server/store";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
-import { connection } from "next/server";
+import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
@@ -32,11 +31,10 @@ type LojaPageProps = {
 };
 
 export default async function LojaPage({ searchParams }: LojaPageProps) {
-  await connection();
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const [contact, data] = await Promise.all([
-    getPublicStoreContactSettings(),
+  const [settings, data] = await Promise.all([
+    getPublicStoreSettings(),
     getStorePageData({
       categorySlug: resolvedSearchParams?.categoria,
       collectionSlug: resolvedSearchParams?.colecao,
@@ -44,8 +42,8 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
     }),
   ]);
 
-  const whatsappHref = contact.whatsappUrl || "/contato";
-  const instagramHref = contact.instagramUrl || "/contato";
+  const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL || "/contato";
+  const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "/contato";
 
   const activeFilters = [
     data.selectedCollection
@@ -66,7 +64,7 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
               instagramHref={instagramHref}
             />
 
-            <StoreAvailabilityBanner settings={contact} />
+            <StoreAvailabilityBanner settings={settings} />
 
             <StoreCategoryFilters
               categories={data.categories}
@@ -124,8 +122,8 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
             ) : (
               <StoreProductsGrid
                 products={data.products}
-                canAcceptOrders={contact.canAcceptOrders}
-                orderUnavailableReason={contact.orderUnavailableReason}
+                canAcceptOrders={settings.canAcceptOrders}
+                orderUnavailableReason={settings.orderUnavailableReason}
               />
             )}
           </div>
@@ -181,7 +179,7 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
 
                 <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
                   <Button
-                    target={contact.whatsappUrl ? "_blank" : undefined}
+                    target={whatsappHref ? "_blank" : undefined}
                     href={whatsappHref}
                     variant="primary"
                   >
@@ -189,7 +187,7 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
                   </Button>
 
                   <Button
-                    target={contact.instagramUrl ? "_blank" : undefined}
+                    target={instagramHref ? "_blank" : undefined}
                     href={instagramHref}
                     variant="secondary"
                   >

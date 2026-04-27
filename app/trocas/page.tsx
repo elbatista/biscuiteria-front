@@ -2,9 +2,8 @@ import Container from "@/components/Container";
 import Badge from "@/components/Badge";
 import Link from "next/link";
 import Button from "@/components/Button";
-import { FalarWhats, InnerSection, LastUpdate, Note, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
+import { InnerSection, LastUpdate, Note, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
 import FaqPreview from "@/components/faq/FaqPreview";
-import { getPublicFaqPreview } from "@/lib/server/public-faq";
 import Section from "@/components/Section";
 
 export const metadata = {
@@ -13,8 +12,8 @@ export const metadata = {
     "Saiba como funcionam envio, prazos, trocas, devoluções, cancelamentos e avarias em pedidos da Biscuit_eria.",
 };
 
-export default async function TrocasEEnvioPage() {
-  const faqItems = await getPublicFaqPreview(4);
+export default function TrocasEEnvioPage() {
+
   const shippingMethods = "Correios";
   const shippingCoverage = "todo Brasil";
 
@@ -183,8 +182,6 @@ export default async function TrocasEEnvioPage() {
                 </div>
               </InnerSection>
 
-              
-
               {/* Link útil */}
               <InnerSection>
                 <P>
@@ -205,21 +202,9 @@ export default async function TrocasEEnvioPage() {
                   .
                 </P>
               </InnerSection>
-              {faqItems.length > 0 ? (
-                <Section>
-                  <Container>
-                    <FaqPreview
-                      items={faqItems}
-                      title="Ainda ficou com dúvida?"
-                      subtitle="Veja respostas rápidas sobre pedidos, produção, personalização e envio."
-                    />
-                  </Container>
-                </Section>
-              ) : null}
             </div>
           </div>
         </div>
-        
       </Container>
     </div>
   );

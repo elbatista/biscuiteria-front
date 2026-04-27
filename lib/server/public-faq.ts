@@ -1,5 +1,3 @@
-// lib/server/public-faq.ts
-
 import { prisma } from "@/lib/prisma";
 
 export type PublicFaqItem = {

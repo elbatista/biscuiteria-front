@@ -1,42 +1,25 @@
 import Link from "next/link";
-import { CalendarX, Mail, MessageCircle, Store } from "lucide-react";
-import type { PublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import { Mail, MessageCircle, Store } from "lucide-react";
+import type { PublicStoreSettings } from "@/lib/server/public-store-settings";
 
 type StoreUnavailableCardProps = {
-  settings: PublicStoreContactSettings;
+  settings: PublicStoreSettings;
 };
-
-function formatDateBR(value: string | null) {
-  if (!value) return null;
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return date.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
 
 export default function StoreUnavailableCard({
   settings,
 }: StoreUnavailableCardProps) {
-  const startsAt = formatDateBR(settings.vacationStartsAt);
-  const endsAt = formatDateBR(settings.vacationEndsAt);
+
+  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL;
+  const contactEmailUrl = process.env.NEXT_PUBLIC_CONTACT_EMAIL
+    ? "mailto: " + process.env.NEXT_PUBLIC_CONTACT_EMAIL
+    : null;
 
   return (
     <div className="rounded-3xl border border-amber-200 bg-white p-8 shadow-sm sm:p-10">
       <div className="mx-auto flex max-w-2xl flex-col items-center text-center">
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-amber-100 text-amber-900">
-          {settings.vacationActive ? (
-            <CalendarX className="h-7 w-7" />
-          ) : (
             <Store className="h-7 w-7" />
-          )}
         </div>
 
         <h1 className="mt-5 font-playfair text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
@@ -49,12 +32,6 @@ export default function StoreUnavailableCard({
             "No momento não estamos aceitando novos pedidos."}
         </p>
 
-        {settings.vacationActive && startsAt && endsAt ? (
-          <p className="mt-3 text-sm font-semibold text-zinc-900">
-            Período: {startsAt} a {endsAt}
-          </p>
-        ) : null}
-
         <div className="mt-7 flex w-full flex-col justify-center gap-3 sm:flex-row">
           <Link
             href="/loja"
@@ -63,9 +40,9 @@ export default function StoreUnavailableCard({
             Voltar para a loja
           </Link>
 
-          {settings.whatsappUrl ? (
+          {whatsappUrl ? (
             <Link
-              href={settings.whatsappUrl}
+              href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--rose-100)] bg-white px-6 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-[var(--rose-50)]"
@@ -73,9 +50,9 @@ export default function StoreUnavailableCard({
               <MessageCircle className="h-4 w-4" />
               Falar no WhatsApp
             </Link>
-          ) : settings.contactEmailUrl ? (
+          ) : contactEmailUrl ? (
             <Link
-              href={settings.contactEmailUrl}
+              href={contactEmailUrl}
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--rose-100)] bg-white px-6 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-[var(--rose-50)]"
             >
               <Mail className="h-4 w-4" />

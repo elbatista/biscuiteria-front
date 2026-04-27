@@ -8,11 +8,9 @@ const updateShippingOriginSettingsSchema = z.object({
   originZipCode: z.string().trim().optional().nullable(),
   originStreet: z.string().trim().optional().nullable(),
   originNumber: z.string().trim().optional().nullable(),
-  originComplement: z.string().trim().optional().nullable(),
   originDistrict: z.string().trim().optional().nullable(),
   originCity: z.string().trim().optional().nullable(),
   originState: z.string().trim().optional().nullable(),
-  originCountry: z.string().trim().optional().nullable(),
 });
 
 function emptyToNull(value?: string | null) {
@@ -51,11 +49,9 @@ export async function PUT(request: NextRequest) {
         originZipCode: normalizedZipCode || null,
         originStreet: emptyToNull(data.originStreet),
         originNumber: emptyToNull(data.originNumber),
-        originComplement: emptyToNull(data.originComplement),
         originDistrict: emptyToNull(data.originDistrict),
         originCity: emptyToNull(data.originCity),
         originState: emptyToNull(data.originState)?.toUpperCase() || null,
-        originCountry: emptyToNull(data.originCountry)?.toUpperCase() || "BR",
       },
       create: {
         id: 1,
@@ -66,11 +62,9 @@ export async function PUT(request: NextRequest) {
         originZipCode: normalizedZipCode || null,
         originStreet: emptyToNull(data.originStreet),
         originNumber: emptyToNull(data.originNumber),
-        originComplement: emptyToNull(data.originComplement),
         originDistrict: emptyToNull(data.originDistrict),
         originCity: emptyToNull(data.originCity),
         originState: emptyToNull(data.originState)?.toUpperCase() || null,
-        originCountry: emptyToNull(data.originCountry)?.toUpperCase() || "BR",
       },
     });
 

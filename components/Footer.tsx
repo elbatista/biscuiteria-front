@@ -11,10 +11,14 @@ import {
   ShieldCheck,
   Mail,
 } from "lucide-react";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export default async function Footer() {
-  const contact = await getPublicStoreContactSettings();
+  const contact = {
+    storeName: "Biscuit_eria",
+    instagramUrl: process.env.NEXT_PUBLIC_INSTAGRAM_URL,
+    whatsappUrl: process.env.NEXT_PUBLIC_WHATSAPP_URL,
+    contactEmailUrl: "mailto: " + process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+  }
 
   return (
     <footer className="border-t border-[var(--rose-100)] bg-[var(--rose-50)]">
@@ -181,7 +185,7 @@ export default async function Footer() {
 
       <div className="flex flex-col items-center justify-center gap-3 border-t border-[var(--rose-100)] px-4 py-6 sm:flex-row sm:gap-10 sm:px-8">
         <div className="text-sm text-[var(--text-muted)]">
-          © {new Date().getFullYear()} {contact.storeName}
+          © {process.env.NEXT_PUBLIC_APP_YEAR} {contact.storeName}
         </div>
 
         <div className="text-sm text-[var(--text-muted)]">

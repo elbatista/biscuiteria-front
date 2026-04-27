@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { assertStoreCanAcceptOrders } from "@/lib/server/store-settings";
-import { revalidateTag } from "next/cache";
 
 export const checkoutSchema = z.object({
   customer: z.object({
@@ -35,7 +34,7 @@ export const checkoutSchema = z.object({
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
 function generatePublicId() {
-  return `PED-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
+  return `PEDIDO-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
 }
 
 function normalizeZipCode(zipCode: string) {
@@ -162,8 +161,6 @@ export async function createCheckoutOrder(data: CheckoutInput) {
 
     return createdOrder;
   });
-
-  revalidateTag("best-sellers", "max");
 
   return {
     publicId: order.publicId,

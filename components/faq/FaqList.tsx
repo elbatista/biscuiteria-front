@@ -1,5 +1,3 @@
-// components/faq/FaqList.tsx
-
 import type { PublicFaqItem } from "@/lib/server/public-faq";
 
 type FaqListProps = {
