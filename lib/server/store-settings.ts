@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function getStoreSettings() {
+  noStore();
   return prisma.storeSettings.upsert({
     where: {
       id: 1,

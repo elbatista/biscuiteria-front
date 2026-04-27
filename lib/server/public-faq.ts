@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export type PublicFaqItem = {
   id: number;
@@ -8,6 +9,7 @@ export type PublicFaqItem = {
 };
 
 export async function getPublicFaqItems(): Promise<PublicFaqItem[]> {
+  noStore();
   return prisma.faqItem.findMany({
     where: {
       active: true,

@@ -6,6 +6,7 @@ import type {
   StoreSortOption,
 } from "@/lib/server/store";
 import { parseStoreSort } from "@/lib/server/store";
+import { unstable_noStore as noStore } from "next/cache";
 
 function normalizeSingleValue(value?: string | string[]) {
   if (Array.isArray(value)) {
@@ -169,6 +170,7 @@ export async function getCollectionPageData(input: {
 }
 
 export async function getCollectionsIndexPageData(): Promise<StoreCollectionSummary[]> {
+  noStore();
   const collections = await prisma.collection.findMany({
     where: {
       isActive: true,
