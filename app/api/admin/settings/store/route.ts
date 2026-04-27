@@ -37,7 +37,6 @@ export async function PUT(request: NextRequest) {
         storeStatus: data.storeStatus,
         storeClosedMessage: emptyToNull(data.storeClosedMessage),
         announcementEnabled: false,
-        originCountry: "BR",
       },
     });
 

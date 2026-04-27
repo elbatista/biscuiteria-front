@@ -56,7 +56,6 @@ export async function PUT(request: NextRequest) {
       create: {
         id: 1,
         storeStatus: "open",
-        vacationEnabled: false,
         announcementEnabled: false,
 
         originZipCode: normalizedZipCode || null,
