@@ -4,15 +4,16 @@ import Button from "@/components/Button";
 import Container from "@/components/Container";
 import Section from "@/components/Section";
 import CatalogToolbar from "@/components/catalog/CatalogToolbar";
+import FaqPreview from "@/components/faq/FaqPreview";
 import LatestCollectionsPreview from "@/components/store/LatestCollectionsPreview";
 import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner";
 import StoreCategoryFilters from "@/components/store/StoreCategoryFilters";
 import StoreEmptyState from "@/components/store/StoreEmptyState";
-import StoreHero from "@/components/store/StoreHero";
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { buildStoreHref } from "@/components/store/store-query";
-import { getStorePageData } from "@/lib/server/store";
+import { getPublicFaqPreview } from "@/lib/server/public-faq";
 import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
+import { getStorePageData } from "@/lib/server/store";
 import AnnouncementBar from "@/components/AnnouncementBar";
 
 export const metadata = {
@@ -34,13 +35,14 @@ type LojaPageProps = {
 export default async function LojaPage({ searchParams }: LojaPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const [settings, data] = await Promise.all([
+  const [settings, data, faqItems] = await Promise.all([
     getPublicStoreSettings(),
     getStorePageData({
       categorySlug: resolvedSearchParams?.categoria,
       collectionSlug: resolvedSearchParams?.colecao,
       sort: resolvedSearchParams?.sort,
     }),
+    getPublicFaqPreview(3),
   ]);
 
   const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL || "/contato";
@@ -57,152 +59,158 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
 
   return (
     <>
-    <AnnouncementBar/>
-    <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
-      <Section>
-        <Container>
-          <div className="space-y-8">
-            {/* <StoreHero
-              whatsappHref={whatsappHref}
-              instagramHref={instagramHref}
-            /> */}
+      <AnnouncementBar />
 
-            <StoreAvailabilityBanner settings={settings} />
+      <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
+        <Section>
+          <Container>
+            <div className="space-y-8">
+              <StoreAvailabilityBanner settings={settings} />
 
-            <StoreCategoryFilters
-              categories={data.categories}
-              activeCategorySlug={data.selectedCategory?.slug ?? null}
-              currentCollectionSlug={data.selectedCollection?.slug ?? null}
-              currentSort={data.sort}
-            />
-
-            <CatalogToolbar
-              totalItems={data.totalProducts}
-              sortOptions={[
-                {
-                  label: "Destaques",
-                  href: buildStoreHref({
-                    categoria: data.selectedCategory?.slug ?? null,
-                    colecao: data.selectedCollection?.slug ?? null,
-                    sort: "featured",
-                  }),
-                  active: data.sort === "featured",
-                },
-                {
-                  label: "Mais recentes",
-                  href: buildStoreHref({
-                    categoria: data.selectedCategory?.slug ?? null,
-                    colecao: data.selectedCollection?.slug ?? null,
-                    sort: "recent",
-                  }),
-                  active: data.sort === "recent",
-                },
-                {
-                  label: "Menor preço",
-                  href: buildStoreHref({
-                    categoria: data.selectedCategory?.slug ?? null,
-                    colecao: data.selectedCollection?.slug ?? null,
-                    sort: "price-asc",
-                  }),
-                  active: data.sort === "price-asc",
-                },
-                {
-                  label: "Maior preço",
-                  href: buildStoreHref({
-                    categoria: data.selectedCategory?.slug ?? null,
-                    colecao: data.selectedCollection?.slug ?? null,
-                    sort: "price-desc",
-                  }),
-                  active: data.sort === "price-desc",
-                },
-              ]}
-              activeFilters={activeFilters}
-              clearFiltersHref={activeFilters.length > 0 ? "/loja" : null}
-            />
-
-            {data.products.length === 0 ? (
-              <StoreEmptyState hasFilters={activeFilters.length > 0} />
-            ) : (
-              <StoreProductsGrid
-                products={data.products}
-                canAcceptOrders={settings.canAcceptOrders}
-                orderUnavailableReason={settings.orderUnavailableReason}
+              <StoreCategoryFilters
+                categories={data.categories}
+                activeCategorySlug={data.selectedCategory?.slug ?? null}
+                currentCollectionSlug={data.selectedCollection?.slug ?? null}
+                currentSort={data.sort}
               />
-            )}
-          </div>
-        </Container>
-      </Section>
 
-      <Section color="green">
-        <Container>
-          <div className="space-y-6">
-            <LatestCollectionsPreview collections={data.latestCollections} />
+              <CatalogToolbar
+                totalItems={data.totalProducts}
+                sortOptions={[
+                  {
+                    label: "Destaques",
+                    href: buildStoreHref({
+                      categoria: data.selectedCategory?.slug ?? null,
+                      colecao: data.selectedCollection?.slug ?? null,
+                      sort: "featured",
+                    }),
+                    active: data.sort === "featured",
+                  },
+                  {
+                    label: "Mais recentes",
+                    href: buildStoreHref({
+                      categoria: data.selectedCategory?.slug ?? null,
+                      colecao: data.selectedCollection?.slug ?? null,
+                      sort: "recent",
+                    }),
+                    active: data.sort === "recent",
+                  },
+                  {
+                    label: "Menor preço",
+                    href: buildStoreHref({
+                      categoria: data.selectedCategory?.slug ?? null,
+                      colecao: data.selectedCollection?.slug ?? null,
+                      sort: "price-asc",
+                    }),
+                    active: data.sort === "price-asc",
+                  },
+                  {
+                    label: "Maior preço",
+                    href: buildStoreHref({
+                      categoria: data.selectedCategory?.slug ?? null,
+                      colecao: data.selectedCollection?.slug ?? null,
+                      sort: "price-desc",
+                    }),
+                    active: data.sort === "price-desc",
+                  },
+                ]}
+                activeFilters={activeFilters}
+                clearFiltersHref={activeFilters.length > 0 ? "/loja" : null}
+              />
 
-            <div>
+              {data.products.length === 0 ? (
+                <StoreEmptyState hasFilters={activeFilters.length > 0} />
+              ) : (
+                <StoreProductsGrid
+                  products={data.products}
+                  canAcceptOrders={settings.canAcceptOrders}
+                  orderUnavailableReason={settings.orderUnavailableReason}
+                />
+              )}
+            </div>
+          </Container>
+        </Section>
+
+        <Section color="green">
+          <Container>
+            <div className="space-y-6">
+              <LatestCollectionsPreview collections={data.latestCollections} />
+
               <div>
                 <Button href="/colecoes" variant="secondary">
                   Ver todas as coleções
                 </Button>
               </div>
             </div>
-          </div>
-        </Container>
-      </Section>
+          </Container>
+        </Section>
 
-      <Section>
-        <Container>
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5">
-              <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-                <strong className="text-zinc-900">
-                  Não achou exatamente o que queria?
-                </strong>{" "}
-                Você pode pedir um produto personalizado. É só{" "}
-                <Link
-                  href="/personalizados"
-                  className="text-[var(--green-500)] hover:underline"
-                >
-                  preencher o formulário
-                </Link>{" "}
-                e enviar as referências.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-100)] p-8 sm:p-10">
-              <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
-                <div className="space-y-3">
-                  <h2 className="font-playfair text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-                    Quer acompanhar os próximos lançamentos?
-                  </h2>
-                  <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-                    Me chama no WhatsApp ou acompanha no Instagram para ver novas
-                    coleções, peças especiais e produtos personalizados.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                  <Button
-                    target={whatsappHref ? "_blank" : undefined}
-                    href={whatsappHref}
-                    variant="primary"
+        <Section>
+          <Container>
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5">
+                <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+                  <strong className="text-zinc-900">
+                    Não achou exatamente o que queria?
+                  </strong>{" "}
+                  Você pode pedir um produto personalizado. É só{" "}
+                  <Link
+                    href="/personalizados"
+                    className="text-[var(--green-500)] hover:underline"
                   >
-                    Falar no WhatsApp
-                  </Button>
+                    preencher o formulário
+                  </Link>{" "}
+                  e enviar as referências.
+                </p>
+              </div>
 
-                  <Button
-                    target={instagramHref ? "_blank" : undefined}
-                    href={instagramHref}
-                    variant="secondary"
-                  >
-                    Ir para o Instagram
-                  </Button>
+              <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-100)] p-8 sm:p-10">
+                <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
+                  <div className="space-y-3">
+                    <h2 className="font-playfair text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+                      Quer acompanhar os próximos lançamentos?
+                    </h2>
+
+                    <p className="text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
+                      Me chama no WhatsApp ou acompanha no Instagram para ver
+                      novas coleções, peças especiais e produtos personalizados.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+                    <Button
+                      target={whatsappHref ? "_blank" : undefined}
+                      href={whatsappHref}
+                      variant="primary"
+                    >
+                      Falar no WhatsApp
+                    </Button>
+
+                    <Button
+                      target={instagramHref ? "_blank" : undefined}
+                      href={instagramHref}
+                      variant="secondary"
+                    >
+                      Ir para o Instagram
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Container>
-      </Section>
-    </div>
+          </Container>
+        </Section>
+
+        <Section color="green">
+          <Container>
+            <FaqPreview
+              items={faqItems}
+              title="Dúvidas antes de comprar?"
+              subtitle="Veja respostas rápidas sobre pedidos, produtos personalizados, pagamento e envio."
+              ctaLabel="Ver todas as dúvidas"
+            />
+          </Container>
+        </Section>
+      </div>
     </>
   );
 }

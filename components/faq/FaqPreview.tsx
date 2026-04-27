@@ -8,12 +8,16 @@ type FaqPreviewProps = {
   items: PublicFaqItem[];
   title?: string;
   subtitle?: string;
+  href?: string;
+  ctaLabel?: string;
 };
 
 export default function FaqPreview({
   items,
   title = "Dúvidas frequentes",
   subtitle = "Veja respostas rápidas para as perguntas mais comuns.",
+  href = "/faq",
+  ctaLabel = "Ver todas as perguntas",
 }: FaqPreviewProps) {
   if (items.length === 0) {
     return null;
@@ -38,10 +42,10 @@ export default function FaqPreview({
       <FaqList items={items} />
 
       <Link
-        href="/faq"
+        href={href}
         className="inline-flex items-center justify-center rounded-2xl border border-[var(--rose-100)] bg-white px-5 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-[var(--rose-50)]"
       >
-        Ver todas as perguntas
+        {ctaLabel}
       </Link>
     </div>
   );
