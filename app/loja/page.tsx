@@ -13,6 +13,7 @@ import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { buildStoreHref } from "@/components/store/store-query";
 import { getStorePageData } from "@/lib/server/store";
 import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 export const metadata = {
   title: "Loja | Biscuit_eria",
@@ -55,14 +56,16 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
   ].filter(Boolean) as Array<{ label: string }>;
 
   return (
+    <>
+    <AnnouncementBar/>
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
       <Section>
         <Container>
           <div className="space-y-8">
-            <StoreHero
+            {/* <StoreHero
               whatsappHref={whatsappHref}
               instagramHref={instagramHref}
-            />
+            /> */}
 
             <StoreAvailabilityBanner settings={settings} />
 
@@ -200,5 +203,6 @@ export default async function LojaPage({ searchParams }: LojaPageProps) {
         </Container>
       </Section>
     </div>
+    </>
   );
 }

@@ -11,6 +11,7 @@ import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner"
 import StoreProductsGrid from "@/components/store/StoreProductsGrid";
 import { getCollectionPageData } from "@/lib/server/collections";
 import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 type CollectionPageSearchParams = {
   categoria?: string | string[];
@@ -56,6 +57,8 @@ export default async function CollectionPage({
         coverImageUrl={data.collection.coverImageUrl}
         isFeatured={data.collection.isFeatured}
       />
+
+      <AnnouncementBar/>
 
       <Section>
         <Container>

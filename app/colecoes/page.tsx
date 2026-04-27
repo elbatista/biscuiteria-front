@@ -3,6 +3,7 @@ import Section from "@/components/Section";
 import Badge from "@/components/Badge";
 import CollectionsGrid from "@/components/collections/CollectionsGrid";
 import { getCollectionsIndexPageData } from "@/lib/server/collections";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 export const metadata = {
   title: "Coleções | Biscuit_eria",
@@ -14,6 +15,8 @@ export default async function CollectionsIndexPage() {
   const collections = await getCollectionsIndexPageData();
 
   return (
+    <>
+    <AnnouncementBar/>
     <div className="bg-[var(--rose-50)] text-[var(--text-main)]">
       <Section>
         <Container>
@@ -52,5 +55,6 @@ export default async function CollectionsIndexPage() {
         </Container>
       </Section>
     </div>
+    </>
   );
 }

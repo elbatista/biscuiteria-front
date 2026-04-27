@@ -10,6 +10,7 @@ import {
   getStoreProductBySlug,
 } from "@/lib/server/products";
 import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 type PageProps = {
   params: Promise<{
@@ -60,6 +61,8 @@ export default async function ProductDetailsPage({ params }: PageProps) {
   const primaryCategory = product.categories[0] ?? null;
 
   return (
+    <>
+    <AnnouncementBar/>
     <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
       <Container>
         <div className="py-10">
@@ -153,5 +156,6 @@ export default async function ProductDetailsPage({ params }: PageProps) {
         </div>
       </Container>
     </main>
+    </>
   );
 }

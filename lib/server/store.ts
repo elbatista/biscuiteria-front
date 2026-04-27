@@ -107,27 +107,27 @@ export async function getStorePageData(input?: {
           },
         },
       }),
+
       prisma.collection.findMany({
         where: {
           isActive: true,
+        },
+        orderBy: [{ createdAt: "desc" }, { sortOrder: "asc" }],
+        include: {
           products: {
-            some: {
+            where: {
               product: {
                 active: true,
               },
             },
-          },
-        },
-        orderBy: [{ createdAt: "desc" }, { sortOrder: "asc" }],
-        include: {
-          _count: {
             select: {
-              products: true,
+              productId: true,
             },
           },
         },
         take: 6,
       }),
+
       categorySlug
         ? prisma.category.findFirst({
             where: {
@@ -143,6 +143,7 @@ export async function getStorePageData(input?: {
             },
           })
         : Promise.resolve(null),
+
       collectionSlug
         ? prisma.collection.findFirst({
             where: {
@@ -150,9 +151,14 @@ export async function getStorePageData(input?: {
               isActive: true,
             },
             include: {
-              _count: {
+              products: {
+                where: {
+                  product: {
+                    active: true,
+                  },
+                },
                 select: {
-                  products: true,
+                  productId: true,
                 },
               },
             },
@@ -209,12 +215,14 @@ export async function getStorePageData(input?: {
         "/placeholder.png",
       available: true,
     })),
+
     categories: categories.map((category) => ({
       id: category.id,
       name: category.name,
       slug: category.slug,
       productCount: category._count.products,
     })),
+
     latestCollections: latestCollections.map((collection) => ({
       id: collection.id,
       title: collection.title,
@@ -222,8 +230,9 @@ export async function getStorePageData(input?: {
       description: collection.description,
       coverImageUrl: collection.coverImageUrl,
       isFeatured: collection.isFeatured,
-      productCount: collection._count.products,
+      productCount: collection.products.length,
     })),
+
     selectedCategory: selectedCategory
       ? {
           id: selectedCategory.id,
@@ -232,6 +241,7 @@ export async function getStorePageData(input?: {
           productCount: selectedCategory._count.products,
         }
       : null,
+
     selectedCollection: selectedCollection
       ? {
           id: selectedCollection.id,
@@ -240,9 +250,10 @@ export async function getStorePageData(input?: {
           description: selectedCollection.description,
           coverImageUrl: selectedCollection.coverImageUrl,
           isFeatured: selectedCollection.isFeatured,
-          productCount: selectedCollection._count.products,
+          productCount: selectedCollection.products.length,
         }
       : null,
+
     totalProducts: products.length,
     sort,
   };
