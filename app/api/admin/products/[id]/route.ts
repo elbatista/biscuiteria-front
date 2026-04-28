@@ -27,6 +27,10 @@ const updateProductSchema = z.object({
   collectionIds: z.array(z.number().int().positive()).default([]),
 });
 
+const patchProductSchema = z.object({
+  active: z.boolean().optional(),
+});
+
 function parseProductId(value: string) {
   const parsed = Number(value);
 
@@ -361,6 +365,105 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     console.error("ADMIN_PRODUCT_PUT_ERROR", error);
+    return NextResponse.json(
+      { message: "Erro ao atualizar produto." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  try {
+    await requireAdminAuth(request);
+
+    const { id } = await context.params;
+    const productId = parseProductId(id);
+
+    if (!productId) {
+      return NextResponse.json(
+        { message: "ID do produto inválido." },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const data = patchProductSchema.parse(body);
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { message: "Nenhum campo informado para atualização." },
+        { status: 400 }
+      );
+    }
+
+    const existingProduct = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true },
+    });
+
+    if (!existingProduct) {
+      return NextResponse.json(
+        { message: "Produto não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    const updatedProduct = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        ...(typeof data.active === "boolean" ? { active: data.active } : {}),
+      },
+      include: {
+        images: {
+          orderBy: { sortOrder: "asc" },
+        },
+        categories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+          orderBy: {
+            categoryId: "asc",
+          },
+        },
+        collections: {
+          include: {
+            collection: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                coverImageUrl: true,
+                coverImageThumbUrl: true,
+              },
+            },
+          },
+          orderBy: {
+            collectionId: "asc",
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(updatedProduct);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: error.issues[0]?.message ?? "Dados inválidos." },
+        { status: 400 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
+    }
+
+    console.error("ADMIN_PRODUCT_PATCH_ERROR", error);
     return NextResponse.json(
       { message: "Erro ao atualizar produto." },
       { status: 500 }

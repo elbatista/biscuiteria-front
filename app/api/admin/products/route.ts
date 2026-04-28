@@ -11,8 +11,6 @@ import {
 } from "@/lib/server/product-utils";
 import { uploadImageWithThumb } from "@/lib/server/blob-storage";
 
-export const runtime = "nodejs";
-
 const productSchema = z.object({
   name: z.string().min(2, "Nome muito curto."),
   shortDescription: z.string().max(300).optional().or(z.literal("")),

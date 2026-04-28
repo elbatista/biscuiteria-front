@@ -46,14 +46,12 @@ export async function PUT(request: NextRequest) {
       create: {
         id: 1,
         storeStatus: "open",
-        vacationEnabled: false,
 
         announcementEnabled: data.announcementEnabled,
         announcementMessage: emptyToNull(data.announcementMessage),
         announcementLinkLabel: emptyToNull(data.announcementLinkLabel),
         announcementLinkUrl: emptyToNull(data.announcementLinkUrl),
 
-        originCountry: "BR",
       },
     });
 

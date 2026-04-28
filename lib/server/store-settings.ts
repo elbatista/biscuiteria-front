@@ -1,12 +1,8 @@
 import { prisma } from "@/lib/prisma";
-
-type VacationSettings = {
-  vacationEnabled: boolean;
-  vacationStartsAt: Date | null;
-  vacationEndsAt: Date | null;
-};
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function getStoreSettings() {
+  noStore();
   return prisma.storeSettings.upsert({
     where: {
       id: 1,
@@ -15,25 +11,9 @@ export async function getStoreSettings() {
     create: {
       id: 1,
       storeStatus: "open",
-      vacationEnabled: false,
       announcementEnabled: false,
-      originCountry: "BR",
     },
   });
-}
-
-export function isStoreInVacation(settings: VacationSettings) {
-  if (!settings.vacationEnabled) {
-    return false;
-  }
-
-  if (!settings.vacationStartsAt || !settings.vacationEndsAt) {
-    return false;
-  }
-
-  const now = new Date();
-
-  return now >= settings.vacationStartsAt && now <= settings.vacationEndsAt;
 }
 
 export async function assertStoreCanAcceptOrders() {
@@ -43,13 +23,6 @@ export async function assertStoreCanAcceptOrders() {
     throw new Error(
       settings.storeClosedMessage ||
         "A loja não está aceitando pedidos no momento."
-    );
-  }
-
-  if (isStoreInVacation(settings)) {
-    throw new Error(
-      settings.vacationMessage ||
-        "A loja está em período de férias no momento."
     );
   }
 

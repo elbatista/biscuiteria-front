@@ -1,37 +1,21 @@
-import BestSellersSection from "@/components/home/BestSellers";
 import Hero from "@/components/home/Hero";
-import Collections from "@/components/home/Collections";
+import StartHere from "@/components/home/StartHere";
 import TheProcess from "@/components/home/TheProcess";
+import Occasions from "@/components/home/Occasions";
 import Customization from "@/components/home/Customization";
 import SocialProof from "@/components/home/SocialProof";
-import Container from "@/components/Container";
-import Section from "@/components/Section";
-import FaqPreview from "@/components/faq/FaqPreview";
-import { getPublicFaqPreview } from "@/lib/server/public-faq";
+import FinalCta from "@/components/home/FinalCta";
 
-export default async function HomePage() {
-  const faqItems = await getPublicFaqPreview(4);
-
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--rose-50)] text-[var(--text-main)]">
       <Hero />
-      <Collections />
-      <BestSellersSection />
+      <StartHere />
       <TheProcess />
+      <Occasions />
       <Customization />
       <SocialProof />
-
-      {faqItems.length > 0 ? (
-        <Section>
-          <Container>
-            <FaqPreview
-              items={faqItems}
-              title="Dúvidas frequentes"
-              subtitle="Antes de comprar ou pedir uma peça personalizada, veja algumas respostas rápidas."
-            />
-          </Container>
-        </Section>
-      ) : null}
+      <FinalCta />
     </div>
   );
 }

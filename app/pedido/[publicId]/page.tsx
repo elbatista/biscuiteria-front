@@ -5,7 +5,6 @@ import Container from "@/components/Container";
 import ContactSupportCard from "@/components/store/ContactSupportCard";
 import { formatBRLFromCents } from "@/lib/format-price";
 import { getOrderByPublicId } from "@/lib/server/orders";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 type PageProps = {
   params: Promise<{
@@ -48,10 +47,7 @@ function statusLabel(status: string) {
 export default async function OrderPage({ params }: PageProps) {
   const { publicId } = await params;
 
-  const [order, contact] = await Promise.all([
-    getOrderByPublicId(publicId),
-    getPublicStoreContactSettings(),
-  ]);
+  const order = await getOrderByPublicId(publicId);
 
   if (!order) {
     notFound();
@@ -212,7 +208,6 @@ export default async function OrderPage({ params }: PageProps) {
               </section>
 
               <ContactSupportCard
-                contact={contact}
                 title="Dúvidas sobre seu pedido?"
                 description="Fale conosco pelo WhatsApp ou e-mail informando o número do pedido."
               />

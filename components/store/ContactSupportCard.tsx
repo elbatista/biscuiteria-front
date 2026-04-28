@@ -1,21 +1,24 @@
 import Link from "next/link";
 import { Mail, MessageCircle } from "lucide-react";
-import type { PublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 type ContactSupportCardProps = {
-  contact: PublicStoreContactSettings;
   title?: string;
   description?: string;
   compact?: boolean;
 };
 
 export default function ContactSupportCard({
-  contact,
   title = "Precisa de ajuda?",
   description = "Se tiver dúvidas sobre seu pedido, fale conosco.",
   compact = false,
 }: ContactSupportCardProps) {
-  const hasContact = contact.whatsappUrl || contact.contactEmailUrl;
+
+  const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL;
+  const contactEmailUrl = process.env.NEXT_PUBLIC_CONTACT_EMAIL
+    ? "mailto: " + process.env.NEXT_PUBLIC_CONTACT_EMAIL
+    : null;
+
+  const hasContact = whatsappUrl || contactEmailUrl;
 
   if (!hasContact) {
     return null;
@@ -35,9 +38,9 @@ export default function ContactSupportCard({
       </p>
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-        {contact.whatsappUrl ? (
+        {whatsappUrl ? (
           <Link
-            href={contact.whatsappUrl}
+            href={whatsappUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--green-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--green-300)]"
@@ -47,9 +50,9 @@ export default function ContactSupportCard({
           </Link>
         ) : null}
 
-        {contact.contactEmailUrl ? (
+        {contactEmailUrl ? (
           <Link
-            href={contact.contactEmailUrl}
+            href={contactEmailUrl}
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--rose-100)] bg-white px-5 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-[var(--rose-50)]"
           >
             <Mail className="h-4 w-4" />

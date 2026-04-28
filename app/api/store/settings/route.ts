@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   getStoreSettings,
-  isStoreInVacation,
 } from "@/lib/server/store-settings";
 
 export async function GET() {
@@ -23,29 +22,21 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({
-      storeName: settings.storeName,
+    const response = NextResponse.json({
 
       storeStatus: settings.storeStatus,
       storeClosedMessage: settings.storeClosedMessage,
-
-      vacationEnabled: settings.vacationEnabled,
-      vacationActive: isStoreInVacation(settings),
-      vacationStartsAt: settings.vacationStartsAt,
-      vacationEndsAt: settings.vacationEndsAt,
-      vacationMessage: settings.vacationMessage,
 
       announcementEnabled: settings.announcementEnabled,
       announcementMessage: settings.announcementMessage,
       announcementLinkLabel: settings.announcementLinkLabel,
       announcementLinkUrl: settings.announcementLinkUrl,
 
-      whatsapp: settings.whatsapp,
-      instagramUrl: settings.instagramUrl,
-      contactEmail: settings.contactEmail,
-
       faqItems,
     });
+
+    return response;
+
   } catch (error) {
     console.error("STORE_SETTINGS_GET_ERROR", error);
 

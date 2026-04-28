@@ -7,14 +7,14 @@ import CartLineItem from "@/components/cart/CartLineItem";
 import ContactSupportCard from "@/components/store/ContactSupportCard";
 import StoreAvailabilityBanner from "@/components/store/StoreAvailabilityBanner";
 import { formatBRLFromCents } from "@/lib/format-price";
-import type { PublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import type { PublicStoreSettings } from "@/lib/server/public-store-settings";
 import { useCartStore } from "@/stores/cart-store";
 
 type CartPageClientProps = {
-  contact: PublicStoreContactSettings;
+  settings: PublicStoreSettings;
 };
 
-export default function CartPageClient({ contact }: CartPageClientProps) {
+export default function CartPageClient({ settings }: CartPageClientProps) {
   const items = useCartStore((state) => state.items);
   const subtotalInCents = useCartStore((state) => state.subtotalInCents);
   const totalItems = useCartStore((state) => state.totalItems);
@@ -67,7 +67,7 @@ export default function CartPageClient({ contact }: CartPageClientProps) {
             </div>
           ) : items.length === 0 ? (
             <div className="space-y-6">
-              <StoreAvailabilityBanner settings={contact} />
+              <StoreAvailabilityBanner settings={settings} />
 
               <div className="rounded-3xl border border-[var(--rose-100)] bg-white p-8 sm:p-10">
                 <h2 className="text-2xl font-semibold text-zinc-900">
@@ -89,14 +89,13 @@ export default function CartPageClient({ contact }: CartPageClientProps) {
               </div>
 
               <ContactSupportCard
-                contact={contact}
                 title="Dúvidas antes de escolher?"
                 description="Fale conosco se quiser ajuda para encontrar o produto ideal."
               />
             </div>
           ) : (
             <div className="space-y-6">
-              <StoreAvailabilityBanner settings={contact} />
+              <StoreAvailabilityBanner settings={settings} />
 
               <div className="grid gap-6 lg:grid-cols-[1.6fr_0.8fr]">
                 <div className="space-y-4">
@@ -138,7 +137,7 @@ export default function CartPageClient({ contact }: CartPageClientProps) {
                         Continuar comprando
                       </Link>
 
-                      {contact.canAcceptOrders ? (
+                      {settings.canAcceptOrders ? (
                         <Link
                           href="/checkout"
                           className="inline-flex w-full items-center justify-center rounded-2xl bg-[var(--green-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--green-300)]"
@@ -154,7 +153,6 @@ export default function CartPageClient({ contact }: CartPageClientProps) {
                   </div>
 
                   <ContactSupportCard
-                    contact={contact}
                     title="Precisa de ajuda com o pedido?"
                     description="Chame no WhatsApp ou envie um e-mail antes de finalizar."
                     compact

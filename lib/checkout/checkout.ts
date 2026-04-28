@@ -34,7 +34,7 @@ export const checkoutSchema = z.object({
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
 function generatePublicId() {
-  return `PED-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
+  return `PEDIDO-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
 }
 
 function normalizeZipCode(zipCode: string) {

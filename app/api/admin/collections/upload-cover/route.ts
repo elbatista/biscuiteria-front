@@ -5,8 +5,6 @@ import { requireAdminAuth } from "@/lib/auth/require-auth";
 import { uploadImageWithThumb } from "@/lib/server/blob-storage";
 import { slugify, uniqueStorageBase } from "@/lib/server/product-utils";
 
-export const runtime = "nodejs";
-
 const uploadCollectionCoverSchema = z.object({
   title: z.string().min(2, "Título da coleção é obrigatório."),
 });

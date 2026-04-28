@@ -5,7 +5,6 @@ import { requireAdminAuth } from "@/lib/auth/require-auth";
 import { prisma } from "@/lib/prisma";
 
 const updateStoreSettingsSchema = z.object({
-  storeName: z.string().trim().optional().nullable(),
   storeStatus: z.enum(["open", "closed"]),
   storeClosedMessage: z.string().trim().optional().nullable(),
 });
@@ -30,18 +29,14 @@ export async function PUT(request: NextRequest) {
         id: 1,
       },
       update: {
-        storeName: emptyToNull(data.storeName),
         storeStatus: data.storeStatus,
         storeClosedMessage: emptyToNull(data.storeClosedMessage),
       },
       create: {
         id: 1,
-        storeName: emptyToNull(data.storeName),
         storeStatus: data.storeStatus,
         storeClosedMessage: emptyToNull(data.storeClosedMessage),
-        vacationEnabled: false,
         announcementEnabled: false,
-        originCountry: "BR",
       },
     });
 

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Megaphone } from "lucide-react";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import { getPublicStoreSettings } from "@/lib/server/public-store-settings";
 
 function isExternalUrl(url: string) {
   return url.startsWith("http://") || url.startsWith("https://");
 }
 
 export default async function AnnouncementBar() {
-  const settings = await getPublicStoreContactSettings();
+  const settings = await getPublicStoreSettings();
 
   if (!settings.announcementEnabled || !settings.announcementMessage?.trim()) {
     return null;

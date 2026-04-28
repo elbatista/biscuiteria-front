@@ -3,7 +3,6 @@ import Badge from "@/components/Badge";
 import Link from "next/link";
 import Button from "@/components/Button";
 import { FalarWhats, InnerSection, LastUpdate, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Termos de Uso | Biscuit_eria",
@@ -11,15 +10,14 @@ export const metadata = {
     "Termos e condições para uso do site e compra de peças artesanais sob encomenda na Biscuit_eria.",
 };
 
-export default async function TermosDeUsoPage() {
-  const contact = await getPublicStoreContactSettings();
+export default function TermosDeUsoPage() {
 
-  const brand = contact.storeName;
+  const brand = "Biscuit_eria";
   const lastUpdated = "Fevereiro de 2026";
 
-  const legalName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL || contact.storeName;
-  const contactEmail = contact.contactEmail;
-  const whatsappHref = contact.whatsappUrl;
+  const legalName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL;
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+  const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
 
   // Regras comerciais (ajuste conforme seu processo real)
   const productionTime = "5 a 20 dias úteis (varia por quantidade de peças)";

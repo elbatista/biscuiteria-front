@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import Badge from "@/components/Badge";
 import type { StoreCollectionSummary } from "@/lib/server/store";
 import { buildStoreHref } from "./store-query";

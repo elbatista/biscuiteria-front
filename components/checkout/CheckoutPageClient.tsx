@@ -9,13 +9,13 @@ import ContactSupportCard from "@/components/store/ContactSupportCard";
 import StoreUnavailableCard from "@/components/store/StoreUnavailableCard";
 import { useCartStore } from "@/stores/cart-store";
 import type { ShippingOption } from "@/lib/checkout/shipping";
-import type { PublicStoreContactSettings } from "@/lib/server/public-store-settings";
+import type { PublicStoreSettings } from "@/lib/server/public-store-settings";
 
 type CheckoutPageClientProps = {
-  contact: PublicStoreContactSettings;
+  settings: PublicStoreSettings;
 };
 
-export default function CheckoutPageClient({ contact }: CheckoutPageClientProps) {
+export default function CheckoutPageClient({ settings }: CheckoutPageClientProps) {
   const items = useCartStore((state) => state.items);
 
   const subtotalInCents = useCartStore((state) =>
@@ -44,15 +44,14 @@ export default function CheckoutPageClient({ contact }: CheckoutPageClientProps)
     formState.redirecting ||
     formState.quotingShipping;
 
-  if (!contact.canAcceptOrders) {
+  if (!settings.canAcceptOrders) {
     return (
       <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
         <Container>
           <div className="space-y-6 py-10">
-            <StoreUnavailableCard settings={contact} />
+            <StoreUnavailableCard settings={settings} />
 
             <ContactSupportCard
-              contact={contact}
               title="Precisa falar conosco?"
               description="Entre em contato pelo WhatsApp ou e-mail para tirar dúvidas."
             />
@@ -87,7 +86,6 @@ export default function CheckoutPageClient({ contact }: CheckoutPageClientProps)
             </div>
 
             <ContactSupportCard
-              contact={contact}
               title="Está com alguma dúvida?"
               description="Fale conosco se precisar de ajuda antes de montar seu pedido."
             />

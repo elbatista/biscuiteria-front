@@ -6,6 +6,7 @@ import type {
   StoreSortOption,
 } from "@/lib/server/store";
 import { parseStoreSort } from "@/lib/server/store";
+import { unstable_noStore as noStore } from "next/cache";
 
 function normalizeSingleValue(value?: string | string[]) {
   if (Array.isArray(value)) {
@@ -169,22 +170,22 @@ export async function getCollectionPageData(input: {
 }
 
 export async function getCollectionsIndexPageData(): Promise<StoreCollectionSummary[]> {
+  noStore();
+
   const collections = await prisma.collection.findMany({
     where: {
       isActive: true,
+    },
+    orderBy: [{ createdAt: "desc" }, { sortOrder: "asc" }],
+    include: {
       products: {
-        some: {
+        where: {
           product: {
             active: true,
           },
         },
-      },
-    },
-    orderBy: [{ createdAt: "desc" }, { sortOrder: "asc" }],
-    include: {
-      _count: {
         select: {
-          products: true,
+          productId: true,
         },
       },
     },
@@ -197,6 +198,6 @@ export async function getCollectionsIndexPageData(): Promise<StoreCollectionSumm
     description: collection.description,
     coverImageUrl: collection.coverImageUrl,
     isFeatured: collection.isFeatured,
-    productCount: collection._count.products,
+    productCount: collection.products.length,
   }));
 }

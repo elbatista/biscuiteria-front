@@ -2,22 +2,20 @@ import Container from "@/components/Container";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import { FalarWhats, InnerSection, LastUpdate, P, SectionHeading, SubHeading, Ul } from "@/components/LegalSections";
-import { getPublicStoreContactSettings } from "@/lib/server/public-store-settings";
 
 export const metadata = {
   title: "Política de Privacidade | Biscuit_eria",
   description: "Saiba como a Biscuit_eria coleta, usa e protege seus dados pessoais, e como você pode exercer seus direitos.",
 };
 
-export default async function PoliticaDePrivacidadePage() {
-  const contact = await getPublicStoreContactSettings();
+export default function PoliticaDePrivacidadePage() {
 
   const lastUpdated = "Fevereiro de 2026";
-  const brand = contact.storeName;
-  const controllerName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL || contact.storeName;
+  const brand = "Biscuit_eria";
+  const controllerName = process.env.NEXT_PUBLIC_RAZAO_SOCIAL || brand;
   const controllerAddress = "São Leopoldo, RS, Brasil";
-  const contactEmail = contact.contactEmail;
-  const whatsappHref = contact.whatsappUrl;
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+  const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL;
 
   // Terceiros / ferramentas (preencher só o que você usa)
   const paymentProvider = "Mercado Pago / PagSeguro";
