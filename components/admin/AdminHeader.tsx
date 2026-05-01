@@ -33,7 +33,8 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
 
           <div className="flex items-center gap-2">
             <Link
-              href="/"
+              href="/loja"
+              target="_blank"
               className="hidden items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 sm:inline-flex"
             >
               <Store className="h-4 w-4" />

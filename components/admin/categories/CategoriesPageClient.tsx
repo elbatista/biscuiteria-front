@@ -344,8 +344,8 @@ export default function CategoriesPageClient() {
 
           <div className="mt-4 rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-600">
             {canReorder
-                ? "Use as setas na tabela para mudar a ordem das categorias. Novas categorias entram automaticamente no final."
-                : "Para reordenar, limpe a busca e selecione o filtro “Todas”."}
+              ? "Use as setas na lista para mudar a ordem das categorias. Novas categorias entram automaticamente no final."
+              : "Para reordenar, limpe a busca e selecione o filtro “Todas”."}
           </div>
         </section>
 
@@ -371,143 +371,270 @@ export default function CategoriesPageClient() {
               Nenhuma categoria encontrada.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-zinc-200 text-sm">
-                <thead className="bg-zinc-50">
-                  <tr>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Ordem
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Nome
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Slug
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Status
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Produtos
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Atualizada
-                    </th>
-                    <th className="px-5 py-3 text-right font-semibold text-zinc-600">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
+            <>
+              <div className="divide-y divide-zinc-100 lg:hidden">
+                {categories.map((category, index) => {
+                  const isFirst = index === 0;
+                  const isLast = index === categories.length - 1;
 
-                <tbody className="divide-y divide-zinc-100 bg-white">
-                  {categories.map((category, index) => {
-                    const isFirst = index === 0;
-                    const isLast = index === categories.length - 1;
+                  return (
+                    <article key={category.id} className="space-y-4 p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <h2 className="truncate font-semibold text-zinc-950">
+                            {category.name}
+                          </h2>
 
-                    return (
-                      <tr key={category.id} className="hover:bg-zinc-50/70">
-                        <td className="whitespace-nowrap px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className="min-w-10 rounded-xl bg-zinc-100 px-2 py-1 text-center font-mono text-xs font-semibold text-zinc-600">
-                              {category.sortOrder}
+                          <p className="mt-1 break-all text-xs text-zinc-500">
+                            {category.slug}
+                          </p>
+                        </div>
+
+                        <span
+                          className={[
+                            "inline-flex shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
+                            category.isActive
+                              ? "bg-green-50 text-green-700"
+                              : "bg-zinc-100 text-zinc-600",
+                          ].join(" ")}
+                        >
+                          {category.isActive ? "Ativa" : "Inativa"}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="rounded-2xl bg-zinc-50 p-3">
+                          <p className="font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                            Ordem
+                          </p>
+                          <p className="mt-1 font-mono font-semibold text-zinc-800">
+                            {category.sortOrder}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-zinc-50 p-3">
+                          <p className="font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                            Produtos
+                          </p>
+                          <p className="mt-1 font-semibold text-zinc-800">
+                            {category._count.products}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-zinc-50 p-3">
+                          <p className="font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                            Atualizada
+                          </p>
+                          <p className="mt-1 font-semibold text-zinc-800">
+                            {formatDate(category.updatedAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            disabled={
+                              !canReorder ||
+                              isFirst ||
+                              isOperating ||
+                              data?.totalPages !== 1
+                            }
+                            onClick={() => handleMove(category, "up")}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                            title="Mover para cima"
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={
+                              !canReorder ||
+                              isLast ||
+                              isOperating ||
+                              data?.totalPages !== 1
+                            }
+                            onClick={() => handleMove(category, "down")}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                            title="Mover para baixo"
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Link
+                            href={`/admin/categories/${category.id}`}
+                            aria-disabled={isOperating}
+                            className={[
+                              "inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-zinc-200 px-3 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950",
+                              isOperating
+                                ? "pointer-events-none opacity-50"
+                                : "",
+                            ].join(" ")}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                            {/* Editar */}
+                          </Link>
+
+                          <button
+                            type="button"
+                            disabled={isOperating}
+                            onClick={() => handleDelete(category)}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            {/* Excluir */}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="min-w-full divide-y divide-zinc-200 text-sm">
+                  <thead className="bg-zinc-50">
+                    <tr>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Ordem
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Nome
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Slug
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Status
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Produtos
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Atualizada
+                      </th>
+                      <th className="px-5 py-3 text-right font-semibold text-zinc-600">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-zinc-100 bg-white">
+                    {categories.map((category, index) => {
+                      const isFirst = index === 0;
+                      const isLast = index === categories.length - 1;
+
+                      return (
+                        <tr key={category.id} className="hover:bg-zinc-50/70">
+                          <td className="whitespace-nowrap px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <span className="min-w-10 rounded-xl bg-zinc-100 px-2 py-1 text-center font-mono text-xs font-semibold text-zinc-600">
+                                {category.sortOrder}
+                              </span>
+
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  disabled={
+                                    !canReorder ||
+                                    isFirst ||
+                                    isOperating ||
+                                    data?.totalPages !== 1
+                                  }
+                                  onClick={() => handleMove(category, "up")}
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                                  title="Mover para cima"
+                                >
+                                  <ArrowUp className="h-4 w-4" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={
+                                    !canReorder ||
+                                    isLast ||
+                                    isOperating ||
+                                    data?.totalPages !== 1
+                                  }
+                                  onClick={() => handleMove(category, "down")}
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                                  title="Mover para baixo"
+                                >
+                                  <ArrowDown className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 font-semibold text-zinc-900">
+                            {category.name}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
+                            {category.slug}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4">
+                            <span
+                              className={[
+                                "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
+                                category.isActive
+                                  ? "bg-green-50 text-green-700"
+                                  : "bg-zinc-100 text-zinc-600",
+                              ].join(" ")}
+                            >
+                              {category.isActive ? "Ativa" : "Inativa"}
                             </span>
+                          </td>
 
-                            <div className="flex gap-1">
+                          <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
+                            {category._count.products}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
+                            {formatDate(category.updatedAt)}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4">
+                            <div className="flex justify-end gap-2">
+                              <Link
+                                href={`/admin/categories/${category.id}`}
+                                aria-disabled={isOperating}
+                                className={[
+                                  "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950",
+                                  isOperating
+                                    ? "pointer-events-none opacity-50"
+                                    : "",
+                                ].join(" ")}
+                                title="Editar"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Link>
+
                               <button
                                 type="button"
-                                disabled={
-                                  !canReorder ||
-                                  isFirst ||
-                                  isOperating ||
-                                  data?.totalPages !== 1
-                                }
-                                onClick={() => handleMove(category, "up")}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
-                                title="Mover para cima"
+                                disabled={isOperating}
+                                onClick={() => handleDelete(category)}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                title="Excluir"
                               >
-                                <ArrowUp className="h-4 w-4" />
-                              </button>
-
-                              <button
-                                type="button"
-                                disabled={
-                                  !canReorder ||
-                                  isLast ||
-                                  isOperating ||
-                                  data?.totalPages !== 1
-                                }
-                                onClick={() => handleMove(category, "down")}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
-                                title="Mover para baixo"
-                              >
-                                <ArrowDown className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" />
                               </button>
                             </div>
-                          </div>
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4 font-semibold text-zinc-900">
-                          {category.name}
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
-                          {category.slug}
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4">
-                          <span
-                            className={[
-                              "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-                              category.isActive
-                                ? "bg-green-50 text-green-700"
-                                : "bg-zinc-100 text-zinc-600",
-                            ].join(" ")}
-                          >
-                            {category.isActive ? "Ativa" : "Inativa"}
-                          </span>
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                          {category._count.products}
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
-                          {formatDate(category.updatedAt)}
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4">
-                          <div className="flex justify-end gap-2">
-                            <Link
-                              href={`/admin/categories/${category.id}`}
-                              aria-disabled={isOperating}
-                              className={[
-                                "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950",
-                                isOperating
-                                  ? "pointer-events-none opacity-50"
-                                  : "",
-                              ].join(" ")}
-                              title="Editar"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Link>
-
-                            <button
-                              type="button"
-                              disabled={isOperating}
-                              onClick={() => handleDelete(category)}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                              title="Excluir"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
 
           {data && data.totalPages > 1 ? (

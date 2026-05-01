@@ -398,7 +398,7 @@ export default function CollectionsPageClient() {
 
           <div className="mt-4 rounded-2xl bg-zinc-50 p-4 text-sm text-zinc-600">
             {canReorder
-              ? "Use as setas na tabela para mudar a ordem das coleções. Novas coleções entram automaticamente no final."
+              ? "Use as setas na lista para mudar a ordem das coleções. Novas coleções entram automaticamente no final."
               : "Para reordenar, limpe a busca e selecione os filtros “Todas”."}
           </div>
         </section>
@@ -425,118 +425,42 @@ export default function CollectionsPageClient() {
               Nenhuma coleção encontrada.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-zinc-200 text-sm">
-                <thead className="bg-zinc-50">
-                  <tr>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Ordem
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Coleção
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Status
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Produtos
-                    </th>
-                    <th className="px-5 py-3 text-left font-semibold text-zinc-600">
-                      Período
-                    </th>
-                    <th className="px-5 py-3 text-right font-semibold text-zinc-600">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
+            <>
+              <div className="divide-y divide-zinc-100 lg:hidden">
+                {collections.map((collection, index) => {
+                  const isFirst = index === 0;
+                  const isLast = index === collections.length - 1;
+                  const coverUrl =
+                    collection.coverImageThumbUrl || collection.coverImageUrl;
 
-                <tbody className="divide-y divide-zinc-100 bg-white">
-                  {collections.map((collection, index) => {
-                    const isFirst = index === 0;
-                    const isLast = index === collections.length - 1;
-                    const coverUrl =
-                      collection.coverImageThumbUrl || collection.coverImageUrl;
-
-                    return (
-                      <tr key={collection.id} className="hover:bg-zinc-50/70">
-                        <td className="whitespace-nowrap px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className="min-w-10 rounded-xl bg-zinc-100 px-2 py-1 text-center font-mono text-xs font-semibold text-zinc-600">
-                              {collection.sortOrder}
-                            </span>
-
-                            <div className="flex gap-1">
-                              <button
-                                type="button"
-                                disabled={
-                                  !canReorder ||
-                                  isFirst ||
-                                  isOperating ||
-                                  data?.totalPages !== 1
-                                }
-                                onClick={() => handleMove(collection, "up")}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
-                                title="Mover para cima"
-                              >
-                                <ArrowUp className="h-4 w-4" />
-                              </button>
-
-                              <button
-                                type="button"
-                                disabled={
-                                  !canReorder ||
-                                  isLast ||
-                                  isOperating ||
-                                  data?.totalPages !== 1
-                                }
-                                onClick={() => handleMove(collection, "down")}
-                                className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
-                                title="Mover para baixo"
-                              >
-                                <ArrowDown className="h-4 w-4" />
-                              </button>
+                  return (
+                    <article key={collection.id} className="space-y-4 p-5">
+                      <div className="flex gap-4">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
+                          {coverUrl ? (
+                            <Image
+                              src={coverUrl}
+                              alt={collection.coverImageAlt || collection.title}
+                              width={160}
+                              height={160}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-zinc-400">
+                              <ImageIcon className="h-6 w-6" />
                             </div>
-                          </div>
-                        </td>
+                          )}
+                        </div>
 
-                        <td className="min-w-[280px] px-5 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
-                              {coverUrl ? (
-                                <Image
-                                  src={coverUrl}
-                                  alt={
-                                    collection.coverImageAlt ||
-                                    collection.title
-                                  }
-                                  width={112}
-                                  height={112}
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-zinc-400">
-                                  <ImageIcon className="h-5 w-5" />
-                                </div>
-                              )}
-                            </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="truncate font-semibold text-zinc-950">
+                              {collection.title}
+                            </h2>
 
-                            <div className="min-w-0">
-                              <div className="truncate font-semibold text-zinc-900">
-                                {collection.title}
-                              </div>
-
-                              <div className="truncate text-xs text-zinc-500">
-                                {collection.slug}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="whitespace-nowrap px-5 py-4">
-                          <div className="flex flex-col gap-1">
                             <span
                               className={[
-                                "inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold",
+                                "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
                                 collection.isActive
                                   ? "bg-green-50 text-green-700"
                                   : "bg-zinc-100 text-zinc-600",
@@ -546,55 +470,302 @@ export default function CollectionsPageClient() {
                             </span>
 
                             {collection.isFeatured ? (
-                              <span className="inline-flex w-fit rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                              <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                                 Destaque
                               </span>
                             ) : null}
                           </div>
-                        </td>
 
-                        <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                          {collection._count.products}
-                        </td>
+                          <p className="mt-1 break-all text-xs text-zinc-500">
+                            {collection.slug}
+                          </p>
 
-                        <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
-                          {formatDate(collection.startsAt)} —{" "}
-                          {formatDate(collection.endsAt)}
-                        </td>
+                          {collection.description ? (
+                            <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">
+                              {collection.description}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
 
-                        <td className="whitespace-nowrap px-5 py-4">
-                          <div className="flex justify-end gap-2">
-                            <Link
-                              href={`/admin/collections/${collection.id}`}
-                              aria-disabled={isOperating}
-                              className={[
-                                "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950",
-                                isOperating
-                                  ? "pointer-events-none opacity-50"
-                                  : "",
-                              ].join(" ")}
-                              title="Editar"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Link>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="rounded-2xl bg-zinc-50 p-3">
+                          <p className="font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                            Ordem
+                          </p>
+                          <p className="mt-1 font-mono font-semibold text-zinc-800">
+                            {collection.sortOrder}
+                          </p>
+                        </div>
 
-                            <button
-                              type="button"
-                              disabled={isOperating}
-                              onClick={() => handleDelete(collection)}
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                              title="Excluir"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        <div className="rounded-2xl bg-zinc-50 p-3">
+                          <p className="font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                            Produtos
+                          </p>
+                          <p className="mt-1 font-semibold text-zinc-800">
+                            {collection._count.products}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-zinc-50 p-3">
+                          <p className="font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                            Início
+                          </p>
+                          <p className="mt-1 font-semibold text-zinc-800">
+                            {formatDate(collection.startsAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl bg-zinc-50 p-3 text-xs text-zinc-600">
+                        <span className="font-semibold text-zinc-800">
+                          Período:
+                        </span>{" "}
+                        {formatDate(collection.startsAt)} —{" "}
+                        {formatDate(collection.endsAt)}
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            disabled={
+                              !canReorder ||
+                              isFirst ||
+                              isOperating ||
+                              data?.totalPages !== 1
+                            }
+                            onClick={() => handleMove(collection, "up")}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                            title="Mover para cima"
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={
+                              !canReorder ||
+                              isLast ||
+                              isOperating ||
+                              data?.totalPages !== 1
+                            }
+                            onClick={() => handleMove(collection, "down")}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                            title="Mover para baixo"
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Link
+                            href={`/admin/collections/${collection.id}`}
+                            aria-disabled={isOperating}
+                            className={[
+                              "inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-zinc-200 px-3 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950",
+                              isOperating
+                                ? "pointer-events-none opacity-50"
+                                : "",
+                            ].join(" ")}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                            {/* Editar */}
+                          </Link>
+
+                          <button
+                            type="button"
+                            disabled={isOperating}
+                            onClick={() => handleDelete(collection)}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            {/* Excluir */}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="min-w-full divide-y divide-zinc-200 text-sm">
+                  <thead className="bg-zinc-50">
+                    <tr>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Ordem
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Coleção
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Status
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Produtos
+                      </th>
+                      <th className="px-5 py-3 text-left font-semibold text-zinc-600">
+                        Período
+                      </th>
+                      <th className="px-5 py-3 text-right font-semibold text-zinc-600">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-zinc-100 bg-white">
+                    {collections.map((collection, index) => {
+                      const isFirst = index === 0;
+                      const isLast = index === collections.length - 1;
+                      const coverUrl =
+                        collection.coverImageThumbUrl ||
+                        collection.coverImageUrl;
+
+                      return (
+                        <tr
+                          key={collection.id}
+                          className="hover:bg-zinc-50/70"
+                        >
+                          <td className="whitespace-nowrap px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <span className="min-w-10 rounded-xl bg-zinc-100 px-2 py-1 text-center font-mono text-xs font-semibold text-zinc-600">
+                                {collection.sortOrder}
+                              </span>
+
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  disabled={
+                                    !canReorder ||
+                                    isFirst ||
+                                    isOperating ||
+                                    data?.totalPages !== 1
+                                  }
+                                  onClick={() => handleMove(collection, "up")}
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                                  title="Mover para cima"
+                                >
+                                  <ArrowUp className="h-4 w-4" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  disabled={
+                                    !canReorder ||
+                                    isLast ||
+                                    isOperating ||
+                                    data?.totalPages !== 1
+                                  }
+                                  onClick={() => handleMove(collection, "down")}
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
+                                  title="Mover para baixo"
+                                >
+                                  <ArrowDown className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="min-w-[280px] px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
+                                {coverUrl ? (
+                                  <Image
+                                    src={coverUrl}
+                                    alt={
+                                      collection.coverImageAlt ||
+                                      collection.title
+                                    }
+                                    width={112}
+                                    height={112}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center text-zinc-400">
+                                    <ImageIcon className="h-5 w-5" />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="truncate font-semibold text-zinc-900">
+                                  {collection.title}
+                                </div>
+
+                                <div className="truncate text-xs text-zinc-500">
+                                  {collection.slug}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4">
+                            <div className="flex flex-col gap-1">
+                              <span
+                                className={[
+                                  "inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold",
+                                  collection.isActive
+                                    ? "bg-green-50 text-green-700"
+                                    : "bg-zinc-100 text-zinc-600",
+                                ].join(" ")}
+                              >
+                                {collection.isActive ? "Ativa" : "Inativa"}
+                              </span>
+
+                              {collection.isFeatured ? (
+                                <span className="inline-flex w-fit rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                                  Destaque
+                                </span>
+                              ) : null}
+                            </div>
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
+                            {collection._count.products}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
+                            {formatDate(collection.startsAt)} —{" "}
+                            {formatDate(collection.endsAt)}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4">
+                            <div className="flex justify-end gap-2">
+                              <Link
+                                href={`/admin/collections/${collection.id}`}
+                                aria-disabled={isOperating}
+                                className={[
+                                  "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 hover:text-zinc-950",
+                                  isOperating
+                                    ? "pointer-events-none opacity-50"
+                                    : "",
+                                ].join(" ")}
+                                title="Editar"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Link>
+
+                              <button
+                                type="button"
+                                disabled={isOperating}
+                                onClick={() => handleDelete(collection)}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-200 text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                title="Excluir"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
 
           {data && data.totalPages > 1 ? (
