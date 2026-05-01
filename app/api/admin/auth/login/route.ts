@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import {
+  ADMIN_AUTH_COOKIE_NAME,
+  getAdminCookieOptions,
+} from '@/lib/auth/admin-cookie';
 import { signAdminToken } from '@/lib/auth/jwt';
 import { comparePassword } from '@/lib/auth/password';
 import { prisma } from '@/lib/prisma';
@@ -45,8 +49,7 @@ export async function POST(request: Request) {
       role: user.role,
     });
 
-    return NextResponse.json({
-      token,
+    const response = NextResponse.json({
       user: {
         id: user.id,
         name: user.name,
@@ -54,6 +57,14 @@ export async function POST(request: Request) {
         role: user.role,
       },
     });
+
+    response.cookies.set(
+      ADMIN_AUTH_COOKIE_NAME,
+      token,
+      getAdminCookieOptions()
+    );
+
+    return response;
   } catch (error) {
     console.error('LOGIN_ROUTE_ERROR', error);
 

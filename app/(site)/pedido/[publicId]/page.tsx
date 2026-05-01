@@ -198,6 +198,22 @@ export default async function OrderPage({ params }: PageProps) {
                     <span>{formatBRLFromCents(order.shippingInCents)}</span>
                   </div>
 
+                  {order.shippingProvider || order.shippingServiceName ? (
+                    <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-50)] px-3 py-2 text-xs text-[var(--text-muted)]">
+                      <div className="font-medium text-zinc-900">
+                        {[order.shippingProvider, order.shippingServiceName]
+                          .filter(Boolean)
+                          .join(" • ")}
+                      </div>
+
+                      <div className="mt-1">
+                        {order.shippingDeliveryDays
+                          ? `Prazo estimado: ${order.shippingDeliveryDays} dia(s)`
+                          : "Prazo estimado indisponível"}
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div className="border-t border-[var(--rose-100)] pt-3">
                     <div className="flex items-center justify-between text-base font-semibold text-zinc-900">
                       <span>Total</span>

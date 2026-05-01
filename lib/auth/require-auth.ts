@@ -1,14 +1,23 @@
-import { prisma } from '@/lib/prisma';
+import {
+  ADMIN_AUTH_COOKIE_NAME,
+  readCookieFromHeader,
+} from '@/lib/auth/admin-cookie';
 import { verifyAdminToken } from '@/lib/auth/jwt';
+import { prisma } from '@/lib/prisma';
+
+function getAdminTokenFromRequest(request: Request): string | null {
+  return readCookieFromHeader(
+    request.headers.get('cookie'),
+    ADMIN_AUTH_COOKIE_NAME
+  );
+}
 
 export async function requireAdminAuth(request: Request) {
-  const authHeader = request.headers.get('authorization');
+  const token = getAdminTokenFromRequest(request);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     throw new Error('UNAUTHORIZED');
   }
-
-  const token = authHeader.replace('Bearer ', '').trim();
 
   let payload: { userId: string; email: string; role: string };
 
