@@ -1,24 +1,50 @@
-import Container from "@/components/Container";
+import type { Metadata } from "next";
+import Image from "next/image";
+import { Fragment, type ReactNode } from "react";
+
 import Badge from "@/components/Badge";
+import BasicRichText from "@/components/content/BasicRichText";
 import Button from "@/components/Button";
+import Container from "@/components/Container";
+import LinkCard from "@/components/LinkCard";
 import Section from "@/components/Section";
 import SectionTitle from "@/components/SectionTitle";
 import SimpleCard from "@/components/SimpleCard";
-import LinkCard from "@/components/LinkCard";
-import Image from "next/image";
+import { getPublicAboutPageSettings } from "@/lib/server/public-about-page-settings";
 
-export const metadata = {
-  title: "Sobre | Biscuit_eria",
-  description:
-    "Conheça a história da Biscuit_eria, o cuidado por trás das peças artesanais em biscuit e como funciona o processo de criação.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicAboutPageSettings();
 
-export default function SobrePage() {
+  return {
+    title: settings.metaTitle,
+    description: settings.metaDescription,
+  };
+}
+
+function renderAuthorTitle(title: string, makerName: string): ReactNode {
+  if (!makerName) return title;
+
+  const index = title.toLocaleLowerCase().indexOf(makerName.toLocaleLowerCase());
+
+  if (index === -1) return title;
+
+  const before = title.slice(0, index);
+  const name = title.slice(index, index + makerName.length);
+  const after = title.slice(index + makerName.length);
+
+  return (
+    <>
+      <Fragment>{before}</Fragment>
+      <span className="italic">{name}</span>
+      <Fragment>{after}</Fragment>
+    </>
+  );
+}
+
+export default async function SobrePage() {
+  const settings = await getPublicAboutPageSettings();
 
   const brand = "Biscuit_eria";
-  const makerName = "Eliadi";
-  const city = "São Leopoldo / RS";
-  const years = "desde 2021";
   const whatsappHref = process.env.NEXT_PUBLIC_WHATSAPP_URL || "/contato";
   const instagramHref = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "/contato";
 
@@ -30,28 +56,29 @@ export default function SobrePage() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             {/* Texto */}
             <div className="space-y-6">
-              <Badge>Sobre a autora</Badge>
+              <Badge>{settings.authorBadge}</Badge>
 
               <h2 className="font-playfair text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900">
-                Oi! Eu sou a <span className="italic">Eliadi</span> 👋
+                {renderAuthorTitle(settings.authorTitle, settings.makerName)}
               </h2>
 
               <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
-                Eu crio peças em biscuit com um objetivo simples: transformar momentos em lembranças que dão vontade de guardar. Cada encomenda passa por um processo artesanal — do modelado à pintura — com atenção aos detalhes e muito carinho.
-              </p>
-              <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
-                Sou <strong>gaúcha</strong>, apaixonada por <strong>chimarrão</strong>, daqueles que acompanham o dia inteiro. Gosto de enfeitar a cuia, cuidar dos detalhes e aproveitar essa <strong>tradição</strong> ao lado do meu marido, Emerson. Acho que esse cuidado, essa pausa e esse afeto acabam aparecendo também nas minhas peças.
+                <BasicRichText text={settings.authorDescription1} />
               </p>
 
               <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
-                <strong>Bora tomar um chima!</strong>
+                <BasicRichText text={settings.authorDescription2} />
+              </p>
+
+              <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)] max-w-xl">
+                <BasicRichText text={settings.authorHighlight} />
               </p>
 
               {/* “Provas rápidas” */}
               <div className="grid gap-3 sm:grid-cols-3">
-                <SimpleCard title={"100% artesanal"} description="Feito à mão, peça a peça" icon="🖐🏻" />
-                <SimpleCard title={"Sob encomenda"} description="Personalizo do seu jeito" icon="🎨" />
-                <SimpleCard title={"Tudo para o seu chima!"} description="Pra nao deixar a tradicao morrer" icon="🧉" />
+                <SimpleCard title="100% artesanal" description="Feito à mão, peça a peça" icon="🖐🏻" />
+                <SimpleCard title="Sob encomenda" description="Personalizo do seu jeito" icon="🎨" />
+                <SimpleCard title="Tudo para o seu chima!" description="Pra nao deixar a tradicao morrer" icon="🧉" />
               </div>
 
               {/* CTA */}
@@ -70,11 +97,12 @@ export default function SobrePage() {
               {/* Foto principal */}
               <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 shadow-sm aspect-[4/3]">
                 <Image
-                  src="/autora/autora-1.jpeg"
-                  alt={`Foto da autora do ${brand}`}
+                  src={settings.authorImageMainUrl || "/autora/autora-1.jpeg"}
+                  alt={settings.authorImageMainAlt || `Foto da autora do ${brand}`}
                   fill
                   className="object-cover"
                   priority
+                  sizes="(min-width: 1024px) 50vw, 100vw"
                 />
               </div>
 
@@ -82,18 +110,20 @@ export default function SobrePage() {
               <div className="grid gap-4 grid-cols-2">
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
                   <Image
-                    src="/autora/autora-2.jpeg"
-                    alt="Bastidores: modelando uma peça em biscuit"
+                    src={settings.authorImageSecondUrl || "/autora/autora-2.jpeg"}
+                    alt={settings.authorImageSecondAlt || "Bastidores: modelando uma peça em biscuit"}
                     fill
                     className="object-cover"
+                    sizes="(min-width: 1024px) 25vw, 50vw"
                   />
                 </div>
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--rose-100)] bg-white/60 aspect-[4/3]">
                   <Image
-                    src="/autora/autora-4.jpeg"
-                    alt="Bastidores: pintura e detalhes de acabamento"
+                    src={settings.authorImageThirdUrl || "/autora/autora-4.jpeg"}
+                    alt={settings.authorImageThirdAlt || "Bastidores: pintura e detalhes de acabamento"}
                     fill
                     className="object-cover"
+                    sizes="(min-width: 1024px) 25vw, 50vw"
                   />
                 </div>
               </div>
@@ -106,34 +136,28 @@ export default function SobrePage() {
         <Container>
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
-              <Badge>Sobre a {brand}</Badge>
+              <Badge>{settings.brandBadge}</Badge>
 
               <h1 className="font-playfair text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-900">
-                Artesanato que vira lembrança
+                {settings.brandTitle}
               </h1>
 
               <p className="max-w-xl text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                A <strong>{brand}</strong> nasceu do desejo de transformar momentos em pequenas peças
-                cheias de significado. Cada encomenda é feita à mão, com calma e atenção aos detalhes —
-                do primeiro rascunho até a embalagem final.
+                <BasicRichText text={settings.brandDescription1} />
               </p>
 
               <p className="max-w-xl text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                Entre um chimarrão e outro, vou modelando ideias com calma. Esse cuidado com o tempo e
-                com os detalhes também faz parte do meu processo criativo.
+                <BasicRichText text={settings.brandDescription2} />
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  target={whatsappHref ? "_blank" : undefined}
-                  href={whatsappHref}
-                >
+                <Button target={whatsappHref ? "_blank" : undefined} href={whatsappHref}>
                   Falar comigo no whats
                 </Button>
               </div>
 
               <p className="text-xs sm:text-sm text-[var(--text-muted)]">
-                Feito por <strong>{makerName}</strong> em <strong>{city}</strong> • {years}
+                Feito por <strong>{settings.makerName}</strong> em <strong>{settings.city}</strong> • {settings.sinceText}
               </p>
             </div>
 
@@ -152,14 +176,14 @@ export default function SobrePage() {
                 description="Tema, cores, detalhes e referências para ficar do seu jeito."
                 href="/personalizados"
                 linktext="Como funciona"
-                tag={"🎨"}
+                tag="🎨"
               />
               <LinkCard
                 title="Entrega com cuidado"
                 description="Embalagem pensada para proteger peças delicadas."
                 href="/trocas"
                 linktext="Trocas & Envio"
-                tag={"📦"}
+                tag="📦"
               />
             </div>
           </div>
@@ -170,21 +194,20 @@ export default function SobrePage() {
       <Section>
         <Container>
           <SectionTitle
-            eyebrow="Nossa história"
-            title="De ideia a peça: um processo com carinho"
-            subtitle="Um pouco do que inspira o trabalho e como as encomendas ganham vida."
+            eyebrow={settings.historyEyebrow}
+            title={settings.historyTitle}
+            subtitle={settings.historySubtitle}
           />
 
           <div className="grid gap-6 lg:grid-cols-3 mt-4">
             <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-6 lg:col-span-2">
               <div className="space-y-4">
                 <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                  Tudo começou em torno do <strong>chimarrão</strong>. Entre uma cuia e outra, fui percebendo que os presentes mais especiais são aqueles que contam uma <strong>história e carregam afeto</strong>.
-                  A tradição do mate, tão presente no meu dia a dia, despertou a vontade de criar enfeites para chimarrão, peças que deixassem esse momento ainda mais bonito e cheio de significado.
+                  <BasicRichText text={settings.historyDescription1} />
                 </p>
 
                 <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                  A partir daí, o <strong>biscuit</strong> virou a matéria-prima perfeita para transformar ideias em <strong>enfeites, acessórios e detalhes para chimarrão</strong>, além de miniaturas e lembranças personalizadas. Cada peça é feita à mão, com calma, delicadeza e atenção ao acabamento — do jeitinho que acredito que o artesanal deve ser. Assim, consigo adaptar cada encomenda para o que você realmente quer, sem “cara de produto pronto”.
+                  <BasicRichText text={settings.historyDescription2} />
                 </p>
               </div>
             </div>

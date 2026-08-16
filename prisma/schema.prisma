@@ -359,3 +359,50 @@ model ProductColor {
   @@index([productId])
   @@map("product_colors")
 }
+
+model AboutPageSettings {
+  id Int @id @default(1)
+
+  // Hero / autora
+  authorBadge       String @default("Sobre a autora") @map("author_badge")
+  authorTitle       String @default("Oi! Eu sou a Eliadi 👋") @map("author_title")
+  authorDescription1 String @db.Text @map("author_description_1")
+  authorDescription2 String @db.Text @map("author_description_2")
+  authorHighlight    String @default("**Bora tomar um chima!**") @db.Text @map("author_highlight")
+
+  // Fotos da autora
+  authorImageMainUrl String? @map("author_image_main_url")
+  authorImageMainAlt String? @map("author_image_main_alt")
+
+  authorImageSecondUrl String? @map("author_image_second_url")
+  authorImageSecondAlt String? @map("author_image_second_alt")
+
+  authorImageThirdUrl String? @map("author_image_third_url")
+  authorImageThirdAlt String? @map("author_image_third_alt")
+
+  // Sobre a Biscuit_eria
+  brandBadge        String @default("Sobre a Biscuit_eria") @map("brand_badge")
+  brandTitle        String @default("Artesanato que vira lembrança") @map("brand_title")
+  brandDescription1 String @db.Text @map("brand_description_1")
+  brandDescription2 String @db.Text @map("brand_description_2")
+
+  makerName String @default("Eliadi") @map("maker_name")
+  city      String @default("São Leopoldo / RS")
+  sinceText String @default("desde 2021") @map("since_text")
+
+  // História
+  historyEyebrow     String @default("Nossa história") @map("history_eyebrow")
+  historyTitle       String @default("De ideia a peça: um processo com carinho") @map("history_title")
+  historySubtitle    String @db.Text @map("history_subtitle")
+  historyDescription1 String @db.Text @map("history_description_1")
+  historyDescription2 String @db.Text @map("history_description_2")
+
+  // SEO
+  metaTitle       String @default("Sobre | Biscuit_eria") @map("meta_title")
+  metaDescription String @db.Text @map("meta_description")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("about_page_settings")
+}

@@ -5,7 +5,7 @@ import {
   HelpCircle,
   Megaphone,
   PackageCheck,
-  Settings,
+  UserRound,
 } from "lucide-react";
 
 const settingsItems = [
@@ -35,6 +35,21 @@ const settingsItems = [
 
     icon:
       Megaphone,
+  },
+
+
+  {
+    title:
+      "Sobre a autora",
+
+    description:
+      "Editar textos, fotos, história e informações de SEO da página Sobre.",
+
+    href:
+      "/admin/settings/about",
+
+    icon:
+      UserRound,
   },
 
   {
@@ -71,7 +86,7 @@ export default function SettingsHomeClient() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {settingsItems.map(
           (item) => {
             const Icon =
