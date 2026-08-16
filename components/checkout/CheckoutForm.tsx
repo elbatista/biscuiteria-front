@@ -162,7 +162,6 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const router = useRouter();
   const numberInputRef = useRef<HTMLInputElement>(null);
-  const honeypotInputRef = useRef<HTMLInputElement>(null);
 
   const items = useCartStore((state) => state.items);
   const clearCart = useCartStore((state) => state.clearCart);
@@ -344,7 +343,6 @@ export default function CheckoutForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          company: honeypotInputRef.current?.value ?? "",
           customer: {
             name: form.name.trim(),
             email: form.email.trim(),
@@ -435,20 +433,6 @@ export default function CheckoutForm({
         className="space-y-6"
         aria-busy={isBusy}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-[-10000px] top-auto h-px w-px overflow-hidden opacity-0"
-        >
-          <label htmlFor="checkout-company">Empresa</label>
-          <input
-            ref={honeypotInputRef}
-            id="checkout-company"
-            name="company"
-            type="text"
-            tabIndex={-1}
-            autoComplete="off"
-          />
-        </div>
 
         <fieldset disabled={isBusy} className="space-y-6">
           <section className="rounded-3xl border border-[var(--rose-100)] bg-white p-5 sm:p-6">

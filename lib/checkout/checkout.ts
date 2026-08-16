@@ -6,14 +6,6 @@ import { sendManualOrderEmails } from "@/lib/server/manual-order-emails";
 import { assertStoreCanAcceptOrders } from "@/lib/server/store-settings";
 
 export const checkoutSchema = z.object({
-  company: z
-    .string()
-    .trim()
-    .optional()
-    .refine((value) => !value, {
-      message: "Pedido inválido.",
-    }),
-
   customer: z.object({
     name: z.string().trim().min(2, "Informe seu nome."),
     email: z.string().trim().email("Informe um e-mail válido."),
@@ -141,10 +133,6 @@ export async function createCheckoutOrder(
   data: CheckoutInput
 ) {
   await assertStoreCanAcceptOrders();
-
-  if (data.company) {
-    throw new Error("Pedido inválido.");
-  }
 
   const uniqueProductIds = [
     ...new Set(
