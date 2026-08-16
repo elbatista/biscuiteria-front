@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import ProductForm from "@/components/admin/products/ProductForm";
+import ProductEditSwitcher from "@/components/admin/products/ProductEditSwitcher";
+import ProductForm, {
+  type ProductFormHandle,
+} from "@/components/admin/products/ProductForm";
 import ProductImagesManager from "@/components/admin/products/ProductImagesManager";
 import type {
   AdminCategoriesResponse,
@@ -10,6 +13,7 @@ import type {
   AdminCollectionOption,
   AdminCollectionsResponse,
   AdminProductDetail,
+  AdminProductImage,
 } from "@/components/admin/products/types";
 import {
   sortCategoryOptions,
@@ -20,19 +24,38 @@ type ProductEditPageClientProps = {
   productId: string;
 };
 
+function sortImages(images: AdminProductImage[]) {
+  return [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+function getFirstImageUrl(images: AdminProductImage[]) {
+  const firstImage = sortImages(images)[0];
+
+  return firstImage?.thumbUrl || firstImage?.url || null;
+}
+
 export default function ProductEditPageClient({
   productId,
 }: ProductEditPageClientProps) {
+  const productFormRef = useRef<ProductFormHandle | null>(null);
+
   const [product, setProduct] = useState<AdminProductDetail | null>(null);
+  const [productImages, setProductImages] = useState<AdminProductImage[]>([]);
   const [categories, setCategories] = useState<AdminCategoryOption[]>([]);
   const [collections, setCollections] = useState<AdminCollectionOption[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const previewImageUrl = useMemo(() => {
+    return getFirstImageUrl(productImages);
+  }, [productImages]);
 
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
       setError(null);
+      setHasUnsavedChanges(false);
 
       try {
         const [productResponse, categoriesResponse, collectionsResponse] =
@@ -55,11 +78,17 @@ export default function ProductEditPageClient({
 
         const categoriesData = (await categoriesResponse
           .json()
-          .catch(() => null)) as AdminCategoriesResponse | { message?: string } | null;
+          .catch(() => null)) as
+          | AdminCategoriesResponse
+          | { message?: string }
+          | null;
 
         const collectionsData = (await collectionsResponse
           .json()
-          .catch(() => null)) as AdminCollectionsResponse | { message?: string } | null;
+          .catch(() => null)) as
+          | AdminCollectionsResponse
+          | { message?: string }
+          | null;
 
         if (!productResponse.ok) {
           setError(
@@ -92,12 +121,17 @@ export default function ProductEditPageClient({
           return;
         }
 
-        setProduct(productData as AdminProductDetail);
+        const loadedProduct = productData as AdminProductDetail;
+
+        setProduct(loadedProduct);
+        setProductImages(sortImages(loadedProduct.images));
+
         setCategories(
           sortCategoryOptions(
             (categoriesData as AdminCategoriesResponse).items ?? []
           )
         );
+
         setCollections(
           sortCollectionOptions(
             (collectionsData as AdminCollectionsResponse).items ?? []
@@ -112,6 +146,16 @@ export default function ProductEditPageClient({
 
     loadData();
   }, [productId]);
+
+  async function handleSaveCurrentProduct() {
+    if (!productFormRef.current) {
+      return false;
+    }
+
+    return productFormRef.current.save({
+      redirect: false,
+    });
+  }
 
   if (isLoading) {
     return (
@@ -135,16 +179,32 @@ export default function ProductEditPageClient({
 
   return (
     <div className="space-y-6">
+      <ProductEditSwitcher
+        currentProductId={product.id}
+        hasUnsavedChanges={hasUnsavedChanges}
+        onSaveCurrentProduct={handleSaveCurrentProduct}
+      />
+
       <ProductForm
+        key={product.id}
+        ref={productFormRef}
         mode="edit"
-        initialProduct={product}
+        initialProduct={{
+          ...product,
+          images: productImages,
+        }}
         categories={categories}
         collections={collections}
+        previewImageUrlOverride={previewImageUrl}
+        onDirtyChange={setHasUnsavedChanges}
+        onSaved={() => setHasUnsavedChanges(false)}
       />
 
       <ProductImagesManager
+        key={`images-${product.id}`}
         productId={product.id}
-        initialImages={product.images}
+        initialImages={productImages}
+        onImagesChange={setProductImages}
       />
     </div>
   );

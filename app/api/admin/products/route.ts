@@ -25,6 +25,61 @@ const productSchema = z.object({
   lengthCm: z.string().optional().or(z.literal("")),
 });
 
+const productColorSchema = z.object({
+  id: z.number().int().positive().optional(),
+  name: z.string().trim().min(1, "Informe o nome de todas as cores."),
+  hex: z
+    .string()
+    .trim()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Informe cores em HEX válido, como #F4A7B9."),
+  active: z.boolean().default(true),
+  sortOrder: z.number().int().positive().optional(),
+});
+
+function parseProductColors(value: FormDataEntryValue | null) {
+  if (typeof value !== "string" || value.trim() === "") {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
+
+    const colors = parsed
+      .map((item, index) =>
+        productColorSchema.parse({
+          ...item,
+          sortOrder: index + 1,
+        })
+      )
+      .map((color, index) => ({
+        name: color.name.trim(),
+        hex: color.hex.toUpperCase(),
+        active: color.active,
+        sortOrder: index + 1,
+      }));
+
+    const names = new Set<string>();
+
+    for (const color of colors) {
+      const normalizedName = color.name.toLowerCase();
+
+      if (names.has(normalizedName)) {
+        return null;
+      }
+
+      names.add(normalizedName);
+    }
+
+    return colors;
+  } catch {
+    return null;
+  }
+}
+
 function parseIdArray(value: FormDataEntryValue | null) {
   if (typeof value !== "string" || value.trim() === "") {
     return [];
@@ -134,6 +189,18 @@ export async function GET(request: NextRequest) {
             sortOrder: true,
           },
         },
+        colors: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+          select: {
+            id: true,
+            name: true,
+            hex: true,
+            sortOrder: true,
+            active: true,
+          },
+        },
       },
     });
 
@@ -144,6 +211,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.error("ADMIN_PRODUCTS_GET_ERROR", error);
+
     return NextResponse.json(
       { message: "Erro ao carregar produtos." },
       { status: 500 }
@@ -159,6 +227,7 @@ export async function POST(request: NextRequest) {
 
     const categoryIds = parseIdArray(formData.get("categoryIds"));
     const collectionIds = parseIdArray(formData.get("collectionIds"));
+    const colors = parseProductColors(formData.get("colors"));
 
     if (categoryIds === null) {
       return NextResponse.json(
@@ -170,6 +239,13 @@ export async function POST(request: NextRequest) {
     if (collectionIds === null) {
       return NextResponse.json(
         { message: "Coleções inválidas." },
+        { status: 400 }
+      );
+    }
+
+    if (colors === null) {
+      return NextResponse.json(
+        { message: "Cores inválidas. Confira nomes únicos e códigos HEX." },
         { status: 400 }
       );
     }
@@ -228,6 +304,7 @@ export async function POST(request: NextRequest) {
     }
 
     const priceInCents = parsePriceToCents(data.price);
+
     if (priceInCents === null || priceInCents <= 0) {
       return NextResponse.json({ message: "Preço inválido." }, { status: 400 });
     }
@@ -304,6 +381,7 @@ export async function POST(request: NextRequest) {
         if (error instanceof Error) {
           if (error.message.startsWith("INVALID_FILE_TYPE:")) {
             const invalidType = error.message.split(":")[1];
+
             return NextResponse.json(
               { message: `Tipo não permitido: ${invalidType}` },
               { status: 400 }
@@ -312,6 +390,7 @@ export async function POST(request: NextRequest) {
 
           if (error.message.startsWith("FILE_TOO_LARGE:")) {
             const fileName = error.message.split(":")[1];
+
             return NextResponse.json(
               { message: `A imagem "${fileName}" excede 1MB.` },
               { status: 400 }
@@ -351,6 +430,14 @@ export async function POST(request: NextRequest) {
             collectionId,
           })),
         },
+        colors: {
+          create: colors.map((color) => ({
+            name: color.name,
+            hex: color.hex,
+            sortOrder: color.sortOrder,
+            active: color.active,
+          })),
+        },
         images: {
           create: savedImages.map((image) => ({
             url: image.url,
@@ -362,6 +449,9 @@ export async function POST(request: NextRequest) {
       },
       include: {
         images: {
+          orderBy: { sortOrder: "asc" },
+        },
+        colors: {
           orderBy: { sortOrder: "asc" },
         },
       },
@@ -377,6 +467,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.error("ADMIN_PRODUCTS_POST_ERROR", error);
+
     return NextResponse.json(
       { message: "Erro ao criar produto." },
       { status: 500 }

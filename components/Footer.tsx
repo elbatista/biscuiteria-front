@@ -17,7 +17,7 @@ export default async function Footer() {
     storeName: "Biscuit_eria",
     instagramUrl: process.env.NEXT_PUBLIC_INSTAGRAM_URL,
     whatsappUrl: process.env.NEXT_PUBLIC_WHATSAPP_URL,
-    contactEmailUrl: "mailto: " + process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+    contactEmailUrl: "mailto:" + process.env.NEXT_PUBLIC_CONTACT_EMAIL,
   }
 
   return (
@@ -167,7 +167,7 @@ export default async function Footer() {
               <div className="mb-2 font-semibold text-zinc-900">Envio</div>
               <div className="flex items-center gap-2">
                 <Truck className="h-4 w-4 min-w-4" />
-                Correios / Todo o Brasil
+                Forma de envio a combinar / Enviamos para todo o Brasil
               </div>
             </div>
 

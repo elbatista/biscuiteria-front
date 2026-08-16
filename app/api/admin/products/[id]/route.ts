@@ -23,6 +23,23 @@ const updateProductSchema = z.object({
   heightCm: z.string().optional().or(z.literal("")),
   widthCm: z.string().optional().or(z.literal("")),
   lengthCm: z.string().optional().or(z.literal("")),
+  colors: z
+    .array(
+      z.object({
+        id: z.number().int().positive().optional(),
+        name: z.string().trim().min(1, "Informe o nome de todas as cores."),
+        hex: z
+          .string()
+          .trim()
+          .regex(
+            /^#[0-9A-Fa-f]{6}$/,
+            "Informe cores em HEX válido, como #F4A7B9."
+          ),
+        active: z.boolean().default(true),
+        sortOrder: z.number().int().positive().optional(),
+      })
+    )
+    .default([]),
   categoryIds: z.array(z.number().int().positive()).default([]),
   collectionIds: z.array(z.number().int().positive()).default([]),
 });
@@ -39,6 +56,30 @@ function parseProductId(value: string) {
   }
 
   return parsed;
+}
+
+function normalizeProductColors(
+  colors: z.infer<typeof updateProductSchema>["colors"]
+) {
+  const names = new Set<string>();
+
+  return colors.map((color, index) => {
+    const name = color.name.trim();
+    const normalizedName = name.toLowerCase();
+
+    if (names.has(normalizedName)) {
+      throw new Error("DUPLICATED_COLOR_NAME");
+    }
+
+    names.add(normalizedName);
+
+    return {
+      name,
+      hex: color.hex.toUpperCase(),
+      active: color.active,
+      sortOrder: index + 1,
+    };
+  });
 }
 
 async function generateUniqueSlug(name: string, currentProductId: number) {
@@ -108,6 +149,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
         images: {
           orderBy: { sortOrder: "asc" },
         },
+        colors: {
+          orderBy: { sortOrder: "asc" },
+        },
         categories: {
           include: {
             category: {
@@ -155,6 +199,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     console.error("ADMIN_PRODUCT_GET_ERROR", error);
+
     return NextResponse.json(
       { message: "Erro ao carregar produto." },
       { status: 500 }
@@ -178,6 +223,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     const body = await request.json();
     const data = updateProductSchema.parse(body);
+    const colors = normalizeProductColors(data.colors);
 
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
@@ -192,6 +238,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     const priceInCents = parsePriceToCents(data.price);
+
     if (priceInCents === null || priceInCents <= 0) {
       return NextResponse.json(
         { message: "Preço inválido." },
@@ -284,6 +331,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         where: { productId },
       });
 
+      await tx.productColor.deleteMany({
+        where: { productId },
+      });
+
       if (data.categoryIds.length > 0) {
         await tx.productCategory.createMany({
           data: data.categoryIds.map((categoryId) => ({
@@ -301,12 +352,27 @@ export async function PUT(request: NextRequest, context: RouteContext) {
           })),
         });
       }
+
+      if (colors.length > 0) {
+        await tx.productColor.createMany({
+          data: colors.map((color) => ({
+            productId,
+            name: color.name,
+            hex: color.hex,
+            sortOrder: color.sortOrder,
+            active: color.active,
+          })),
+        });
+      }
     });
 
     const updatedProduct = await prisma.product.findUnique({
       where: { id: productId },
       include: {
         images: {
+          orderBy: { sortOrder: "asc" },
+        },
+        colors: {
           orderBy: { sortOrder: "asc" },
         },
         categories: {
@@ -350,9 +416,14 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     return NextResponse.json(updatedProduct);
-
-    
   } catch (error) {
+    if (error instanceof Error && error.message === "DUPLICATED_COLOR_NAME") {
+      return NextResponse.json(
+        { message: "Não cadastre duas cores com o mesmo nome." },
+        { status: 400 }
+      );
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { message: error.issues[0]?.message ?? "Dados inválidos." },
@@ -365,6 +436,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     console.error("ADMIN_PRODUCT_PUT_ERROR", error);
+
     return NextResponse.json(
       { message: "Erro ao atualizar produto." },
       { status: 500 }
@@ -417,6 +489,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         images: {
           orderBy: { sortOrder: "asc" },
         },
+        colors: {
+          orderBy: { sortOrder: "asc" },
+        },
         categories: {
           include: {
             category: {
@@ -464,6 +539,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     console.error("ADMIN_PRODUCT_PATCH_ERROR", error);
+
     return NextResponse.json(
       { message: "Erro ao atualizar produto." },
       { status: 500 }
@@ -526,6 +602,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     console.error("ADMIN_PRODUCT_DELETE_ERROR", error);
+
     return NextResponse.json(
       { message: "Erro ao excluir produto." },
       { status: 500 }

@@ -2,7 +2,6 @@ import { FC } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Badge from "./Badge";
-import AddToCartButton from "@/components/cart/AddToCartButton";
 import { formatBRL } from "@/lib/format-price";
 
 interface ProductCardProps {
@@ -21,10 +20,8 @@ interface ProductCardProps {
 const FALLBACK_IMAGE = "/placeholder.png";
 
 const ProductCard: FC<ProductCardProps> = ({
-  productId,
   name,
   price,
-  priceInCents,
   slug,
   image,
   badge,
@@ -34,17 +31,14 @@ const ProductCard: FC<ProductCardProps> = ({
 }) => {
   const href = `/produtos/${slug}`;
   const imageSrc = image || FALLBACK_IMAGE;
-  const purchasingDisabled = !available || !canAcceptOrders;
-
-  const unavailableLabel = !available
-    ? "Produto indisponível"
-    : "Loja pausada";
 
   const statusText = available
     ? canAcceptOrders
       ? "Disponível"
       : "Compras pausadas"
     : "Indisponível";
+
+  const buttonLabel = available && canAcceptOrders ? "Comprar" : "Ver produto";
 
   return (
     <div className="flex flex-col justify-between overflow-hidden rounded-3xl border border-[var(--rose-100)] bg-white shadow-sm transition hover:shadow-md">
@@ -87,31 +81,18 @@ const ProductCard: FC<ProductCardProps> = ({
         </div>
       </Link>
 
-      <div className="space-y-3 px-5 pb-5">
-        <AddToCartButton
-          productId={productId}
-          slug={slug}
-          name={name}
-          priceInCents={priceInCents}
-          imageUrl={imageSrc}
-          fullWidth
-          disabled={purchasingDisabled}
-          disabledLabel={unavailableLabel}
-        />
-
-        <AddToCartButton
-          productId={productId}
-          slug={slug}
-          name={name}
-          priceInCents={priceInCents}
-          imageUrl={imageSrc}
-          fullWidth
-          redirectToCart
-          disabled={purchasingDisabled}
-          disabledLabel={unavailableLabel}
+      <div className="px-5 pb-5">
+        <Link
+          href={href}
+          className={[
+            "inline-flex w-full items-center justify-center rounded-2xl px-6 py-3 text-center text-sm font-semibold shadow-sm transition",
+            available && canAcceptOrders
+              ? "bg-[var(--green-500)] text-white hover:bg-[var(--green-300)]"
+              : "border border-[var(--rose-100)] bg-white text-zinc-900 hover:bg-[var(--rose-50)]",
+          ].join(" ")}
         >
-          Comprar agora
-        </AddToCartButton>
+          {buttonLabel}
+        </Link>
       </div>
     </div>
   );

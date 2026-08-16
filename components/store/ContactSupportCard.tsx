@@ -15,7 +15,7 @@ export default function ContactSupportCard({
 
   const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL;
   const contactEmailUrl = process.env.NEXT_PUBLIC_CONTACT_EMAIL
-    ? "mailto: " + process.env.NEXT_PUBLIC_CONTACT_EMAIL
+    ? "mailto:" + process.env.NEXT_PUBLIC_CONTACT_EMAIL
     : null;
 
   const hasContact = whatsappUrl || contactEmailUrl;

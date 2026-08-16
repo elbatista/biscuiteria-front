@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import QuantitySelector from "./QuantitySelector";
 import ShareButtons from "./ShareButton";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductContextLinks from "./ProductContextLinks";
+
+type ProductColorOption = {
+  id: number;
+  name: string;
+  hex: string;
+};
 
 interface ProductDetailsPanelProps {
   productId: number;
@@ -18,6 +24,7 @@ interface ProductDetailsPanelProps {
   imageUrl?: string | null;
   canAcceptOrders: boolean;
   orderUnavailableReason?: string | null;
+  colors?: ProductColorOption[];
   primaryCollection?: {
     title: string;
     slug: string;
@@ -35,6 +42,10 @@ function formatBRL(valueInCents: number) {
   });
 }
 
+function isValidHex(value: string) {
+  return /^#[0-9A-Fa-f]{6}$/.test(value);
+}
+
 export default function ProductDetailsPanel({
   productId,
   name,
@@ -47,10 +58,25 @@ export default function ProductDetailsPanel({
   imageUrl = null,
   canAcceptOrders,
   orderUnavailableReason = null,
+  colors = [],
   primaryCollection = null,
   categories = [],
 }: ProductDetailsPanelProps) {
   const [quantity, setQuantity] = useState(1);
+  const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+
+  const selectedColor = useMemo(() => {
+    return colors.find((color) => color.id === selectedColorId) ?? null;
+  }, [colors, selectedColorId]);
+
+  const requiresColor = colors.length > 0;
+  const colorSelectionMissing = requiresColor && !selectedColor;
+  const purchaseDisabled = !canAcceptOrders || colorSelectionMissing;
+  const purchaseDisabledLabel = !canAcceptOrders
+    ? "Loja pausada"
+    : colorSelectionMissing
+      ? "Escolha uma cor"
+      : "Indisponível no momento";
 
   return (
     <div className="flex flex-col justify-start">
@@ -90,7 +116,7 @@ export default function ProductDetailsPanel({
           ) : null}
         </div>
 
-        <div className="scale-70 sm:scale-85 sm:shrink-0">
+        <div className="scale-70 sm:shrink-0 sm:scale-85">
           <ShareButtons title={`Confira este produto: ${name}`} />
         </div>
       </div>
@@ -115,6 +141,66 @@ export default function ProductDetailsPanel({
         </div>
       ) : null}
 
+      {colors.length > 0 ? (
+        <section className="mt-6 rounded-2xl border border-[var(--rose-100)] bg-white p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-zinc-900">
+                Escolha a cor
+              </h2>
+
+              <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">
+                Selecione uma opção para adicionar o produto ao carrinho.
+              </p>
+            </div>
+
+            {selectedColor ? (
+              <div className="text-right text-xs text-[var(--text-muted)]">
+                Selecionada
+                <div className="mt-1 font-semibold text-zinc-900">
+                  {selectedColor.name}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {colors.map((color) => {
+              const selected = color.id === selectedColorId;
+              const safeHex = isValidHex(color.hex) ? color.hex : "#E4E4E7";
+
+              return (
+                <button
+                  key={color.id}
+                  type="button"
+                  onClick={() => setSelectedColorId(color.id)}
+                  className={[
+                    "inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm font-semibold transition",
+                    selected
+                      ? "border-[var(--rose-300)] bg-[var(--rose-50)] text-zinc-950 ring-2 ring-[var(--rose-200)]"
+                      : "border-[var(--rose-100)] bg-white text-zinc-700 hover:bg-[var(--rose-50)]",
+                  ].join(" ")}
+                  aria-pressed={selected}
+                >
+                  <span
+                    className="h-5 w-5 rounded-full border border-zinc-200 shadow-sm"
+                    style={{ backgroundColor: safeHex }}
+                    aria-hidden="true"
+                  />
+                  {color.name}
+                </button>
+              );
+            })}
+          </div>
+
+          {colorSelectionMissing ? (
+            <p className="mt-3 text-xs font-medium text-amber-700">
+              Escolha uma cor antes de comprar.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       <div className="mt-6">
         <QuantitySelector value={quantity} onChange={setQuantity} max={100} />
       </div>
@@ -128,9 +214,12 @@ export default function ProductDetailsPanel({
             priceInCents={priceInCents}
             imageUrl={imageUrl}
             quantity={quantity}
+            selectedColorId={selectedColor?.id ?? null}
+            selectedColorName={selectedColor?.name ?? null}
+            selectedColorHex={selectedColor?.hex ?? null}
             fullWidth
-            disabled={!canAcceptOrders}
-            disabledLabel="Loja pausada"
+            disabled={purchaseDisabled}
+            disabledLabel={purchaseDisabledLabel}
           >
             Adicionar ao carrinho
           </AddToCartButton>
@@ -142,10 +231,13 @@ export default function ProductDetailsPanel({
             priceInCents={priceInCents}
             imageUrl={imageUrl}
             quantity={quantity}
+            selectedColorId={selectedColor?.id ?? null}
+            selectedColorName={selectedColor?.name ?? null}
+            selectedColorHex={selectedColor?.hex ?? null}
             fullWidth
             redirectToCart
-            disabled={!canAcceptOrders}
-            disabledLabel="Loja pausada"
+            disabled={purchaseDisabled}
+            disabledLabel={purchaseDisabledLabel}
           >
             Comprar agora
           </AddToCartButton>

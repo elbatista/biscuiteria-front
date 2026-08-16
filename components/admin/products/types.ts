@@ -6,6 +6,22 @@ export type AdminProductImage = {
   sortOrder: number;
 };
 
+export type AdminProductColor = {
+  id: number;
+  name: string;
+  hex: string;
+  sortOrder: number;
+  active: boolean;
+};
+
+export type ProductColorFormValue = {
+  id?: number;
+  name: string;
+  hex: string;
+  active: boolean;
+  sortOrder: number;
+};
+
 export type AdminProductListItem = {
   id: number;
   name: string;
@@ -23,6 +39,7 @@ export type AdminProductListItem = {
   widthCm: number | null;
   lengthCm: number | null;
   images: AdminProductImage[];
+  colors: AdminProductColor[];
 };
 
 export type AdminCategoryOption = {
@@ -77,6 +94,7 @@ export type ProductFormValues = {
   lengthCm: string;
   categoryIds: number[];
   collectionIds: number[];
+  colors: ProductColorFormValue[];
 };
 
 export type AdminCategoriesResponse = {

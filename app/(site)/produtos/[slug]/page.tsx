@@ -62,100 +62,105 @@ export default async function ProductDetailsPage({ params }: PageProps) {
 
   return (
     <>
-    <AnnouncementBar/>
-    <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
-      <Container>
-        <div className="py-10">
-          <nav
-            aria-label="Breadcrumb"
-            className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[var(--text-muted)]"
-          >
-            <Link
-              href="/"
-              className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+      <AnnouncementBar />
+
+      <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
+        <Container>
+          <div className="py-10">
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-6 flex flex-wrap items-center gap-2 text-sm text-[var(--text-muted)]"
             >
-              Início
-            </Link>
+              <Link
+                href="/"
+                className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+              >
+                Início
+              </Link>
 
-            <span>/</span>
+              <span>/</span>
 
-            <Link
-              href="/loja"
-              className="cursor-pointer transition hover:text-zinc-900 hover:underline"
-            >
-              Loja
-            </Link>
+              <Link
+                href="/loja"
+                className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+              >
+                Loja
+              </Link>
 
-            {primaryCollection ? (
-              <>
-                <span>/</span>
-                <Link
-                  href={`/colecoes/${primaryCollection.slug}`}
-                  className="cursor-pointer transition hover:text-zinc-900 hover:underline"
-                >
-                  {primaryCollection.title}
-                </Link>
-              </>
-            ) : primaryCategory ? (
-              <>
-                <span>/</span>
-                <Link
-                  href={`/loja?categoria=${primaryCategory.slug}`}
-                  className="cursor-pointer transition hover:text-zinc-900 hover:underline"
-                >
-                  {primaryCategory.name}
-                </Link>
-              </>
-            ) : null}
+              {primaryCollection ? (
+                <>
+                  <span>/</span>
+                  <Link
+                    href={`/colecoes/${primaryCollection.slug}`}
+                    className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+                  >
+                    {primaryCollection.title}
+                  </Link>
+                </>
+              ) : primaryCategory ? (
+                <>
+                  <span>/</span>
+                  <Link
+                    href={`/loja?categoria=${primaryCategory.slug}`}
+                    className="cursor-pointer transition hover:text-zinc-900 hover:underline"
+                  >
+                    {primaryCategory.name}
+                  </Link>
+                </>
+              ) : null}
 
-            <span>/</span>
+              <span>/</span>
 
-            <span className="text-zinc-900">{product.name}</span>
-          </nav>
+              <span className="text-zinc-900">{product.name}</span>
+            </nav>
 
-          <div className="grid gap-10 lg:grid-cols-2">
-            <ProductGallery
-              productName={product.name}
-              images={product.images}
-            />
+            <div className="grid gap-10 lg:grid-cols-2">
+              <ProductGallery productName={product.name} images={product.images} />
 
-            <ProductDetailsPanel
-              productId={product.id}
-              name={product.name}
-              slug={product.slug}
-              shortDescription={product.shortDescription}
-              description={product.description}
-              priceInCents={product.priceInCents}
-              compareAtPriceInCents={product.compareAtPriceInCents}
-              featured={product.featured}
-              imageUrl={product.images[0]?.thumbUrl ?? product.images[0]?.url ?? null}
+              <ProductDetailsPanel
+                productId={product.id}
+                name={product.name}
+                slug={product.slug}
+                shortDescription={product.shortDescription}
+                description={product.description}
+                priceInCents={product.priceInCents}
+                compareAtPriceInCents={product.compareAtPriceInCents}
+                featured={product.featured}
+                imageUrl={
+                  product.images[0]?.thumbUrl ?? product.images[0]?.url ?? null
+                }
+                canAcceptOrders={settings.canAcceptOrders}
+                orderUnavailableReason={settings.orderUnavailableReason}
+                colors={product.colors.map((color) => ({
+                  id: color.id,
+                  name: color.name,
+                  hex: color.hex,
+                }))}
+                primaryCollection={
+                  primaryCollection
+                    ? {
+                        title: primaryCollection.title,
+                        slug: primaryCollection.slug,
+                      }
+                    : null
+                }
+                categories={product.categories.map((category) => ({
+                  name: category.name,
+                  slug: category.slug,
+                }))}
+              />
+            </div>
+
+            <RelatedProducts
+              title={related.title}
+              subtitle={related.subtitle}
+              products={related.products}
               canAcceptOrders={settings.canAcceptOrders}
               orderUnavailableReason={settings.orderUnavailableReason}
-              primaryCollection={
-                primaryCollection
-                  ? {
-                      title: primaryCollection.title,
-                      slug: primaryCollection.slug,
-                    }
-                  : null
-              }
-              categories={product.categories.map((category) => ({
-                name: category.name,
-                slug: category.slug,
-              }))}
             />
           </div>
-
-          <RelatedProducts
-            title={related.title}
-            subtitle={related.subtitle}
-            products={related.products}
-            canAcceptOrders={settings.canAcceptOrders}
-            orderUnavailableReason={settings.orderUnavailableReason}
-          />
-        </div>
-      </Container>
-    </main>
+        </Container>
+      </main>
     </>
   );
 }

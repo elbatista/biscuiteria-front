@@ -43,5 +43,6 @@ middleware*
 __MACOSX/
 .env
 .env.local
+.env.production.local
 .next/
 node_modules/

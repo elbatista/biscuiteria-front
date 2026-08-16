@@ -1,35 +1,28 @@
 import Link from "next/link";
+
 import { formatBRLFromCents } from "@/lib/format-price";
 import type { CartItem } from "@/stores/cart-store";
-import type { ShippingOption } from "@/lib/checkout/shipping";
 
 type OrderSummaryCardProps = {
   items: CartItem[];
   subtotalInCents: number;
   totalItems: number;
-  shippingOption: ShippingOption | null;
-  isShippingRequired: boolean;
-  shippingError: string | null;
   submitting: boolean;
   loadingZipCode: boolean;
-  quotingShipping: boolean;
 };
+
+function isValidHex(value: string | null) {
+  return Boolean(value && /^#[0-9A-Fa-f]{6}$/.test(value));
+}
 
 export default function OrderSummaryCard({
   items,
   subtotalInCents,
   totalItems,
-  shippingOption,
-  isShippingRequired,
-  shippingError,
   submitting,
   loadingZipCode,
-  quotingShipping,
 }: OrderSummaryCardProps) {
-  const shippingInCents = shippingOption?.priceInCents ?? 0;
-  const totalInCents = subtotalInCents + shippingInCents;
-  const isBusy = submitting || loadingZipCode || quotingShipping;
-  const canSubmit = !isBusy && (!isShippingRequired || Boolean(shippingOption));
+  const isBusy = submitting || loadingZipCode;
 
   return (
     <aside className="h-fit rounded-3xl border border-[var(--rose-100)] bg-white p-5 sm:sticky sm:top-24 sm:self-start sm:p-6">
@@ -38,11 +31,29 @@ export default function OrderSummaryCard({
       <div className="mt-5 space-y-4">
         {items.map((item) => (
           <div
-            key={item.productId}
+            key={item.key}
             className="flex items-start justify-between gap-3 border-b border-[var(--rose-100)] pb-4"
           >
             <div>
-              <div className="text-sm font-medium text-zinc-900">{item.name}</div>
+              <div className="text-sm font-medium text-zinc-900">
+                {item.name}
+              </div>
+
+              {item.selectedColorName ? (
+                <div className="mt-1 inline-flex items-center gap-2 text-xs text-[var(--text-muted)]">
+                  <span
+                    className="h-3.5 w-3.5 rounded-full border border-zinc-200"
+                    style={{
+                      backgroundColor: isValidHex(item.selectedColorHex)
+                        ? item.selectedColorHex ?? "#E4E4E7"
+                        : "#E4E4E7",
+                    }}
+                    aria-hidden="true"
+                  />
+                  Cor: {item.selectedColorName}
+                </div>
+              ) : null}
+
               <div className="mt-1 text-xs text-[var(--text-muted)]">
                 Quantidade: {item.quantity}
               </div>
@@ -68,61 +79,38 @@ export default function OrderSummaryCard({
 
         <div className="flex items-center justify-between text-[var(--text-muted)]">
           <span>Frete</span>
-          <span>
-            {shippingOption
-              ? formatBRLFromCents(shippingOption.priceInCents)
-              : quotingShipping
-                ? "Calculando..."
-                : "Selecione uma opção"}
-          </span>
+          <span>A combinar</span>
         </div>
 
-        {shippingOption ? (
-          <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-50)] px-3 py-2 text-xs text-[var(--text-muted)]">
-            <div className="font-medium text-zinc-900">
-              {shippingOption.provider} • {shippingOption.serviceName}
-            </div>
-            <div className="mt-1">
-              {shippingOption.deliveryDays
-                ? `Prazo estimado: ${shippingOption.deliveryDays} dia(s)`
-                : "Prazo estimado indisponível"}
-            </div>
-          </div>
-        ) : null}
+        <div className="flex items-center justify-between text-[var(--text-muted)]">
+          <span>Pagamento</span>
+          <span>A combinar</span>
+        </div>
 
         <div className="border-t border-[var(--rose-100)] pt-3">
           <div className="flex items-center justify-between text-base font-semibold text-zinc-900">
-            <span>Total</span>
-            <span>{formatBRLFromCents(totalInCents)}</span>
+            <span>Total parcial</span>
+            <span>{formatBRLFromCents(subtotalInCents)}</span>
           </div>
+
+          <p className="mt-2 text-xs leading-relaxed text-[var(--text-muted)]">
+            O total final pode mudar após combinar frete, prazo e forma de
+            pagamento com a vendedora.
+          </p>
         </div>
       </div>
-
-      {isShippingRequired && !shippingOption && !quotingShipping ? (
-        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
-          Escolha uma opção de frete para continuar.
-        </div>
-      ) : null}
-
-      {shippingError ? (
-        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
-          {shippingError}
-        </div>
-      ) : null}
 
       <button
         type="submit"
         form="checkout-form"
-        disabled={!canSubmit}
+        disabled={isBusy}
         className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[var(--green-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--green-300)] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {submitting
-          ? "Criando pedido..."
+          ? "Enviando pedido..."
           : loadingZipCode
             ? "Aguardando CEP..."
-            : quotingShipping
-              ? "Calculando frete..."
-              : "Finalizar pedido"}
+            : "Enviar pedido"}
       </button>
 
       <Link

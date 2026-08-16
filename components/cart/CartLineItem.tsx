@@ -13,6 +13,10 @@ type CartLineItemProps = {
 
 const FALLBACK_IMAGE = "/placeholder.png";
 
+function isValidHex(value: string | null) {
+  return Boolean(value && /^#[0-9A-Fa-f]{6}$/.test(value));
+}
+
 export default function CartLineItem({ item }: CartLineItemProps) {
   const removeItem = useCartStore((state) => state.removeItem);
   const setQuantity = useCartStore((state) => state.setQuantity);
@@ -43,14 +47,29 @@ export default function CartLineItem({ item }: CartLineItemProps) {
                 {item.name}
               </Link>
 
-              <div className="mt-1 text-sm text-[var(--text-muted)]">
+              {item.selectedColorName ? (
+                <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[var(--rose-50)] px-3 py-1 text-xs font-semibold text-zinc-700">
+                  <span
+                    className="h-4 w-4 rounded-full border border-zinc-200"
+                    style={{
+                      backgroundColor: isValidHex(item.selectedColorHex)
+                        ? item.selectedColorHex ?? "#E4E4E7"
+                        : "#E4E4E7",
+                    }}
+                    aria-hidden="true"
+                  />
+                  Cor: {item.selectedColorName}
+                </div>
+              ) : null}
+
+              <div className="mt-2 text-sm text-[var(--text-muted)]">
                 Preço unitário: {formatBRLFromCents(item.priceInCents)}
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => removeItem(item.productId)}
+              onClick={() => removeItem(item.key)}
               className="inline-flex cursor-pointer items-center gap-2 self-start rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
             >
               <Trash2 className="h-4 w-4" />
@@ -61,7 +80,7 @@ export default function CartLineItem({ item }: CartLineItemProps) {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <QuantitySelector
               value={item.quantity}
-              onChange={(value) => setQuantity(item.productId, value)}
+              onChange={(value) => setQuantity(item.key, value)}
               min={1}
               max={99}
             />

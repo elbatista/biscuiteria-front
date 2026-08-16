@@ -13,6 +13,7 @@ export type CheckoutFormState = {
   neighborhood: string;
   city: string;
   state: string;
+  customerNotes: string;
 };
 
 export type FieldErrors = Partial<Record<keyof CheckoutFormState, string>>;
@@ -29,20 +30,24 @@ export function validateCPF(cpf: string) {
   if (/^(\d)\1+$/.test(digits)) return false;
 
   let sum = 0;
+
   for (let i = 0; i < 9; i += 1) {
     sum += Number(digits[i]) * (10 - i);
   }
 
   let firstCheck = (sum * 10) % 11;
+
   if (firstCheck === 10) firstCheck = 0;
   if (firstCheck !== Number(digits[9])) return false;
 
   sum = 0;
+
   for (let i = 0; i < 10; i += 1) {
     sum += Number(digits[i]) * (11 - i);
   }
 
   let secondCheck = (sum * 10) % 11;
+
   if (secondCheck === 10) secondCheck = 0;
 
   return secondCheck === Number(digits[10]);
@@ -109,6 +114,12 @@ export function getFieldError(
       if (trimmed.length !== 2) return "Informe a UF com 2 letras.";
       return undefined;
 
+    case "customerNotes":
+      if (trimmed.length > 1000) {
+        return "As observações devem ter no máximo 1000 caracteres.";
+      }
+      return undefined;
+
     default:
       return undefined;
   }
@@ -127,4 +138,5 @@ export const initialCheckoutForm: CheckoutFormState = {
   neighborhood: "",
   city: "",
   state: "",
+  customerNotes: "",
 };

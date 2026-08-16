@@ -100,7 +100,7 @@ export default function CartPageClient({ settings }: CartPageClientProps) {
               <div className="grid gap-6 lg:grid-cols-[1.6fr_0.8fr]">
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <CartLineItem key={item.productId} item={item} />
+                    <CartLineItem key={item.key} item={item} />
                   ))}
                 </div>
 

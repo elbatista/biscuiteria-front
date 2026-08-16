@@ -1,26 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { Megaphone, PackageCheck, Settings, Truck } from "lucide-react";
+import {
+  HelpCircle,
+  Megaphone,
+  PackageCheck,
+  Settings,
+} from "lucide-react";
 
 const settingsItems = [
   {
-    title: "Funcionamento da loja",
-    description: "Abrir ou fechar a loja e configurar mensagem de loja fechada.",
-    href: "/admin/settings/store",
-    icon: PackageCheck,
+    title:
+      "Funcionamento da loja",
+
+    description:
+      "Abrir ou fechar a loja e configurar a mensagem exibida quando ela não estiver aceitando pedidos.",
+
+    href:
+      "/admin/settings/store",
+
+    icon:
+      PackageCheck,
   },
+
   {
-    title: "Aviso do site",
-    description: "Gerenciar a barra de anúncio exibida no topo da loja.",
-    href: "/admin/settings/announcement",
-    icon: Megaphone,
+    title:
+      "Aviso do site",
+
+    description:
+      "Gerenciar a barra de anúncio exibida no topo da loja.",
+
+    href:
+      "/admin/settings/announcement",
+
+    icon:
+      Megaphone,
   },
+
   {
-    title: "Origem do frete",
-    description: "Configurar o endereço usado como origem para cálculo de frete.",
-    href: "/admin/settings/shipping-origin",
-    icon: Truck,
+    title:
+      "Perguntas frequentes",
+
+    description:
+      "Gerenciar o conteúdo da página de perguntas frequentes.",
+
+    href:
+      "/admin/settings/faq",
+
+    icon:
+      HelpCircle,
   },
 ];
 
@@ -38,67 +66,54 @@ export default function SettingsHomeClient() {
           </h1>
 
           <p className="text-sm leading-6 text-zinc-500 sm:text-base">
-            Gerencie funcionamento, avisos e dados operacionais da Biscuit_eria.
+            Gerencie funcionamento, avisos e conteúdos institucionais da Biscuit_eria.
           </p>
         </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        {settingsItems.map((item) => {
-          const Icon = item.icon;
+        {settingsItems.map(
+          (item) => {
+            const Icon =
+              item.icon;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group rounded-[2rem] border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-md"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-[var(--rose-500)]">
-                <Icon className="h-5 w-5" />
-              </div>
-
-              <div className="mt-5 space-y-2">
-                <h2 className="text-lg font-semibold text-zinc-950">
-                  {item.title}
-                </h2>
-
-                <p className="text-sm leading-6 text-zinc-500">
-                  {item.description}
-                </p>
-              </div>
-
-              <div className="mt-5 text-sm font-semibold text-zinc-300 transition group-hover:text-[var(--rose-500)]">
-                Abrir →
-              </div>
-            </Link>
-          );
-        })}
-      </section>
-
-      <section className="rounded-[2rem] border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-600">
-            <Settings className="h-5 w-5" />
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold text-zinc-950">
-              Outras configurações
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-zinc-500">
-              O FAQ já está disponível em{" "}
+            return (
               <Link
-                href="/admin/settings/faq"
-                className="font-semibold text-[var(--rose-500)] hover:underline"
+                key={
+                  item.href
+                }
+                href={
+                  item.href
+                }
+                className="group rounded-[2rem] border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-md"
               >
-                Configurações → FAQ
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-[var(--rose-500)]">
+                  <Icon className="h-5 w-5" />
+                </div>
+
+                <div className="mt-5 space-y-2">
+                  <h2 className="text-lg font-semibold text-zinc-950">
+                    {
+                      item.title
+                    }
+                  </h2>
+
+                  <p className="text-sm leading-6 text-zinc-500">
+                    {
+                      item.description
+                    }
+                  </p>
+                </div>
+
+                <div className="mt-5 text-sm font-semibold text-zinc-300 transition group-hover:text-[var(--rose-500)]">
+                  Abrir →
+                </div>
               </Link>
-              .
-            </p>
-          </div>
-        </div>
+            );
+          }
+        )}
       </section>
+
     </div>
   );
 }

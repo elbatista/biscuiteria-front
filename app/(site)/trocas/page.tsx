@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function TrocasEEnvioPage() {
 
-  const shippingMethods = "Correios";
+  const shippingMethods = "Correios/A combinar";
   const shippingCoverage = "todo Brasil";
 
   // Regras sugeridas (você ajusta)

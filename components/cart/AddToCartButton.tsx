@@ -12,6 +12,9 @@ type AddToCartButtonProps = {
   priceInCents: number;
   imageUrl?: string | null;
   quantity?: number;
+  selectedColorId?: number | null;
+  selectedColorName?: string | null;
+  selectedColorHex?: string | null;
   fullWidth?: boolean;
   redirectToCart?: boolean;
   children?: React.ReactNode;
@@ -26,6 +29,9 @@ export default function AddToCartButton({
   priceInCents,
   imageUrl = null,
   quantity = 1,
+  selectedColorId = null,
+  selectedColorName = null,
+  selectedColorHex = null,
   fullWidth = false,
   redirectToCart = false,
   children,
@@ -46,6 +52,9 @@ export default function AddToCartButton({
       priceInCents,
       imageUrl,
       quantity,
+      selectedColorId,
+      selectedColorName,
+      selectedColorHex,
     });
 
     if (redirectToCart) {
@@ -67,7 +76,7 @@ export default function AddToCartButton({
       disabled={disabled}
       title={disabled ? disabledLabel : undefined}
       className={[
-        "inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold transition shadow-sm",
+        "inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold shadow-sm transition",
         disabled
           ? "cursor-not-allowed bg-zinc-200 text-zinc-500"
           : redirectToCart
@@ -84,7 +93,13 @@ export default function AddToCartButton({
         <ShoppingCart className="mr-2 h-4 w-4" />
       )}
 
-      {disabled ? disabledLabel : children ? children : added ? "Adicionado" : "Adicionar ao carrinho"}
+      {disabled
+        ? disabledLabel
+        : children
+          ? children
+          : added
+            ? "Adicionado"
+            : "Adicionar ao carrinho"}
     </button>
   );
 }

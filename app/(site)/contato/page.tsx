@@ -19,7 +19,7 @@ export default function ContatoPage() {
   const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL;
   const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
   const contactEmailUrl = process.env.NEXT_PUBLIC_CONTACT_EMAIL
-    ? "mailto: " + process.env.NEXT_PUBLIC_CONTACT_EMAIL
+    ? "mailto:" + process.env.NEXT_PUBLIC_CONTACT_EMAIL
     : null;
 
   const contact = {

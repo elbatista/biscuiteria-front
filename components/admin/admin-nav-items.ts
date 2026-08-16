@@ -1,5 +1,6 @@
 import {
   Boxes,
+  ClipboardList,
   FolderTree,
   Gauge,
   HelpCircle,
@@ -14,6 +15,11 @@ export const adminNavItems = [
     label: "Dashboard",
     href: "/admin",
     icon: Gauge,
+  },
+  {
+    label: "Pedidos",
+    href: "/admin/orders",
+    icon: ClipboardList,
   },
   {
     label: "Produtos",

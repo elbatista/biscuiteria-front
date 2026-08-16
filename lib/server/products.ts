@@ -36,6 +36,21 @@ export async function getStoreProductBySlug(slug: string) {
       images: {
         orderBy: { sortOrder: "asc" },
       },
+      colors: {
+        where: {
+          active: true,
+        },
+        orderBy: {
+          sortOrder: "asc",
+        },
+        select: {
+          id: true,
+          name: true,
+          hex: true,
+          sortOrder: true,
+          active: true,
+        },
+      },
       collections: {
         include: {
           collection: {
@@ -88,6 +103,13 @@ export async function getStoreProductBySlug(slug: string) {
       altText: image.altText,
       sortOrder: image.sortOrder,
     })),
+    colors: product.colors.map((color) => ({
+      id: color.id,
+      name: color.name,
+      hex: color.hex,
+      sortOrder: color.sortOrder,
+      active: color.active,
+    })),
     collections: product.collections.map((item) => ({
       id: item.collection.id,
       title: item.collection.title,
@@ -130,7 +152,9 @@ export async function getRelatedStoreProducts(currentProductId: number) {
     };
   }
 
-  const collectionIds = currentProduct.collections.map((item) => item.collectionId);
+  const collectionIds = currentProduct.collections.map(
+    (item) => item.collectionId
+  );
   const categoryIds = currentProduct.categories.map((item) => item.categoryId);
 
   const sameCollection = collectionIds.length

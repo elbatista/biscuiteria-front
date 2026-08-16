@@ -10,6 +10,7 @@ import type { AdminProductImage } from "@/components/admin/products/types";
 type ProductImagesManagerProps = {
   productId: number;
   initialImages: AdminProductImage[];
+  onImagesChange?: (images: AdminProductImage[]) => void;
 };
 
 function sortImages(images: AdminProductImage[]) {
@@ -19,6 +20,7 @@ function sortImages(images: AdminProductImage[]) {
 export default function ProductImagesManager({
   productId,
   initialImages,
+  onImagesChange,
 }: ProductImagesManagerProps) {
   const [images, setImages] = useState<AdminProductImage[]>(
     sortImages(initialImages)
@@ -29,7 +31,14 @@ export default function ProductImagesManager({
 
   const isOperating = operationMessage !== null;
 
-  async function reloadImagesFromResponse(response: Response) {
+  function updateImages(nextImages: AdminProductImage[]) {
+    const sorted = sortImages(nextImages);
+
+    setImages(sorted);
+    onImagesChange?.(sorted);
+  }
+
+  async function readImagesFromResponse(response: Response) {
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
@@ -37,10 +46,10 @@ export default function ProductImagesManager({
     }
 
     if (Array.isArray(data?.images)) {
-      setImages(sortImages(data.images));
+      return sortImages(data.images as AdminProductImage[]);
     }
 
-    return data;
+    return null;
   }
 
   async function handleUpload() {
@@ -64,18 +73,16 @@ export default function ProductImagesManager({
         body: formData,
       });
 
-      const data = await reloadImagesFromResponse(response);
+      const responseImages = await readImagesFromResponse(response);
 
-      if (Array.isArray(data?.images)) {
-        setImages(sortImages([...images, ...data.images]));
+      if (responseImages) {
+        updateImages(responseImages);
       }
 
       setNewImages([]);
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Erro ao enviar imagens."
+        error instanceof Error ? error.message : "Erro ao enviar imagens."
       );
     } finally {
       setOperationMessage(null);
@@ -111,19 +118,17 @@ export default function ProductImagesManager({
         throw new Error(data?.message ?? "Não foi possível remover a imagem.");
       }
 
-      setImages((current) =>
-        sortImages(current.filter((item) => item.id !== image.id)).map(
-          (item, index) => ({
-            ...item,
-            sortOrder: index,
-          })
-        )
-      );
+      const nextImages = sortImages(
+        images.filter((item) => item.id !== image.id)
+      ).map((item, index) => ({
+        ...item,
+        sortOrder: index,
+      }));
+
+      updateImages(nextImages);
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Erro ao remover imagem."
+        error instanceof Error ? error.message : "Erro ao remover imagem."
       );
     } finally {
       setOperationMessage(null);
@@ -142,8 +147,7 @@ export default function ProductImagesManager({
       return;
     }
 
-    const targetIndex =
-      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
     if (!ordered[targetIndex]) {
       return;
@@ -171,12 +175,21 @@ export default function ProductImagesManager({
         }
       );
 
-      await reloadImagesFromResponse(response);
+      const responseImages = await readImagesFromResponse(response);
+
+      if (responseImages) {
+        updateImages(responseImages);
+      } else {
+        updateImages(
+          reordered.map((item, index) => ({
+            ...item,
+            sortOrder: index,
+          }))
+        );
+      }
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Erro ao reordenar imagens."
+        error instanceof Error ? error.message : "Erro ao reordenar imagens."
       );
     } finally {
       setOperationMessage(null);
