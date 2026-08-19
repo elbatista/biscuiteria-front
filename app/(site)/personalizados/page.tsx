@@ -19,17 +19,19 @@ export default function PersonalizadosPage() {
         <Container>
           <div className="mx-auto max-w-3xl">
             <div className="mb-8 space-y-5 text-center sm:mb-10">
-              <div className="flex justify-center">
+              {/* <div className="flex justify-center">
                 <Badge>Personalizados</Badge>
-              </div>
+              </div> */}
 
               <h1 className="font-playfair text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl">
-                Monte seu pedido do jeitinho que você imaginou 🧉✨
+                Descreva seu pedido do jeitinho que você imaginou 🧉✨
               </h1>
 
               <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
                 Conte o básico da sua ideia e, no final,
-                envie tudo organizado pelo WhatsApp.
+                envie tudo organizado pelo WhatsApp. Daí, seguimos de lá para combinar 
+                os detalhes finais, pagamento e entrega. 
+                Simples, né? 😎
               </p>
             </div>
 

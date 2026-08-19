@@ -161,31 +161,7 @@ export default async function SobrePage() {
               </p>
             </div>
 
-            {/* Cards estilo home */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <SimpleCard
-                title="Feito à mão"
-                description="Cada peça é modelada manualmente — sem produção em massa."
-              />
-              <SimpleCard
-                title="Peças únicas"
-                description="Variações sutis fazem parte do charme do artesanal."
-              />
-              <LinkCard
-                title="Personalização"
-                description="Tema, cores, detalhes e referências para ficar do seu jeito."
-                href="/personalizados"
-                linktext="Como funciona"
-                tag="🎨"
-              />
-              <LinkCard
-                title="Entrega com cuidado"
-                description="Embalagem pensada para proteger peças delicadas."
-                href="/trocas"
-                linktext="Trocas & Envio"
-                tag="📦"
-              />
-            </div>
+            
           </div>
         </Container>
       </Section>
@@ -212,62 +188,12 @@ export default async function SobrePage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[var(--rose-100)] bg-white/70 p-6 shadow-sm">
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-zinc-900">O que você pode pedir</div>
-                <ul className="list-disc pl-5 space-y-2 text-sm text-[var(--text-muted)]">
-                  <li>Enfeites de cuias e bombas</li>
-                  <li>Acessórios para chimarrão</li>
-                  <li>Lembrancinhas e brindes</li>
-                  <li>Miniaturas e personagens</li>
-                  <li>Topo de bolo (casamento, aniversário, batizado)</li>
-                  <li>Decoração temática</li>
-                  <li>Peças personalizadas sob encomenda</li>
-                </ul>
-
-                <div className="pt-3">
-                  <Button href="/contato" variant="secondary">
-                    Pedir orçamento
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* VALORES / DIFERENCIAIS */}
-      <Section color="green">
-        <Container>
-          <SectionTitle
-            eyebrow="O que guia o trabalho"
-            title="Qualidade, cuidado e transparência"
-            subtitle="Coisas simples que fazem toda a diferença quando você compra algo artesanal."
-          />
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-4">
-            <SimpleCard
-              title="Comunicação clara"
-              description="Alinhamos expectativas de prazo, referências e detalhes antes de produzir."
-            />
-            <SimpleCard
-              title="Acabamento"
-              description="Atenção aos detalhes e ao resultado final — do modelado à pintura."
-            />
-            <SimpleCard
-              title="Embalagem"
-              description="Proteção reforçada para peças delicadas e envio mais seguro."
-            />
-            <SimpleCard
-              title="Processo artesanal"
-              description="Tempo e cuidado fazem parte do valor da peça — sem pressa."
-            />
           </div>
         </Container>
       </Section>
 
       {/* SOCIAL PROOF / MINI SEÇÃO */}
-      <Section>
+      <Section color="green">
         <Container>
           <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-8 sm:p-10">
             <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
@@ -296,32 +222,6 @@ export default async function SobrePage() {
         </Container>
       </Section>
 
-      {/* CTA FINAL */}
-      <Section>
-        <Container>
-          <div className="rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-100)] p-8 sm:p-10">
-            <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
-              <div className="space-y-3">
-                <h2 className="font-playfair text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900">
-                  Vamos transformar sua ideia em uma peça?
-                </h2>
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text-muted)]">
-                  Me diga o tema, a ocasião e a data. Eu te respondo com opções, valores e prazo.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 lg:justify-end">
-                <Button href="/contato" variant="primary">
-                  Falar comigo
-                </Button>
-                <Button href="/trocas" variant="secondary">
-                  Prazos & Envio
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </Section>
     </div>
   );
 }
