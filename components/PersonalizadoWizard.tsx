@@ -96,7 +96,7 @@ function Pill({
       type="button"
       onClick={onClick}
       className={[
-        "rounded-2xl border px-4 py-2.5 text-sm font-semibold transition",
+        "rounded-2xl border px-4 py-2.5 text-sm font-semibold transition cursor-pointer",
         active
           ? "border-[var(--green-500)] bg-[var(--green-500)] text-white"
           : "border-[var(--rose-100)] bg-white text-[var(--text-muted)] hover:border-[var(--green-300)] hover:text-zinc-900",
@@ -690,10 +690,10 @@ export default function PersonalizadoWizard({
             onClick={prev}
             disabled={step === 1}
             className={[
-              "rounded-2xl border px-4 py-2.5 text-sm font-semibold transition",
+              "rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ",
               step === 1
                 ? "cursor-not-allowed border-[var(--rose-100)] bg-white/40 text-[var(--text-muted)] opacity-50"
-                : "border-[var(--rose-100)] bg-white text-zinc-900 hover:bg-[var(--rose-50)]",
+                : "border-[var(--rose-100)] bg-white text-zinc-900 hover:bg-[var(--rose-50)] cursor-pointer",
             ].join(" ")}
           >
             Voltar
@@ -705,9 +705,9 @@ export default function PersonalizadoWizard({
               onClick={next}
               disabled={!canNext}
               className={[
-                "rounded-2xl px-5 py-2.5 text-sm font-semibold text-white transition",
+                "rounded-2xl px-5 py-2.5 text-sm font-semibold text-white transition ",
                 canNext
-                  ? "bg-[var(--green-500)] hover:bg-[var(--green-300)]"
+                  ? "bg-[var(--green-500)] hover:bg-[var(--green-300)] cursor-pointer"
                   : "cursor-not-allowed bg-[var(--green-500)] opacity-50",
               ].join(" ")}
             >

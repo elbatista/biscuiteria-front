@@ -172,6 +172,8 @@ export default function CheckoutForm({
   const [loadingZipCode, setLoadingZipCode] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
 
+  const [sameRecipientName, setSameRecipientName] = useState(true);
+
   const isBusy = submitting || loadingZipCode || redirecting;
 
   function updateExternalState(next: {
@@ -213,9 +215,53 @@ export default function CheckoutForm({
         .slice(0, 2) as CheckoutFormState[K];
     }
 
-    setForm((current) => ({ ...current, [key]: nextValue }));
-    setErrors((current) => ({ ...current, [key]: undefined }));
+    setForm((current) => {
+      const nextForm = {
+        ...current,
+        [key]: nextValue,
+      };
+
+      if (key === "name" && sameRecipientName) {
+        nextForm.recipientName = String(nextValue);
+      }
+
+      return nextForm;
+    });
+
+    setErrors((current) => {
+      const nextErrors = {
+        ...current,
+        [key]: undefined,
+      };
+
+      if (key === "name" && sameRecipientName) {
+        nextErrors.recipientName = undefined;
+      }
+
+      return nextErrors;
+    });
+
     onErrorChange(null);
+  }
+
+  function handleSameRecipientNameChange(checked: boolean) {
+    if (isBusy) return;
+
+    setSameRecipientName(checked);
+
+    if (checked) {
+      setForm((current) => ({
+        ...current,
+        recipientName: current.name,
+      }));
+
+      setErrors((current) => ({
+        ...current,
+        recipientName: undefined,
+      }));
+
+      onErrorChange(null);
+    }
   }
 
   function validateField(key: keyof CheckoutFormState) {
@@ -433,7 +479,6 @@ export default function CheckoutForm({
         className="space-y-6"
         aria-busy={isBusy}
       >
-
         <fieldset disabled={isBusy} className="space-y-6">
           <section className="rounded-3xl border border-[var(--rose-100)] bg-white p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-zinc-900">
@@ -505,6 +550,22 @@ export default function CheckoutForm({
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
+                <label className="mb-3 flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={sameRecipientName}
+                    onChange={(event) =>
+                      handleSameRecipientNameChange(event.target.checked)
+                    }
+                    disabled={isBusy}
+                    className="h-4 w-4 cursor-pointer rounded border-zinc-300 accent-[var(--green-500)]"
+                  />
+
+                  <span className="text-sm font-medium text-zinc-800">
+                    Mesmo nome do cliente
+                  </span>
+                </label>
+
                 <Field
                   label="Nome do destinatário"
                   value={form.recipientName}
@@ -513,8 +574,15 @@ export default function CheckoutForm({
                   required
                   autoComplete="shipping name"
                   error={errors.recipientName}
-                  disabled={isBusy}
+                  disabled={isBusy || sameRecipientName}
                 />
+
+                {sameRecipientName ? (
+                  <p className="mt-2 text-xs text-[var(--text-muted)]">
+                    O nome do destinatário será preenchido automaticamente com
+                    o nome informado nos dados do cliente.
+                  </p>
+                ) : null}
               </div>
 
               <Field
@@ -630,8 +698,8 @@ export default function CheckoutForm({
 
             <p className="mt-2">
               Ao enviar o pedido, você receberá um e-mail com o resumo. A
-              vendedora também receberá os dados e entrará em contato o mais breve possível para
-              combinar produção, envio e pagamento.
+              vendedora também receberá os dados e entrará em contato o mais
+              breve possível para combinar produção, envio e pagamento.
             </p>
           </section>
         </fieldset>

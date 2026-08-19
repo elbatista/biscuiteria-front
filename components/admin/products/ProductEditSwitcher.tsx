@@ -204,7 +204,7 @@ export default function ProductEditSwitcher({
       : null;
 
   return (
-    <>
+    <div className="hidden md:block">
       {pendingProductId !== null ? (
         <div className="fixed inset-0 z-[140] flex items-center justify-center bg-zinc-950/40 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-[2rem] border border-zinc-200 bg-white p-6 shadow-2xl">
@@ -451,6 +451,6 @@ export default function ProductEditSwitcher({
           </div>
         ) : null}
       </section>
-    </>
+    </div>
   );
 }

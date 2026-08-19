@@ -249,7 +249,7 @@ export async function getAdminDashboardData() {
     }),
 
     prisma.product.findMany({
-      take: 5,
+      take: 3,
 
       orderBy: {
         updatedAt: "desc",

@@ -650,10 +650,10 @@ function getCurrentStatusContent(
           "Recebemos seu pedido",
 
         description:
-          "Seu pedido foi recebido e agora estamos preparando os detalhes do frete. Assim que o valor for definido, o total será atualizado.",
+          "Seu pedido foi recebido e agora estamos preparando os detalhes do frete. Assim que o valor for definido, o total será atualizado e entraremos em contato para confirmar.",
 
         badgeClassName:
-          "border-orange-200 bg-orange-50 text-orange-800",
+          "border-emerald-200 bg-emerald-50 text-emerald-700",
       };
 
     case "pending_payment":
@@ -665,7 +665,7 @@ function getCurrentStatusContent(
           "Aguardando pagamento",
 
         description:
-          "O frete já foi definido e o valor do pedido está atualizado. Agora aguardamos a confirmação do pagamento.",
+          "O frete já foi definido e o valor do pedido está atualizado. Vamos entrar em contato e acertar os detalhes do pagamento. Depois que recebermos a confirmação do pagamento, o pedido entrará em produção.",
 
         badgeClassName:
           "border-amber-200 bg-amber-50 text-amber-800",
@@ -680,7 +680,7 @@ function getCurrentStatusContent(
           "Pagamento confirmado",
 
         description:
-          "Seu pagamento foi confirmado. O pedido está pronto para seguir para produção.",
+          "Ótima notícia! Seu pagamento foi confirmado. O pedido está pronto e agora vai seguir para produção.",
 
         badgeClassName:
           "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -710,7 +710,7 @@ function getCurrentStatusContent(
           "Seu pedido foi enviado",
 
         description:
-          "Seu pedido foi despachado. Se houver rastreamento disponível, você pode consultá-lo nesta página.",
+          "Ótima notícia! Seu pedido foi despachado. Se houver rastreamento disponível, você pode consultá-lo logo abaixo.",
 
         badgeClassName:
           "border-violet-200 bg-violet-50 text-violet-700",
@@ -1069,7 +1069,7 @@ export default function PublicOrderDetails({
     "canceled";
 
   return (
-    <main className="bg-[var(--rose-50)] text-[var(--text-main)]">
+    <main className="bg-white text-[var(--text-main)]">
       <Container>
         <div className="py-8 sm:py-10">
           <section className="rounded-[2rem] border border-[var(--rose-100)] bg-white p-6 shadow-sm sm:p-8">
@@ -1489,24 +1489,13 @@ export default function PublicOrderDetails({
                       )}
                     </p>
 
-                    {address.complement ? (
-                      <p>
-                        Complemento informado
-                      </p>
-                    ) : null}
 
                     <p>
                       {
-                        address.neighborhood
+                        maskStreet(address.neighborhood)
                       }
                     </p>
 
-                    <p>
-                      {address.city} -{" "}
-                      {
-                        address.state
-                      }
-                    </p>
 
                     <p>
                       CEP:{" "}

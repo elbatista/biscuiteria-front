@@ -15,7 +15,7 @@ export const metadata = {
 export default function ContatoPage() {
 
   const businessHours = "Segunda à Sexta, das 9h às 18h";
-  const responseTime = "Respondemos em até 24h";
+  const responseTime = "Respondemos o mais rápido possível.";
   const whatsappUrl = process.env.NEXT_PUBLIC_WHATSAPP_URL;
   const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL;
   const contactEmailUrl = process.env.NEXT_PUBLIC_CONTACT_EMAIL
@@ -45,10 +45,6 @@ export default function ContatoPage() {
                 pedidos já feitos ou qualquer outra pergunta.
               </p>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Button href="#formulario">Mensagem pelo WhatsApp</Button>
-              </div>
-
               <p className="text-xs text-[var(--text-muted)] sm:text-sm">
                 {businessHours} • {responseTime}
               </p>
@@ -70,7 +66,7 @@ export default function ContatoPage() {
               {contact.contactEmailUrl ? (
                 <LinkCard
                   title="E-mail"
-                  description="Envie uma mensagem por e-mail para dúvidas ou acompanhamento."
+                  description="Se preferir, envie uma mensagem por e-mail para dúvidas ou acompanhamento."
                   href={contact.contactEmailUrl}
                   linktext="Enviar e-mail"
                   tag="✉️"
@@ -90,7 +86,7 @@ export default function ContatoPage() {
             <div className="space-y-4">
               <SectionTitle
                 eyebrow="Mensagem"
-                title="Prefere enviar por aqui?"
+                title="Envie sua mensagem por aqui"
                 subtitle={
                   contact.whatsappUrl
                     ? "Preencha o formulário e continue a conversa pelo WhatsApp."

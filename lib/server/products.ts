@@ -1,274 +1,606 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getStoreProducts() {
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-    include: {
-      images: {
-        orderBy: { sortOrder: "asc" },
-        take: 1,
+  const products =
+    await prisma.product.findMany({
+      where: {
+        active: true,
       },
-    },
-  });
 
-  return products.map((product) => ({
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    priceInCents: product.priceInCents,
-    featured: product.featured,
-    image:
-      product.images[0]?.thumbUrl ??
-      product.images[0]?.url ??
-      "/placeholder.png",
-    available: true,
-  }));
+      orderBy: [
+        {
+          featured:
+            "desc",
+        },
+        {
+          createdAt:
+            "desc",
+        },
+      ],
+
+      include: {
+        images: {
+          orderBy: {
+            sortOrder:
+              "asc",
+          },
+
+          take: 1,
+        },
+
+        colors: {
+          where: {
+            active: true,
+          },
+
+          orderBy: {
+            sortOrder:
+              "asc",
+          },
+
+          select: {
+            id: true,
+            name: true,
+            hex: true,
+          },
+        },
+      },
+    });
+
+  return products.map(
+    (product) => ({
+      id:
+        product.id,
+
+      slug:
+        product.slug,
+
+      name:
+        product.name,
+
+      priceInCents:
+        product.priceInCents,
+
+      featured:
+        product.featured,
+
+      image:
+        product.images[0]
+          ?.thumbUrl ??
+        product.images[0]
+          ?.url ??
+        "/placeholder.png",
+
+      available:
+        true,
+
+      colors:
+        product.colors.map(
+          (color) => ({
+            id:
+              color.id,
+
+            name:
+              color.name,
+
+            hex:
+              color.hex,
+          })
+        ),
+    })
+  );
 }
 
-export async function getStoreProductBySlug(slug: string) {
-  const product = await prisma.product.findFirst({
-    where: {
-      slug,
-      active: true,
-    },
-    include: {
-      images: {
-        orderBy: { sortOrder: "asc" },
+export async function getStoreProductBySlug(
+  slug: string
+) {
+  const product =
+    await prisma.product.findFirst({
+      where: {
+        slug,
+        active: true,
       },
-      colors: {
-        where: {
-          active: true,
-        },
-        orderBy: {
-          sortOrder: "asc",
-        },
-        select: {
-          id: true,
-          name: true,
-          hex: true,
-          sortOrder: true,
-          active: true,
-        },
-      },
-      collections: {
-        include: {
-          collection: {
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-              coverImageUrl: true,
-              coverImageThumbUrl: true,
-              isFeatured: true,
-            },
-          },
-        },
-        orderBy: {
-          collectionId: "asc",
-        },
-      },
-      categories: {
-        include: {
-          category: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-        },
-        orderBy: {
-          categoryId: "asc",
-        },
-      },
-    },
-  });
 
-  if (!product) return null;
+      include: {
+        images: {
+          orderBy: {
+            sortOrder:
+              "asc",
+          },
+        },
+
+        colors: {
+          where: {
+            active:
+              true,
+          },
+
+          orderBy: {
+            sortOrder:
+              "asc",
+          },
+
+          select: {
+            id: true,
+            name: true,
+            hex: true,
+            sortOrder:
+              true,
+            active: true,
+          },
+        },
+
+        collections: {
+          include: {
+            collection: {
+              select: {
+                id: true,
+                title:
+                  true,
+                slug:
+                  true,
+                coverImageUrl:
+                  true,
+                coverImageThumbUrl:
+                  true,
+                isFeatured:
+                  true,
+              },
+            },
+          },
+
+          orderBy: {
+            collectionId:
+              "asc",
+          },
+        },
+
+        categories: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                name:
+                  true,
+                slug:
+                  true,
+              },
+            },
+          },
+
+          orderBy: {
+            categoryId:
+              "asc",
+          },
+        },
+      },
+    });
+
+  if (!product) {
+    return null;
+  }
 
   return {
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    shortDescription: product.shortDescription,
-    description: product.description,
-    priceInCents: product.priceInCents,
-    compareAtPriceInCents: product.compareAtPriceInCents,
-    featured: product.featured,
-    images: product.images.map((image) => ({
-      id: image.id,
-      url: image.url,
-      thumbUrl: image.thumbUrl,
-      altText: image.altText,
-      sortOrder: image.sortOrder,
-    })),
-    colors: product.colors.map((color) => ({
-      id: color.id,
-      name: color.name,
-      hex: color.hex,
-      sortOrder: color.sortOrder,
-      active: color.active,
-    })),
-    collections: product.collections.map((item) => ({
-      id: item.collection.id,
-      title: item.collection.title,
-      slug: item.collection.slug,
-      coverImageUrl: item.collection.coverImageUrl,
-      coverImageThumbUrl: item.collection.coverImageThumbUrl,
-      isFeatured: item.collection.isFeatured,
-    })),
-    categories: product.categories.map((item) => ({
-      id: item.category.id,
-      name: item.category.name,
-      slug: item.category.slug,
-    })),
-    available: true,
+    id:
+      product.id,
+
+    slug:
+      product.slug,
+
+    name:
+      product.name,
+
+    shortDescription:
+      product.shortDescription,
+
+    description:
+      product.description,
+
+    priceInCents:
+      product.priceInCents,
+
+    compareAtPriceInCents:
+      product.compareAtPriceInCents,
+
+    featured:
+      product.featured,
+
+    images:
+      product.images.map(
+        (image) => ({
+          id:
+            image.id,
+
+          url:
+            image.url,
+
+          thumbUrl:
+            image.thumbUrl,
+
+          altText:
+            image.altText,
+
+          sortOrder:
+            image.sortOrder,
+        })
+      ),
+
+    colors:
+      product.colors.map(
+        (color) => ({
+          id:
+            color.id,
+
+          name:
+            color.name,
+
+          hex:
+            color.hex,
+
+          sortOrder:
+            color.sortOrder,
+
+          active:
+            color.active,
+        })
+      ),
+
+    collections:
+      product.collections.map(
+        (item) => ({
+          id:
+            item.collection.id,
+
+          title:
+            item.collection.title,
+
+          slug:
+            item.collection.slug,
+
+          coverImageUrl:
+            item.collection.coverImageUrl,
+
+          coverImageThumbUrl:
+            item.collection
+              .coverImageThumbUrl,
+
+          isFeatured:
+            item.collection
+              .isFeatured,
+        })
+      ),
+
+    categories:
+      product.categories.map(
+        (item) => ({
+          id:
+            item.category.id,
+
+          name:
+            item.category.name,
+
+          slug:
+            item.category.slug,
+        })
+      ),
+
+    available:
+      true,
   };
 }
 
-export async function getRelatedStoreProducts(currentProductId: number) {
-  const currentProduct = await prisma.product.findUnique({
-    where: { id: currentProductId },
-    include: {
-      collections: {
-        select: {
-          collectionId: true,
+export async function getRelatedStoreProducts(
+  currentProductId: number
+) {
+  const currentProduct =
+    await prisma.product.findUnique({
+      where: {
+        id:
+          currentProductId,
+      },
+
+      include: {
+        collections: {
+          select: {
+            collectionId:
+              true,
+          },
+        },
+
+        categories: {
+          select: {
+            categoryId:
+              true,
+          },
         },
       },
-      categories: {
-        select: {
-          categoryId: true,
-        },
-      },
-    },
-  });
+    });
 
   if (!currentProduct) {
     return {
-      title: "Você também pode gostar",
-      subtitle: "Veja outros produtos da loja.",
+      title:
+        "Você também pode gostar",
+
+      subtitle:
+        "Veja outros produtos da loja.",
+
       products: [],
     };
   }
 
-  const collectionIds = currentProduct.collections.map(
-    (item) => item.collectionId
-  );
-  const categoryIds = currentProduct.categories.map((item) => item.categoryId);
+  const collectionIds =
+    currentProduct.collections.map(
+      (item) =>
+        item.collectionId
+    );
 
-  const sameCollection = collectionIds.length
-    ? await prisma.product.findMany({
-        where: {
-          active: true,
-          id: {
-            not: currentProductId,
+  const categoryIds =
+    currentProduct.categories.map(
+      (item) =>
+        item.categoryId
+    );
+
+  const productCardInclude = {
+    images: {
+      orderBy: {
+        sortOrder:
+          "asc" as const,
+      },
+
+      take: 1,
+    },
+
+    colors: {
+      where: {
+        active: true,
+      },
+
+      orderBy: {
+        sortOrder:
+          "asc" as const,
+      },
+
+      select: {
+        id: true,
+        name: true,
+        hex: true,
+      },
+    },
+  };
+
+  const sameCollection =
+    collectionIds.length
+      ? await prisma.product.findMany({
+          where: {
+            active:
+              true,
+
+            id: {
+              not:
+                currentProductId,
+            },
+
+            collections: {
+              some: {
+                collectionId: {
+                  in:
+                    collectionIds,
+                },
+              },
+            },
           },
-          collections: {
+
+          orderBy: [
+            {
+              featured:
+                "desc",
+            },
+            {
+              createdAt:
+                "desc",
+            },
+          ],
+
+          take: 4,
+
+          include:
+            productCardInclude,
+        })
+      : [];
+
+  let relatedProducts =
+    sameCollection;
+
+  if (
+    relatedProducts.length <
+      4 &&
+    categoryIds.length >
+      0
+  ) {
+    const existingIds =
+      new Set([
+        currentProductId,
+
+        ...relatedProducts.map(
+          (product) =>
+            product.id
+        ),
+      ]);
+
+    const sameCategory =
+      await prisma.product.findMany({
+        where: {
+          active:
+            true,
+
+          id: {
+            notIn:
+              Array.from(
+                existingIds
+              ),
+          },
+
+          categories: {
             some: {
-              collectionId: {
-                in: collectionIds,
+              categoryId: {
+                in:
+                  categoryIds,
               },
             },
           },
         },
-        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-        take: 4,
-        include: {
-          images: {
-            orderBy: { sortOrder: "asc" },
-            take: 1,
+
+        orderBy: [
+          {
+            featured:
+              "desc",
           },
-        },
-      })
-    : [];
-
-  let relatedProducts = sameCollection;
-
-  if (relatedProducts.length < 4 && categoryIds.length > 0) {
-    const existingIds = new Set([
-      currentProductId,
-      ...relatedProducts.map((product) => product.id),
-    ]);
-
-    const sameCategory = await prisma.product.findMany({
-      where: {
-        active: true,
-        id: {
-          notIn: Array.from(existingIds),
-        },
-        categories: {
-          some: {
-            categoryId: {
-              in: categoryIds,
-            },
+          {
+            createdAt:
+              "desc",
           },
-        },
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      take: 4 - relatedProducts.length,
-      include: {
-        images: {
-          orderBy: { sortOrder: "asc" },
-          take: 1,
-        },
-      },
-    });
+        ],
 
-    relatedProducts = [...relatedProducts, ...sameCategory];
+        take:
+          4 -
+          relatedProducts.length,
+
+        include:
+          productCardInclude,
+      });
+
+    relatedProducts = [
+      ...relatedProducts,
+      ...sameCategory,
+    ];
   }
 
-  if (relatedProducts.length < 4) {
-    const existingIds = new Set([
-      currentProductId,
-      ...relatedProducts.map((product) => product.id),
-    ]);
+  if (
+    relatedProducts.length <
+    4
+  ) {
+    const existingIds =
+      new Set([
+        currentProductId,
 
-    const fallback = await prisma.product.findMany({
-      where: {
-        active: true,
-        id: {
-          notIn: Array.from(existingIds),
-        },
-      },
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-      take: 4 - relatedProducts.length,
-      include: {
-        images: {
-          orderBy: { sortOrder: "asc" },
-          take: 1,
-        },
-      },
-    });
+        ...relatedProducts.map(
+          (product) =>
+            product.id
+        ),
+      ]);
 
-    relatedProducts = [...relatedProducts, ...fallback];
+    const fallback =
+      await prisma.product.findMany({
+        where: {
+          active:
+            true,
+
+          id: {
+            notIn:
+              Array.from(
+                existingIds
+              ),
+          },
+        },
+
+        orderBy: [
+          {
+            featured:
+              "desc",
+          },
+          {
+            createdAt:
+              "desc",
+          },
+        ],
+
+        take:
+          4 -
+          relatedProducts.length,
+
+        include:
+          productCardInclude,
+      });
+
+    relatedProducts = [
+      ...relatedProducts,
+      ...fallback,
+    ];
   }
 
-  let title = "Você também pode gostar";
-  let subtitle = "Veja outros produtos da loja.";
+  let title =
+    "Você também pode gostar";
 
-  if (collectionIds.length > 0 && sameCollection.length > 0) {
-    title = "Mais da mesma coleção";
-    subtitle = "Veja outros produtos da mesma coleção.";
-  } else if (categoryIds.length > 0) {
-    title = "Mais da mesma categoria";
-    subtitle = "Descubra outros produtos relacionados pela categoria.";
+  let subtitle =
+    "Veja outros produtos da loja.";
+
+  if (
+    collectionIds.length >
+      0 &&
+    sameCollection.length >
+      0
+  ) {
+    title =
+      "Mais da mesma coleção";
+
+    subtitle =
+      "Veja outros produtos da mesma coleção.";
+  } else if (
+    categoryIds.length > 0
+  ) {
+    title =
+      "Mais da mesma categoria";
+
+    subtitle =
+      "Descubra outros produtos relacionados pela categoria.";
   }
 
   return {
     title,
     subtitle,
-    products: relatedProducts.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      priceInCents: product.priceInCents,
-      featured: product.featured,
-      image:
-        product.images[0]?.thumbUrl ??
-        product.images[0]?.url ??
-        "/placeholder.png",
-      available: true,
-    })),
+
+    products:
+      relatedProducts.map(
+        (product) => ({
+          id:
+            product.id,
+
+          slug:
+            product.slug,
+
+          name:
+            product.name,
+
+          priceInCents:
+            product.priceInCents,
+
+          featured:
+            product.featured,
+
+          image:
+            product.images[0]
+              ?.thumbUrl ??
+            product.images[0]
+              ?.url ??
+            "/placeholder.png",
+
+          available:
+            true,
+
+          colors:
+            product.colors.map(
+              (color) => ({
+                id:
+                  color.id,
+
+                name:
+                  color.name,
+
+                hex:
+                  color.hex,
+              })
+            ),
+        })
+      ),
   };
 }

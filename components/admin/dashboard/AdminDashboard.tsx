@@ -711,20 +711,8 @@ export default function AdminDashboard({
           </Link>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <OrderMetricCard
-            title="Em andamento"
-            value={
-              data.orders
-                .inProgress
-            }
-            description="Pedidos que ainda exigem alguma ação."
-            href="/admin/orders"
-            icon={
-              <ClipboardList className="h-5 w-5" />
-            }
-            highlighted
-          />
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          
 
           <OrderMetricCard
             title="Novos"
@@ -1074,7 +1062,7 @@ export default function AdminDashboard({
       </section>
 
       {/* AÇÕES + STATUS + ALERTAS */}
-      <section className="grid gap-3 xl:grid-cols-[1.3fr_1fr_1fr]">
+      <section className="grid gap-2 xl:grid-cols-[2fr_1fr]">
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
@@ -1164,81 +1152,6 @@ export default function AdminDashboard({
           </div>
         </div>
 
-        {/* STATUS OPERACIONAL */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-[var(--rose-500)]">
-                Operação
-              </p>
-
-              <h2 className="mt-1 text-lg font-semibold text-zinc-950">
-                Status rápido
-              </h2>
-            </div>
-
-            <Link
-              href="/loja"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-500 transition hover:text-zinc-950"
-            >
-              Loja
-
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid gap-2">
-            <div className="rounded-xl bg-zinc-50 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                Loja
-              </p>
-
-              <p className="mt-1 text-sm font-semibold text-zinc-950">
-                {storeIsClosed
-                  ? "Fechada"
-                  : "Aberta"}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-zinc-50 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                Aviso
-              </p>
-
-              <p className="mt-1 text-sm font-semibold text-zinc-950">
-                {announcementIsActive
-                  ? "Ativo"
-                  : "Inativo"}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-zinc-50 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                Pedidos em andamento
-              </p>
-
-              <p className="mt-1 text-sm font-semibold text-zinc-950">
-                {
-                  data.orders
-                    .inProgress
-                }
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-zinc-50 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                Enviados
-              </p>
-
-              <p className="mt-1 text-sm font-semibold text-zinc-950">
-                {
-                  data.orders
-                    .shipped
-                }
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* ALERTAS */}
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">

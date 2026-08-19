@@ -150,16 +150,21 @@ export default async function ProductDetailsPage({ params }: PageProps) {
                 }))}
               />
             </div>
-
-            <RelatedProducts
-              title={related.title}
-              subtitle={related.subtitle}
-              products={related.products}
-              canAcceptOrders={settings.canAcceptOrders}
-              orderUnavailableReason={settings.orderUnavailableReason}
-            />
           </div>
         </Container>
+        <div className="mt-14 bg-white">
+          <Container>
+            <div className="py-10 sm:py-14">
+              <RelatedProducts
+                title={related.title}
+                subtitle={related.subtitle}
+                products={related.products}
+                canAcceptOrders={settings.canAcceptOrders}
+                orderUnavailableReason={settings.orderUnavailableReason}
+              />
+            </div>
+          </Container>
+        </div>
       </main>
     </>
   );

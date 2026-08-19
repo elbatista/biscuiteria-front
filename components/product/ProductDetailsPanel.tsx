@@ -255,34 +255,7 @@ export default function ProductDetailsPanel({
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-[var(--rose-100)] bg-white p-4">
-          <div className="text-sm font-semibold text-zinc-900">
-            Produção artesanal
-          </div>
-          <div className="mt-1 text-sm text-[var(--text-muted)]">
-            Peças feitas com cuidado nos detalhes.
-          </div>
-        </div>
 
-        <div className="rounded-2xl border border-[var(--rose-100)] bg-white p-4">
-          <div className="text-sm font-semibold text-zinc-900">
-            Atendimento direto
-          </div>
-          <div className="mt-1 text-sm text-[var(--text-muted)]">
-            Tire dúvidas e combine pedidos pelo WhatsApp.
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-[var(--rose-100)] bg-white p-4">
-          <div className="text-sm font-semibold text-zinc-900">
-            Personalização
-          </div>
-          <div className="mt-1 text-sm text-[var(--text-muted)]">
-            Consulte opções especiais sob medida.
-          </div>
-        </div>
-      </div>
 
       <div className="mt-8 rounded-2xl border border-[var(--rose-100)] bg-white p-5">
         <h2 className="text-xs font-semibold text-zinc-900">Envio e prazo</h2>
@@ -293,12 +266,7 @@ export default function ProductDetailsPanel({
             disponibilidade da peça e a quantidade desejada.
           </p>
           <p>
-            Produtos personalizados podem precisar de um tempo extra de
-            produção.
-          </p>
-          <p>
-            Para confirmar prazo e entrega, fale pelo WhatsApp antes de fechar o
-            pedido.
+            Se tiver dúvidas sobre prazo e entrega, pode realizar o pedido mesmo assim. Esses detalhes serão acertados depois de forma simples e prática.
           </p>
         </div>
       </div>
