@@ -46,13 +46,7 @@ export default function ContatoPage() {
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button href="#formulario">Enviar mensagem</Button>
-
-                {contact.whatsappUrl ? (
-                  <Button href={contact.whatsappUrl} target="_blank" variant="secondary">
-                    Abrir WhatsApp
-                  </Button>
-                ) : null}
+                <Button href="#formulario">Mensagem pelo WhatsApp</Button>
               </div>
 
               <p className="text-xs text-[var(--text-muted)] sm:text-sm">
@@ -61,16 +55,6 @@ export default function ContatoPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {contact.whatsappUrl ? (
-                <LinkCard
-                  title="WhatsApp"
-                  description="O jeito mais rápido de tirar dúvidas e alinhar personalizações."
-                  href={contact.whatsappUrl}
-                  linktext="Abrir WhatsApp"
-                  tag="💬"
-                  target="_blank"
-                />
-              ) : null}
 
               {contact.instagramUrl ? (
                 <LinkCard
@@ -93,13 +77,6 @@ export default function ContatoPage() {
                 />
               ) : null}
 
-              <LinkCard
-                title="Prazos & Envio"
-                description="Veja como funcionam produção, postagem e avarias."
-                href="/trocas"
-                linktext="Ver Trocas & Envio"
-                tag="🚚"
-              />
             </div>
           </div>
         </Container>
@@ -132,11 +109,7 @@ export default function ContatoPage() {
                 . 😁
               </p>
 
-              <div className="rounded-2xl border border-[var(--rose-100)] bg-white/60 p-5 text-sm text-[var(--text-muted)]">
-                <strong>Dica:</strong> se você já tem uma data importante, como
-                festa ou casamento, fale isso logo no começo. Assim eu consigo
-                te dizer rapidamente se dá tempo 🙂
-              </div>
+
             </div>
 
             <ContactForm whatsappBaseUrl={contact.whatsappUrl || ""} />
