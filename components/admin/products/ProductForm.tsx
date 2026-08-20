@@ -47,6 +47,8 @@ type ProductFormProps = {
 
 type CreateProductResponse = {
   message?: string;
+  requestId?: string;
+
   product?: {
     id: number;
   };
@@ -54,6 +56,7 @@ type CreateProductResponse = {
 
 type ApiErrorResponse = {
   message?: string;
+  requestId?: string;
 };
 
 function toggleNumberValue(values: number[], value: number) {
@@ -293,45 +296,265 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(
       return null;
     }, [images.length, mode, values]);
 
-    const createProduct = useCallback(async (): Promise<CreateProductResponse> => {
-      const formData = new FormData();
+    const createProduct = useCallback(
+      async (): Promise<CreateProductResponse> => {
+        const formData = new FormData();
 
-      formData.append("name", values.name.trim());
-      formData.append("shortDescription", values.shortDescription.trim());
-      formData.append("description", values.description.trim());
-      formData.append("price", values.price.trim());
-      formData.append("compareAtPrice", values.compareAtPrice.trim());
-      formData.append("active", String(values.active));
-      formData.append("featured", String(values.featured));
-      formData.append("weightGrams", values.weightGrams.trim());
-      formData.append("heightCm", values.heightCm.trim());
-      formData.append("widthCm", values.widthCm.trim());
-      formData.append("lengthCm", values.lengthCm.trim());
-      formData.append("categoryIds", JSON.stringify(values.categoryIds));
-      formData.append("collectionIds", JSON.stringify(values.collectionIds));
-      formData.append("colors", JSON.stringify(values.colors));
+        formData.append(
+          "name",
+          values.name.trim()
+        );
 
-      for (const image of images) {
-        formData.append("images", image);
-      }
+        formData.append(
+          "shortDescription",
+          values.shortDescription.trim()
+        );
 
-      const response = await fetch("/api/admin/products", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
+        formData.append(
+          "description",
+          values.description.trim()
+        );
 
-      const data = (await response.json().catch(() => null)) as
-        | CreateProductResponse
-        | ApiErrorResponse
-        | null;
+        formData.append(
+          "price",
+          values.price.trim()
+        );
 
-      if (!response.ok) {
-        throw new Error(data?.message ?? "Não foi possível criar o produto.");
-      }
+        formData.append(
+          "compareAtPrice",
+          values.compareAtPrice.trim()
+        );
 
-      return data as CreateProductResponse;
-    }, [images, values]);
+        formData.append(
+          "active",
+          String(values.active)
+        );
+
+        formData.append(
+          "featured",
+          String(values.featured)
+        );
+
+        formData.append(
+          "weightGrams",
+          values.weightGrams.trim()
+        );
+
+        formData.append(
+          "heightCm",
+          values.heightCm.trim()
+        );
+
+        formData.append(
+          "widthCm",
+          values.widthCm.trim()
+        );
+
+        formData.append(
+          "lengthCm",
+          values.lengthCm.trim()
+        );
+
+        formData.append(
+          "categoryIds",
+          JSON.stringify(
+            values.categoryIds
+          )
+        );
+
+        formData.append(
+          "collectionIds",
+          JSON.stringify(
+            values.collectionIds
+          )
+        );
+
+        formData.append(
+          "colors",
+          JSON.stringify(
+            values.colors
+          )
+        );
+
+        for (
+          const image of images
+        ) {
+          formData.append(
+            "images",
+            image
+          );
+        }
+
+        console.log(
+          "[PRODUCT_CREATE_CLIENT]",
+          {
+            message:
+              "Enviando produto",
+
+            name:
+              values.name.trim(),
+
+            categoryCount:
+              values.categoryIds
+                .length,
+
+            collectionCount:
+              values.collectionIds
+                .length,
+
+            colorCount:
+              values.colors
+                .length,
+
+            images:
+              images.map(
+                (image) => ({
+                  name:
+                    image.name,
+
+                  type:
+                    image.type,
+
+                  size:
+                    image.size,
+                })
+              ),
+          }
+        );
+
+        let response: Response;
+
+        try {
+          response =
+            await fetch(
+              "/api/admin/products",
+              {
+                method:
+                  "POST",
+
+                credentials:
+                  "include",
+
+                body:
+                  formData,
+              }
+            );
+        } catch (error) {
+          console.error(
+            "[PRODUCT_CREATE_CLIENT_NETWORK_ERROR]",
+            error
+          );
+
+          throw new Error(
+            "Erro de conexão ao criar o produto. Verifique o console e os logs do servidor."
+          );
+        }
+
+        const contentType =
+          response.headers.get(
+            "content-type"
+          );
+
+        const rawResponse =
+          await response.text();
+
+        console.log(
+          "[PRODUCT_CREATE_CLIENT_RESPONSE]",
+          {
+            status:
+              response.status,
+
+            statusText:
+              response.statusText,
+
+            ok:
+              response.ok,
+
+            contentType,
+
+            responsePreview:
+              rawResponse.slice(
+                0,
+                1000
+              ),
+          }
+        );
+
+        let data:
+          | CreateProductResponse
+          | ApiErrorResponse
+          | null = null;
+
+        if (rawResponse) {
+          try {
+            data =
+              JSON.parse(
+                rawResponse
+              ) as
+                | CreateProductResponse
+                | ApiErrorResponse;
+          } catch (error) {
+            console.error(
+              "[PRODUCT_CREATE_CLIENT_INVALID_JSON]",
+              {
+                status:
+                  response.status,
+
+                contentType,
+
+                rawResponse:
+                  rawResponse.slice(
+                    0,
+                    2000
+                  ),
+
+                error,
+              }
+            );
+          }
+        }
+
+        if (!response.ok) {
+          const requestId =
+            data?.requestId ??
+            null;
+
+          console.error(
+            "[PRODUCT_CREATE_CLIENT_API_ERROR]",
+            {
+              status:
+                response.status,
+
+              statusText:
+                response.statusText,
+
+              requestId,
+
+              data,
+            }
+          );
+
+          const baseMessage =
+            data?.message ??
+            `Não foi possível criar o produto. HTTP ${response.status}.`;
+
+          throw new Error(
+            requestId
+              ? `${baseMessage} Código: ${requestId}`
+              : baseMessage
+          );
+        }
+
+        if (!data) {
+          throw new Error(
+            "O produto foi enviado, mas a resposta do servidor não pôde ser interpretada."
+          );
+        }
+
+        return data as CreateProductResponse;
+      },
+      [images, values]
+    );
 
     const updateProduct = useCallback(async (): Promise<ApiErrorResponse> => {
       const response = await fetch(`/api/admin/products/${initialProduct?.id}`, {
