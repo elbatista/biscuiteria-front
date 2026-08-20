@@ -81,6 +81,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
             fit: "cover",
             quality: 82,
           },
+          maxFileSize: 20 * 1024 * 1024,
+          optimizeOriginal: {
+            maxWidth: 2000,
+            maxHeight: 2000,
+            targetFileSize: 900 * 1024,
+            initialQuality: 85,
+            minQuality: 50,
+          },
         });
 
         const created = await prisma.productImage.create({
@@ -112,10 +120,22 @@ export async function POST(request: NextRequest, context: RouteContext) {
             );
           }
 
+          if (error.message === "INVALID_IMAGE_CONTENT") {
+            return NextResponse.json(
+              {
+                message:
+                  "Não foi possível processar uma das imagens. Verifique se o arquivo é uma imagem válida.",
+              },
+              { status: 400 }
+            );
+          }
+
           if (error.message.startsWith("FILE_TOO_LARGE:")) {
             const fileName = error.message.split(":")[1];
             return NextResponse.json(
-              { message: `A imagem "${fileName}" excede 1MB.` },
+              {
+                message: `A imagem "${fileName}" é muito grande. Envie um arquivo de até 20MB.`,
+              },
               { status: 400 }
             );
           }
@@ -125,9 +145,25 @@ export async function POST(request: NextRequest, context: RouteContext) {
       }
     }
 
+    const images = await prisma.productImage.findMany({
+      where: {
+        productId,
+      },
+      orderBy: {
+        sortOrder: "asc",
+      },
+      select: {
+        id: true,
+        url: true,
+        thumbUrl: true,
+        altText: true,
+        sortOrder: true,
+      },
+    });
+
     return NextResponse.json({
       success: true,
-      images: createdImages,
+      images,
     });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {

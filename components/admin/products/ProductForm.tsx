@@ -1022,9 +1022,9 @@ const ProductForm = forwardRef<ProductFormHandle, ProductFormProps>(
                           </p>
 
                           <p className="mt-1 text-xs leading-5 text-zinc-500">
-                            Envie pelo menos uma imagem. Cada imagem deve ter até
-                            1MB. A primeira imagem será usada como imagem
-                            principal.
+                            Envie pelo menos uma imagem. Imagens grandes serão
+                            otimizadas automaticamente. A primeira imagem será
+                            usada como imagem principal.
                           </p>
                         </div>
 

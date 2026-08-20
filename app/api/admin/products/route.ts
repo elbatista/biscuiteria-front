@@ -1069,6 +1069,20 @@ export async function POST(
                 fit: "cover",
                 quality: 82,
               },
+
+              // Aceita imagens maiores e salva a imagem principal
+              // já otimizada em WebP, próxima de 900 KB.
+              maxFileSize:
+                20 * 1024 * 1024,
+
+              optimizeOriginal: {
+                maxWidth: 2000,
+                maxHeight: 2000,
+                targetFileSize:
+                  900 * 1024,
+                initialQuality: 85,
+                minQuality: 50,
+              },
             }
           );
 
@@ -1161,6 +1175,23 @@ export async function POST(
           }
 
           if (
+            error.message ===
+            "INVALID_IMAGE_CONTENT"
+          ) {
+            return NextResponse.json(
+              {
+                message:
+                  "Não foi possível processar uma das imagens. Verifique se o arquivo é uma imagem válida.",
+                requestId,
+              },
+
+              {
+                status: 400,
+              }
+            );
+          }
+
+          if (
             error.message.startsWith(
               "FILE_TOO_LARGE:"
             )
@@ -1172,7 +1203,7 @@ export async function POST(
 
             return NextResponse.json(
               {
-                message: `A imagem "${fileName}" excede 1MB.`,
+                message: `A imagem "${fileName}" é muito grande. Envie um arquivo de até 20MB.`,
                 requestId,
               },
 

@@ -1105,6 +1105,22 @@ export default function PublicOrderDetails({
                     statusContent.description
                   }
                 </p>
+                {order.status === "created" ? (
+                  <div className="mt-5 flex gap-3 rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-50)] p-4">
+                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--green-500)]" />
+
+                    <div>
+                      <p className="text-sm font-semibold text-zinc-900">
+                        Enviamos os detalhes do pedido por e-mail
+                      </p>
+
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+                        Confira sua caixa de entrada. Se não encontrar nossa mensagem,
+                        verifique também a pasta de spam ou lixo eletrônico.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="rounded-3xl border border-[var(--rose-100)] bg-[var(--rose-50)] p-5 lg:min-w-[290px]">
