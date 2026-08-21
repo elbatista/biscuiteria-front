@@ -20,6 +20,7 @@ import {
   Clock3,
   Eye,
   PackageCheck,
+  Plus,
   Search,
   ShoppingBag,
   Truck,
@@ -88,6 +89,15 @@ function buildQueryString(
   );
 
   return params.toString();
+}
+
+
+function getOrderSourceLabel(
+  sourceChannel: string | null
+) {
+  return sourceChannel === "admin"
+    ? "Pedido manual"
+    : "Loja online";
 }
 
 function StatusBadge({
@@ -290,6 +300,12 @@ function MobileOrderCard({
               Criado em{" "}
               {formatAdminOrderDate(
                 order.createdAt
+              )}
+            </p>
+
+            <p className="mt-2 inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">
+              {getOrderSourceLabel(
+                order.sourceChannel
               )}
             </p>
           </div>
@@ -658,37 +674,47 @@ export default function AdminOrdersPageClient({
               </p>
             </div>
 
-            <div className="flex items-center gap-4 rounded-3xl border border-zinc-200 bg-zinc-50 px-5 py-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                  Total
-                </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+              <Link
+                href="/admin/orders/new"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--green-500)] px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--green-300)]"
+              >
+                <Plus className="h-4 w-4" />
+                Novo pedido manual
+              </Link>
 
-                <p className="mt-1 text-3xl font-bold text-zinc-900">
-                  {
-                    result.counters
-                      .total
-                  }
-                </p>
-              </div>
+              <div className="flex items-center gap-4 rounded-3xl border border-zinc-200 bg-zinc-50 px-5 py-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">
+                    Total
+                  </p>
 
-              <div className="h-10 w-px bg-zinc-200" />
+                  <p className="mt-1 text-3xl font-bold text-zinc-900">
+                    {
+                      result.counters
+                        .total
+                    }
+                  </p>
+                </div>
 
-              <div>
-                <p className="text-xs text-zinc-400">
-                  Em andamento
-                </p>
+                <div className="h-10 w-px bg-zinc-200" />
 
-                <p className="mt-1 text-lg font-bold text-zinc-900">
-                  {result.counters
-                    .created +
-                    result.counters
-                      .pendingPayment +
-                    result.counters
-                      .confirmed +
-                    result.counters
-                      .processing}
-                </p>
+                <div>
+                  <p className="text-xs text-zinc-400">
+                    Em andamento
+                  </p>
+
+                  <p className="mt-1 text-lg font-bold text-zinc-900">
+                    {result.counters
+                      .created +
+                      result.counters
+                        .pendingPayment +
+                      result.counters
+                        .confirmed +
+                      result.counters
+                        .processing}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -995,6 +1021,12 @@ export default function AdminOrdersPageClient({
                               1
                                 ? "item"
                                 : "itens"}
+                            </p>
+
+                            <p className="mt-2 inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">
+                              {getOrderSourceLabel(
+                                order.sourceChannel
+                              )}
                             </p>
                           </td>
 

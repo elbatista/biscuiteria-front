@@ -372,25 +372,55 @@ function renderHtml({
     content.details.length > 0
       ? `
         <div style="margin-top:20px;border-top:1px solid #f4d7de;padding-top:16px;">
-          ${content.details
-            .map(
-              (detail) => `
-                <div style="display:flex;justify-content:space-between;gap:20px;margin-top:8px;font-size:14px;line-height:1.5;">
-                  <span style="color:#71717a;">
-                    ${escapeHtml(
-                      detail.label
-                    )}
-                  </span>
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="width:100%;border-collapse:collapse;"
+          >
+            <tbody>
+              ${content.details
+                .map(
+                  (detail) => `
+                    <tr>
+                      <td
+                        style="
+                          padding:4px 12px 4px 0;
+                          font-size:14px;
+                          line-height:1.5;
+                          color:#71717a;
+                          vertical-align:top;
+                        "
+                      >
+                        ${escapeHtml(
+                          detail.label
+                        )}
+                      </td>
 
-                  <strong style="color:#18181b;text-align:right;">
-                    ${escapeHtml(
-                      detail.value
-                    )}
-                  </strong>
-                </div>
-              `
-            )
-            .join("")}
+                      <td
+                        align="right"
+                        style="
+                          padding:4px 0;
+                          font-size:14px;
+                          line-height:1.5;
+                          font-weight:700;
+                          color:#18181b;
+                          text-align:right;
+                          vertical-align:top;
+                        "
+                      >
+                        ${escapeHtml(
+                          detail.value
+                        )}
+                      </td>
+                    </tr>
+                  `
+                )
+                .join("")}
+            </tbody>
+          </table>
         </div>
       `
       : "";

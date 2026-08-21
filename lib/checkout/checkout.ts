@@ -129,10 +129,21 @@ function normalizeZipCode(zipCode: string) {
   return zipCode.replace(/\D/g, "");
 }
 
-export async function createCheckoutOrder(
-  data: CheckoutInput
+type OrderCreationOptions = {
+  sourceChannel: "site" | "admin";
+  historySource: "system" | "admin";
+  creationReason: string;
+  checkStoreAvailability: boolean;
+  sendCreationEmails: boolean;
+};
+
+async function createOrder(
+  data: CheckoutInput,
+  options: OrderCreationOptions
 ) {
-  await assertStoreCanAcceptOrders();
+  if (options.checkStoreAvailability) {
+    await assertStoreCanAcceptOrders();
+  }
 
   const uniqueProductIds = [
     ...new Set(
@@ -371,7 +382,7 @@ export async function createCheckoutOrder(
                 "manual",
 
               sourceChannel:
-                "site",
+                options.sourceChannel,
             },
 
             include: {
@@ -494,14 +505,17 @@ export async function createCheckoutOrder(
               "created",
 
             reason:
-              "Pedido criado pelo cliente. Aguardando revisão e definição do frete.",
+              options.creationReason,
 
             source:
-              "system",
+              options.historySource,
 
             metadataJson: {
               event:
                 "order_created",
+
+              origin:
+                options.sourceChannel,
 
               payment:
                 "manual",
@@ -522,6 +536,13 @@ export async function createCheckoutOrder(
         return createdOrder;
       }
     );
+
+  if (!options.sendCreationEmails) {
+    return {
+      id: order.id,
+      publicId: order.publicId,
+    };
+  }
 
   const orderForEmail =
     await prisma.order.findUnique({
@@ -707,7 +728,38 @@ export async function createCheckoutOrder(
   }
 
   return {
+    id: order.id,
     publicId:
       order.publicId,
   };
+}
+
+export async function createCheckoutOrder(
+  data: CheckoutInput
+) {
+  return createOrder(data, {
+    sourceChannel: "site",
+    historySource: "system",
+    creationReason:
+      "Pedido criado pelo cliente. Aguardando revisão e definição do frete.",
+    checkStoreAvailability: true,
+    sendCreationEmails: true,
+  });
+}
+
+export async function createAdminOrder(
+  data: CheckoutInput,
+  options?: {
+    sendCreationEmails?: boolean;
+  }
+) {
+  return createOrder(data, {
+    sourceChannel: "admin",
+    historySource: "admin",
+    creationReason:
+      "Pedido criado manualmente pelo admin. Aguardando revisão e definição do frete.",
+    checkStoreAvailability: false,
+    sendCreationEmails:
+      options?.sendCreationEmails ?? true,
+  });
 }

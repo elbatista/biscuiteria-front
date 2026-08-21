@@ -43,6 +43,8 @@ type AdminOrderDetailsProps = {
 type HistoryMetadata = {
   event?: string;
 
+  origin?: string;
+
   intent?: string;
 
   adminEmail?: string | null;
@@ -109,6 +111,14 @@ function getHistoryMetadata(
   ) {
     result.event =
       value.event;
+  }
+
+  if (
+    typeof value.origin ===
+    "string"
+  ) {
+    result.origin =
+      value.origin;
   }
 
   if (
@@ -182,10 +192,16 @@ function getHistoryPresentation({
     case "order_created":
       return {
         label:
-          "Pedido criado",
+          metadata.origin ===
+          "admin"
+            ? "Pedido criado manualmente"
+            : "Pedido criado",
 
         description:
-          "Pedido recebido pelo site.",
+          metadata.origin ===
+          "admin"
+            ? "Pedido registrado pelo admin."
+            : "Pedido recebido pela loja online.",
 
         icon:
           "status",
@@ -472,6 +488,14 @@ function DetailRow({
   );
 }
 
+function getOrderSourceLabel(
+  sourceChannel: string | null
+) {
+  return sourceChannel === "admin"
+    ? "Pedido manual (Admin)"
+    : "Loja online";
+}
+
 function getShippingLabel(
   order: AdminOrderDetailsType
 ) {
@@ -549,6 +573,13 @@ export default function AdminOrderDetails({
               {
                 statusMeta.label
               }
+            </span>
+
+
+            <span className="ml-2 inline-flex rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600">
+              {getOrderSourceLabel(
+                order.sourceChannel
+              )}
             </span>
 
             <h1 className="mt-4 break-all text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">
@@ -990,10 +1021,9 @@ export default function AdminOrderDetails({
 
             <DetailRow
               label="Origem"
-              value={
-                order.sourceChannel ||
-                "site"
-              }
+              value={getOrderSourceLabel(
+                order.sourceChannel
+              )}
             />
           </dl>
         </InfoCard>

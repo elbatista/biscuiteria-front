@@ -17,6 +17,7 @@ export type AdminOrderListItem = {
   publicId: string;
   status: string;
   paymentStatus: string;
+  sourceChannel: string | null;
 
   customerName: string;
   customerEmail: string;
@@ -209,6 +210,7 @@ export async function getAdminOrders(
 
         status: true,
         paymentStatus: true,
+        sourceChannel: true,
 
         customerName: true,
         customerEmail: true,

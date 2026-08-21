@@ -72,7 +72,9 @@ function formatZipCode(zipCode: string) {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
-function renderAddressText(address: ManualOrderEmailAddress | null) {
+function renderAddressText(
+  address: ManualOrderEmailAddress | null
+) {
   if (!address) {
     return "Endereço não informado.";
   }
@@ -90,43 +92,84 @@ function renderAddressText(address: ManualOrderEmailAddress | null) {
   return lines.join("\n");
 }
 
-function renderAddressHtml(address: ManualOrderEmailAddress | null) {
+function renderAddressHtml(
+  address: ManualOrderEmailAddress | null
+) {
   if (!address) {
     return "<p>Endereço não informado.</p>";
   }
 
   return `
-    <p style="margin:0 0 6px;"><strong>${escapeHtml(address.recipientName)}</strong></p>
-    <p style="margin:0 0 6px;">${escapeHtml(address.street)}, ${escapeHtml(address.number)}</p>
+    <p style="margin:0 0 6px;"><strong>${escapeHtml(
+      address.recipientName
+    )}</strong></p>
+
+    <p style="margin:0 0 6px;">${escapeHtml(
+      address.street
+    )}, ${escapeHtml(
+      address.number
+    )}</p>
+
     ${
       address.complement
-        ? `<p style="margin:0 0 6px;">${escapeHtml(address.complement)}</p>`
+        ? `<p style="margin:0 0 6px;">${escapeHtml(
+            address.complement
+          )}</p>`
         : ""
     }
-    <p style="margin:0 0 6px;">${escapeHtml(address.neighborhood)}</p>
-    <p style="margin:0 0 6px;">${escapeHtml(address.city)} - ${escapeHtml(address.state)}</p>
-    <p style="margin:0;">CEP: ${escapeHtml(formatZipCode(address.zipCode))}</p>
+
+    <p style="margin:0 0 6px;">${escapeHtml(
+      address.neighborhood
+    )}</p>
+
+    <p style="margin:0 0 6px;">${escapeHtml(
+      address.city
+    )} - ${escapeHtml(
+      address.state
+    )}</p>
+
+    <p style="margin:0;">CEP: ${escapeHtml(
+      formatZipCode(
+        address.zipCode
+      )
+    )}</p>
   `;
 }
 
-function renderItemsText(items: ManualOrderEmailItem[]) {
+function renderItemsText(
+  items: ManualOrderEmailItem[]
+) {
   return items
     .map((item) => {
-      const colorLine = item.selectedColorNameSnapshot
-        ? `\n  Cor: ${item.selectedColorNameSnapshot}${
-            item.selectedColorHexSnapshot
-              ? ` (${item.selectedColorHexSnapshot})`
-              : ""
-          }`
-        : "";
+      const colorLine =
+        item.selectedColorNameSnapshot
+          ? `\n  Cor: ${item.selectedColorNameSnapshot}${
+              item.selectedColorHexSnapshot
+                ? ` (${item.selectedColorHexSnapshot})`
+                : ""
+            }`
+          : "";
 
       return [
         `- ${item.productNameSnapshot}`,
-        item.skuSnapshot ? `  SKU: ${item.skuSnapshot}` : null,
-        colorLine.trim() ? `  ${colorLine.trim()}` : null,
+
+        item.skuSnapshot
+          ? `  SKU: ${item.skuSnapshot}`
+          : null,
+
+        colorLine.trim()
+          ? `  ${colorLine.trim()}`
+          : null,
+
         `  Quantidade: ${item.quantity}`,
-        `  Unitário: ${formatBRLFromCents(item.unitPriceInCents)}`,
-        `  Total: ${formatBRLFromCents(item.lineTotalInCents)}`,
+
+        `  Unitário: ${formatBRLFromCents(
+          item.unitPriceInCents
+        )}`,
+
+        `  Total: ${formatBRLFromCents(
+          item.lineTotalInCents
+        )}`,
       ]
         .filter(Boolean)
         .join("\n");
@@ -134,44 +177,90 @@ function renderItemsText(items: ManualOrderEmailItem[]) {
     .join("\n\n");
 }
 
-function renderItemsHtml(items: ManualOrderEmailItem[]) {
+function renderItemsHtml(
+  items: ManualOrderEmailItem[]
+) {
   return items
     .map((item) => {
       return `
         <tr>
           <td style="padding:12px 0;border-bottom:1px solid #f4d7de;">
-            <div style="font-weight:700;color:#18181b;">${escapeHtml(
-              item.productNameSnapshot
-            )}</div>
+            <div style="font-weight:700;color:#18181b;">
+              ${escapeHtml(
+                item.productNameSnapshot
+              )}
+            </div>
+
             ${
               item.skuSnapshot
-                ? `<div style="font-size:12px;color:#71717a;margin-top:4px;">SKU: ${escapeHtml(
-                    item.skuSnapshot
-                  )}</div>`
+                ? `
+                  <div style="font-size:12px;color:#71717a;margin-top:4px;">
+                    SKU: ${escapeHtml(
+                      item.skuSnapshot
+                    )}
+                  </div>
+                `
                 : ""
             }
+
             ${
               item.selectedColorNameSnapshot
-                ? `<div style="font-size:12px;color:#71717a;margin-top:6px;">
-                    Cor: <strong>${escapeHtml(
-                      item.selectedColorNameSnapshot
-                    )}</strong>
+                ? `
+                  <div style="font-size:12px;color:#71717a;margin-top:6px;">
+                    Cor:
+                    <strong>
+                      ${escapeHtml(
+                        item.selectedColorNameSnapshot
+                      )}
+                    </strong>
+
                     ${
                       item.selectedColorHexSnapshot
-                        ? ` <span style="display:inline-block;width:10px;height:10px;border-radius:999px;border:1px solid #d4d4d8;background:${escapeHtml(
-                            item.selectedColorHexSnapshot
-                          )};vertical-align:middle;"></span>`
+                        ? `
+                          <span
+                            style="
+                              display:inline-block;
+                              width:10px;
+                              height:10px;
+                              border-radius:999px;
+                              border:1px solid #d4d4d8;
+                              background:${escapeHtml(
+                                item.selectedColorHexSnapshot
+                              )};
+                              vertical-align:middle;
+                            "
+                          ></span>
+                        `
                         : ""
                     }
-                  </div>`
+                  </div>
+                `
                 : ""
             }
           </td>
-          <td style="padding:12px 0;border-bottom:1px solid #f4d7de;text-align:center;color:#18181b;">
+
+          <td
+            style="
+              padding:12px 0;
+              border-bottom:1px solid #f4d7de;
+              text-align:center;
+              color:#18181b;
+            "
+          >
             ${item.quantity}
           </td>
-          <td style="padding:12px 0;border-bottom:1px solid #f4d7de;text-align:right;color:#18181b;">
-            ${formatBRLFromCents(item.lineTotalInCents)}
+
+          <td
+            style="
+              padding:12px 0;
+              border-bottom:1px solid #f4d7de;
+              text-align:right;
+              color:#18181b;
+            "
+          >
+            ${formatBRLFromCents(
+              item.lineTotalInCents
+            )}
           </td>
         </tr>
       `;
@@ -201,95 +290,256 @@ function baseEmailHtml({
           </div>
 
           <h1 style="margin:12px 0 0;font-size:28px;line-height:1.2;color:#18181b;">
-            ${escapeHtml(title)}
+            ${escapeHtml(
+              title
+            )}
           </h1>
 
           <p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#52525b;">
-            ${escapeHtml(intro)}
+            ${escapeHtml(
+              intro
+            )}
           </p>
 
           <div style="margin-top:22px;background:#fff7f8;border:1px solid #f4d7de;border-radius:20px;padding:16px;">
             <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.14em;color:#71717a;">
               Pedido
             </div>
+
             <div style="margin-top:4px;font-size:22px;font-weight:700;color:#18181b;">
-              ${escapeHtml(order.publicId)}
+              ${escapeHtml(
+                order.publicId
+              )}
             </div>
+
             <div style="margin-top:4px;font-size:13px;color:#71717a;">
-              Criado em ${escapeHtml(formatDateTimeBR(order.createdAt))}
+              Criado em ${escapeHtml(
+                formatDateTimeBR(
+                  order.createdAt
+                )
+              )}
             </div>
           </div>
 
-          <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">Itens</h2>
+          <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">
+            Itens
+          </h2>
 
-          <table style="width:100%;border-collapse:collapse;">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="width:100%;border-collapse:collapse;"
+          >
             <thead>
               <tr>
-                <th style="padding-bottom:8px;text-align:left;font-size:12px;color:#71717a;">Produto</th>
-                <th style="padding-bottom:8px;text-align:center;font-size:12px;color:#71717a;">Qtd.</th>
-                <th style="padding-bottom:8px;text-align:right;font-size:12px;color:#71717a;">Total</th>
+                <th style="padding-bottom:8px;text-align:left;font-size:12px;color:#71717a;">
+                  Produto
+                </th>
+
+                <th style="padding-bottom:8px;text-align:center;font-size:12px;color:#71717a;">
+                  Qtd.
+                </th>
+
+                <th style="padding-bottom:8px;text-align:right;font-size:12px;color:#71717a;">
+                  Total
+                </th>
               </tr>
             </thead>
+
             <tbody>
-              ${renderItemsHtml(order.items)}
+              ${renderItemsHtml(
+                order.items
+              )}
             </tbody>
           </table>
 
           <div style="margin-top:18px;border-top:1px solid #f4d7de;padding-top:16px;">
-            <div style="display:flex;justify-content:space-between;font-size:15px;color:#52525b;">
-              <span>Subtotal</span>
-              <strong style="color:#18181b;">${formatBRLFromCents(
-                order.subtotalInCents
-              )}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:15px;color:#52525b;">
-              <span>Frete</span>
-              <strong style="color:#18181b;">A combinar</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:18px;color:#18181b;">
-              <span>Total parcial</span>
-              <strong>${formatBRLFromCents(order.totalInCents)}</strong>
-            </div>
+            <table
+              role="presentation"
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              style="width:100%;border-collapse:collapse;"
+            >
+              <tbody>
+                <tr>
+                  <td
+                    style="
+                      padding:4px 12px 4px 0;
+                      font-size:15px;
+                      line-height:1.5;
+                      color:#52525b;
+                      vertical-align:top;
+                    "
+                  >
+                    Subtotal
+                  </td>
+
+                  <td
+                    align="right"
+                    style="
+                      padding:4px 0;
+                      font-size:15px;
+                      line-height:1.5;
+                      font-weight:700;
+                      color:#18181b;
+                      text-align:right;
+                      vertical-align:top;
+                    "
+                  >
+                    ${formatBRLFromCents(
+                      order.subtotalInCents
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      padding:4px 12px 4px 0;
+                      font-size:15px;
+                      line-height:1.5;
+                      color:#52525b;
+                      vertical-align:top;
+                    "
+                  >
+                    Frete
+                  </td>
+
+                  <td
+                    align="right"
+                    style="
+                      padding:4px 0;
+                      font-size:15px;
+                      line-height:1.5;
+                      font-weight:700;
+                      color:#18181b;
+                      text-align:right;
+                      vertical-align:top;
+                    "
+                  >
+                    A combinar
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      padding:8px 12px 0 0;
+                      font-size:18px;
+                      line-height:1.5;
+                      color:#18181b;
+                      vertical-align:top;
+                    "
+                  >
+                    Total parcial
+                  </td>
+
+                  <td
+                    align="right"
+                    style="
+                      padding:8px 0 0;
+                      font-size:18px;
+                      line-height:1.5;
+                      font-weight:700;
+                      color:#18181b;
+                      text-align:right;
+                      vertical-align:top;
+                    "
+                  >
+                    ${formatBRLFromCents(
+                      order.totalInCents
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">Cliente</h2>
+          <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">
+            Cliente
+          </h2>
 
           <div style="font-size:14px;line-height:1.7;color:#52525b;">
-            <p style="margin:0 0 6px;"><strong style="color:#18181b;">Nome:</strong> ${escapeHtml(
-              order.customerName
-            )}</p>
-            <p style="margin:0 0 6px;"><strong style="color:#18181b;">E-mail:</strong> ${escapeHtml(
-              order.customerEmail
-            )}</p>
+            <p style="margin:0 0 6px;">
+              <strong style="color:#18181b;">
+                Nome:
+              </strong>
+
+              ${escapeHtml(
+                order.customerName
+              )}
+            </p>
+
+            <p style="margin:0 0 6px;">
+              <strong style="color:#18181b;">
+                E-mail:
+              </strong>
+
+              ${escapeHtml(
+                order.customerEmail
+              )}
+            </p>
+
             ${
               order.customerPhone
-                ? `<p style="margin:0 0 6px;"><strong style="color:#18181b;">Telefone/WhatsApp:</strong> ${escapeHtml(
-                    order.customerPhone
-                  )}</p>`
+                ? `
+                  <p style="margin:0 0 6px;">
+                    <strong style="color:#18181b;">
+                      Telefone/WhatsApp:
+                    </strong>
+
+                    ${escapeHtml(
+                      order.customerPhone
+                    )}
+                  </p>
+                `
                 : ""
             }
+
             ${
               order.customerDocument
-                ? `<p style="margin:0;"><strong style="color:#18181b;">CPF:</strong> ${escapeHtml(
-                    order.customerDocument
-                  )}</p>`
+                ? `
+                  <p style="margin:0;">
+                    <strong style="color:#18181b;">
+                      CPF:
+                    </strong>
+
+                    ${escapeHtml(
+                      order.customerDocument
+                    )}
+                  </p>
+                `
                 : ""
             }
           </div>
 
-          <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">Entrega</h2>
+          <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">
+            Entrega
+          </h2>
 
           <div style="font-size:14px;line-height:1.7;color:#52525b;">
-            ${renderAddressHtml(order.shippingAddress)}
+            ${renderAddressHtml(
+              order.shippingAddress
+            )}
           </div>
 
           ${
             order.customerNotes
               ? `
-                <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">Observações</h2>
-                <p style="margin:0;font-size:14px;line-height:1.7;color:#52525b;white-space:pre-line;">${escapeHtml(
-                  order.customerNotes
-                )}</p>
+                <h2 style="margin:28px 0 12px;font-size:18px;color:#18181b;">
+                  Observações
+                </h2>
+
+                <p style="margin:0;font-size:14px;line-height:1.7;color:#52525b;white-space:pre-line;">
+                  ${escapeHtml(
+                    order.customerNotes
+                  )}
+                </p>
               `
               : ""
           }
@@ -298,7 +548,8 @@ function baseEmailHtml({
             showSellerInstructions
               ? `
                 <div style="margin-top:28px;background:#fef3c7;border:1px solid #fcd34d;border-radius:20px;padding:16px;font-size:14px;line-height:1.7;color:#92400e;">
-                  <strong>Ação necessária:</strong> entre em contato com o cliente para combinar prazo de produção, frete e pagamento.
+                  <strong>Ação necessária:</strong>
+                  entre em contato com o cliente para combinar prazo de produção, frete e pagamento.
                 </div>
               `
               : `
@@ -309,7 +560,12 @@ function baseEmailHtml({
           }
 
           <div style="margin-top:28px;">
-            <a href="${escapeHtml(orderUrl)}" style="display:inline-block;background:#6a9f58;color:#ffffff;text-decoration:none;font-weight:700;border-radius:16px;padding:12px 18px;">
+            <a
+              href="${escapeHtml(
+                orderUrl
+              )}"
+              style="display:inline-block;background:#6a9f58;color:#ffffff;text-decoration:none;font-weight:700;border-radius:16px;padding:12px 18px;"
+            >
               Ver detalhes do pedido
             </a>
           </div>
@@ -319,7 +575,10 @@ function baseEmailHtml({
   `;
 }
 
-function sellerText(order: ManualOrderEmailData, orderUrl: string) {
+function sellerText(
+  order: ManualOrderEmailData,
+  orderUrl: string
+) {
   return `
 Novo pedido recebido na Biscuit_eria.
 
@@ -353,7 +612,10 @@ ${orderUrl}
 `.trim();
 }
 
-function customerText(order: ManualOrderEmailData, orderUrl: string) {
+function customerText(
+  order: ManualOrderEmailData,
+  orderUrl: string
+) {
   return `
 Olá, ${order.customerName}.
 
@@ -378,45 +640,87 @@ ${orderUrl}
 `.trim();
 }
 
-export async function sendManualOrderEmails(order: ManualOrderEmailData) {
-  const sellerEmail = process.env.ORDER_NOTIFICATION_EMAIL;
+export async function sendManualOrderEmails(
+  order: ManualOrderEmailData
+) {
+  const sellerEmail =
+    process.env.ORDER_NOTIFICATION_EMAIL;
 
   if (!sellerEmail) {
-    throw new Error("Variável de ambiente ausente: ORDER_NOTIFICATION_EMAIL");
+    throw new Error(
+      "Variável de ambiente ausente: ORDER_NOTIFICATION_EMAIL"
+    );
   }
 
-  const orderUrl = `${getSiteUrl()}/pedido/${order.publicId}`;
+  const orderUrl =
+    `${getSiteUrl()}/pedido/${order.publicId}`;
 
-  const sellerSubject = `Novo pedido recebido — ${order.publicId}`;
-  const customerSubject = `Recebemos seu pedido — ${order.publicId}`;
+  const sellerSubject =
+    `Novo pedido recebido — ${order.publicId}`;
+
+  const customerSubject =
+    `Recebemos seu pedido — ${order.publicId}`;
 
   await Promise.all([
     sendEmail({
-      to: sellerEmail,
-      subject: sellerSubject,
-      replyTo: order.customerEmail,
-      text: sellerText(order, orderUrl),
-      html: baseEmailHtml({
-        title: "Novo pedido recebido",
-        intro:
-          "Um novo pedido foi criado na loja. Entre em contato com o cliente para combinar envio, prazo e pagamento.",
-        order,
-        orderUrl,
-        showSellerInstructions: true,
-      }),
+      to:
+        sellerEmail,
+
+      subject:
+        sellerSubject,
+
+      replyTo:
+        order.customerEmail,
+
+      text:
+        sellerText(
+          order,
+          orderUrl
+        ),
+
+      html:
+        baseEmailHtml({
+          title:
+            "Novo pedido recebido",
+
+          intro:
+            "Um novo pedido foi criado manualmente na loja. Entre em contato com o cliente para combinar envio, prazo e pagamento.",
+
+          order,
+          orderUrl,
+
+          showSellerInstructions:
+            true,
+        }),
     }),
+
     sendEmail({
-      to: order.customerEmail,
-      subject: customerSubject,
-      text: customerText(order, orderUrl),
-      html: baseEmailHtml({
-        title: "Recebemos seu pedido",
-        intro:
-          "Obrigada pelo pedido! A Biscuit_eria entrará em contato para combinar envio, prazo de produção e pagamento.",
-        order,
-        orderUrl,
-        showSellerInstructions: false,
-      }),
+      to:
+        order.customerEmail,
+
+      subject:
+        customerSubject,
+
+      text:
+        customerText(
+          order,
+          orderUrl
+        ),
+
+      html:
+        baseEmailHtml({
+          title:
+            "Recebemos seu pedido",
+
+          intro:
+            "Obrigada pelo pedido! A Biscuit_eria entrará em contato para combinar envio, prazo de produção e pagamento.",
+
+          order,
+          orderUrl,
+
+          showSellerInstructions:
+            false,
+        }),
     }),
   ]);
 }
