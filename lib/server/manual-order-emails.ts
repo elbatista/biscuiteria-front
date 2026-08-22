@@ -1,5 +1,6 @@
 import { formatBRLFromCents } from "@/lib/format-price";
 import { sendEmail } from "@/lib/server/email";
+import { getSiteUrl } from "@/lib/server/site-url";
 
 type ManualOrderEmailItem = {
   productNameSnapshot: string;
@@ -37,13 +38,6 @@ type ManualOrderEmailData = {
   items: ManualOrderEmailItem[];
   shippingAddress: ManualOrderEmailAddress | null;
 };
-
-function getSiteUrl() {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "http://localhost:3000"
-  );
-}
 
 function escapeHtml(value: string) {
   return value
@@ -640,9 +634,29 @@ ${orderUrl}
 `.trim();
 }
 
+export type ManualOrderEmailsResult = {
+  sellerEmailSent: boolean;
+  customerEmailSent: boolean;
+
+  sellerEmailError: string | null;
+  customerEmailError: string | null;
+};
+
+function getEmailErrorMessage(
+  result: PromiseSettledResult<unknown>
+) {
+  if (result.status === "fulfilled") {
+    return null;
+  }
+
+  return result.reason instanceof Error
+    ? result.reason.message
+    : "unknown_error";
+}
+
 export async function sendManualOrderEmails(
   order: ManualOrderEmailData
-) {
+): Promise<ManualOrderEmailsResult> {
   const sellerEmail =
     process.env.ORDER_NOTIFICATION_EMAIL;
 
@@ -661,7 +675,10 @@ export async function sendManualOrderEmails(
   const customerSubject =
     `Recebemos seu pedido — ${order.publicId}`;
 
-  await Promise.all([
+  const [
+    sellerResult,
+    customerResult,
+  ] = await Promise.allSettled([
     sendEmail({
       to:
         sellerEmail,
@@ -723,4 +740,24 @@ export async function sendManualOrderEmails(
         }),
     }),
   ]);
+
+  return {
+    sellerEmailSent:
+      sellerResult.status ===
+      "fulfilled",
+
+    customerEmailSent:
+      customerResult.status ===
+      "fulfilled",
+
+    sellerEmailError:
+      getEmailErrorMessage(
+        sellerResult
+      ),
+
+    customerEmailError:
+      getEmailErrorMessage(
+        customerResult
+      ),
+  };
 }

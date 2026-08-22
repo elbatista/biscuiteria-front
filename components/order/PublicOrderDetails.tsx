@@ -57,12 +57,8 @@ function formatDateTime(
   return new Intl.DateTimeFormat(
     "pt-BR",
     {
-      dateStyle:
-        "long",
-
-      timeStyle:
-        "short",
-
+      dateStyle: "long",
+      timeStyle: "short",
       timeZone:
         "America/Sao_Paulo",
     }
@@ -75,266 +71,12 @@ function formatShortDateTime(
   return new Intl.DateTimeFormat(
     "pt-BR",
     {
-      dateStyle:
-        "short",
-
-      timeStyle:
-        "short",
-
+      dateStyle: "short",
+      timeStyle: "short",
       timeZone:
         "America/Sao_Paulo",
     }
   ).format(date);
-}
-
-function formatZipCode(
-  zipCode: string
-) {
-  const digits =
-    zipCode.replace(
-      /\D/g,
-      ""
-    );
-
-  if (
-    digits.length !== 8
-  ) {
-    return zipCode;
-  }
-
-  return `${digits.slice(
-    0,
-    5
-  )}-${digits.slice(5)}`;
-}
-
-function maskName(
-  name: string
-) {
-  const parts =
-    name
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
-
-  if (
-    parts.length === 0
-  ) {
-    return "Cliente";
-  }
-
-  if (
-    parts.length === 1
-  ) {
-    const first =
-      parts[0];
-
-    if (
-      first.length <= 2
-    ) {
-      return `${
-        first[0] ?? ""
-      }***`;
-    }
-
-    return `${first.slice(
-      0,
-      2
-    )}***`;
-  }
-
-  const firstName =
-    parts[0];
-
-  const lastName =
-    parts[
-      parts.length - 1
-    ];
-
-  return `${firstName} ${
-    lastName[0] ?? ""
-  }.`;
-}
-
-function maskEmail(
-  email: string
-) {
-  const [local, domain] =
-    email.split("@");
-
-  if (
-    !local ||
-    !domain
-  ) {
-    return "e-mail informado";
-  }
-
-  const visibleStart =
-    local.slice(
-      0,
-      Math.min(
-        2,
-        local.length
-      )
-    );
-
-  const domainParts =
-    domain.split(".");
-
-  const domainName =
-    domainParts[0] ?? "";
-
-  const extension =
-    domainParts
-      .slice(1)
-      .join(".");
-
-  const maskedLocal =
-    `${visibleStart}${"*".repeat(
-      Math.max(
-        3,
-        local.length -
-          visibleStart.length
-      )
-    )}`;
-
-  const maskedDomain =
-    domainName.length <= 2
-      ? `${
-          domainName[0] ??
-          ""
-        }***`
-      : `${domainName.slice(
-          0,
-          2
-        )}***`;
-
-  return `${maskedLocal}@${maskedDomain}${
-    extension
-      ? `.${extension}`
-      : ""
-  }`;
-}
-
-function maskPhone(
-  phone: string | null
-) {
-  if (!phone) {
-    return "-";
-  }
-
-  const digits =
-    phone.replace(
-      /\D/g,
-      ""
-    );
-
-  if (
-    digits.length < 4
-  ) {
-    return "***";
-  }
-
-  return `(**) *****-${digits.slice(
-    -4
-  )}`;
-}
-
-function maskDocument(
-  document: string | null
-) {
-  if (!document) {
-    return "-";
-  }
-
-  const digits =
-    document.replace(
-      /\D/g,
-      ""
-    );
-
-  if (
-    digits.length !== 11
-  ) {
-    return "***";
-  }
-
-  return `***.***.***-${digits.slice(
-    -2
-  )}`;
-}
-
-function maskStreet(
-  street: string
-) {
-  const trimmed =
-    street.trim();
-
-  if (!trimmed) {
-    return "Endereço informado";
-  }
-
-  const words =
-    trimmed
-      .split(/\s+/)
-      .filter(Boolean);
-
-  if (
-    words.length <= 1
-  ) {
-    return `${trimmed.slice(
-      0,
-      3
-    )}***`;
-  }
-
-  return `${words[0]} ${
-    words[1]?.slice(
-      0,
-      2
-    ) ?? ""
-  }***`;
-}
-
-function maskAddressNumber(
-  number: string
-) {
-  const trimmed =
-    number.trim();
-
-  if (!trimmed) {
-    return "***";
-  }
-
-  if (
-    trimmed.length <= 2
-  ) {
-    return "***";
-  }
-
-  return `***${trimmed.slice(
-    -1
-  )}`;
-}
-
-function maskZipCode(
-  zipCode: string
-) {
-  const digits =
-    zipCode.replace(
-      /\D/g,
-      ""
-    );
-
-  if (
-    digits.length !== 8
-  ) {
-    return "***";
-  }
-
-  return `*****-${digits.slice(
-    -3
-  )}`;
 }
 
 function isValidHex(
@@ -349,11 +91,8 @@ function isValidHex(
 }
 
 function getHistoryDateForStatus(
-  order:
-    PublicOrderDetailsType,
-
-  status:
-    string
+  order: PublicOrderDetailsType,
+  status: string
 ) {
   const history =
     order.statusHistory.find(
@@ -371,8 +110,7 @@ function getHistoryDateForStatus(
 }
 
 function getShippingUpdatedDate(
-  order:
-    PublicOrderDetailsType
+  order: PublicOrderDetailsType
 ) {
   const history =
     order.statusHistory.find(
@@ -399,8 +137,7 @@ function getStatusIndex(
 }
 
 function getLastStatusBeforeCancel(
-  order:
-    PublicOrderDetailsType
+  order: PublicOrderDetailsType
 ) {
   if (
     order.status !==
@@ -426,8 +163,7 @@ function getLastStatusBeforeCancel(
 }
 
 function buildTimeline(
-  order:
-    PublicOrderDetailsType
+  order: PublicOrderDetailsType
 ): TimelineStep[] {
   const effectiveStatus =
     getLastStatusBeforeCancel(
@@ -521,20 +257,15 @@ function buildTimeline(
 
   return [
     {
-      id:
-        "created",
-
+      id: "created",
       label:
         "Pedido criado",
-
       description:
         "Recebemos os dados do seu pedido.",
-
       state:
         normalStatusState(
           "created"
         ),
-
       date:
         createdDate,
     },
@@ -542,16 +273,12 @@ function buildTimeline(
     {
       id:
         "shipping_updated",
-
       label:
         "Frete atualizado",
-
       description:
         "O valor final do pedido foi atualizado com o frete.",
-
       state:
         shippingState,
-
       date:
         shippingUpdatedDate,
     },
@@ -559,75 +286,56 @@ function buildTimeline(
     {
       id:
         "pending_payment",
-
       label:
         "Pagamento pendente",
-
       description:
         "Aguardando a confirmação do pagamento.",
-
       state:
         normalStatusState(
           "pending_payment"
         ),
-
       date:
         shippingUpdatedDate,
     },
 
     {
-      id:
-        "confirmed",
-
+      id: "confirmed",
       label:
         "Pagamento confirmado",
-
       description:
         "O pagamento foi confirmado.",
-
       state:
         normalStatusState(
           "confirmed"
         ),
-
       date:
         confirmedDate,
     },
 
     {
-      id:
-        "processing",
-
+      id: "processing",
       label:
         "Em produção",
-
       description:
         "Seu pedido está sendo produzido e preparado.",
-
       state:
         normalStatusState(
           "processing"
         ),
-
       date:
         processingDate,
     },
 
     {
-      id:
-        "shipped",
-
+      id: "shipped",
       label:
         "Enviado",
-
       description:
         "Seu pedido foi despachado.",
-
       state:
         normalStatusState(
           "shipped"
         ),
-
       date:
         shippedDate,
     },
@@ -635,8 +343,7 @@ function buildTimeline(
 }
 
 function getCurrentStatusContent(
-  order:
-    PublicOrderDetailsType
+  order: PublicOrderDetailsType
 ) {
   switch (
     order.status
@@ -749,8 +456,7 @@ function getCurrentStatusContent(
 }
 
 function getNextStepMessage(
-  order:
-    PublicOrderDetailsType
+  order: PublicOrderDetailsType
 ) {
   switch (
     order.status
@@ -1105,7 +811,11 @@ export default function PublicOrderDetails({
                     statusContent.description
                   }
                 </p>
-                {order.status === "created" ? (
+
+                {order.status ===
+                  "created" &&
+                order.creationEmailStatus ===
+                  "sent" ? (
                   <div className="mt-5 flex gap-3 rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-50)] p-4">
                     <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--green-500)]" />
 
@@ -1115,8 +825,33 @@ export default function PublicOrderDetails({
                       </p>
 
                       <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
-                        Confira sua caixa de entrada. Se não encontrar nossa mensagem,
-                        verifique também a pasta de spam ou lixo eletrônico.
+                        Confira sua caixa de entrada.
+                        Se não encontrar nossa mensagem,
+                        verifique também a pasta de spam
+                        ou lixo eletrônico.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {order.status ===
+                  "created" &&
+                order.creationEmailStatus ===
+                  "failed" ? (
+                  <div className="mt-5 flex gap-3 rounded-2xl border border-[var(--rose-100)] bg-[var(--rose-50)] p-4">
+                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--green-500)]" />
+
+                    <div>
+                      <p className="text-sm font-semibold text-zinc-900">
+                        Seu pedido foi recebido normalmente
+                      </p>
+
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+                        Não conseguimos confirmar o
+                        envio do e-mail com os detalhes,
+                        mas seu pedido está registrado.
+                        Você pode acompanhar todas as
+                        informações nesta página.
                       </p>
                     </div>
                   </div>
@@ -1330,7 +1065,7 @@ export default function PublicOrderDetails({
                 </div>
               </InfoCard>
 
-              {order.customerNotes ? (
+              {order.hasCustomerNotes ? (
                 <InfoCard
                   icon={
                     <MessageCircle className="h-5 w-5" />
@@ -1445,27 +1180,21 @@ export default function PublicOrderDetails({
                     <span className="font-semibold text-zinc-900">
                       Nome:
                     </span>{" "}
-                    {maskName(
-                      order.customerName
-                    )}
+                    {order.customerName}
                   </p>
 
                   <p>
                     <span className="font-semibold text-zinc-900">
                       E-mail:
                     </span>{" "}
-                    {maskEmail(
-                      order.customerEmail
-                    )}
+                    {order.customerEmail}
                   </p>
 
                   <p>
                     <span className="font-semibold text-zinc-900">
                       WhatsApp:
                     </span>{" "}
-                    {maskPhone(
-                      order.customerPhone
-                    )}
+                    {order.customerPhone}
                   </p>
 
                   {order.customerDocument ? (
@@ -1473,9 +1202,7 @@ export default function PublicOrderDetails({
                       <span className="font-semibold text-zinc-900">
                         CPF:
                       </span>{" "}
-                      {maskDocument(
-                        order.customerDocument
-                      )}
+                      {order.customerDocument}
                     </p>
                   ) : null}
                 </div>
@@ -1490,36 +1217,32 @@ export default function PublicOrderDetails({
                 {address ? (
                   <div className="space-y-2 text-sm leading-relaxed text-[var(--text-muted)]">
                     <p className="font-semibold text-zinc-900">
-                      {maskName(
-                        address.recipientName
-                      )}
-                    </p>
-
-                    <p>
-                      {maskStreet(
-                        address.street
-                      )}
-                      ,{" "}
-                      {maskAddressNumber(
-                        address.number
-                      )}
-                    </p>
-
-
-                    <p>
                       {
-                        maskStreet(address.neighborhood)
+                        address.recipientName
                       }
                     </p>
 
+                    <p>
+                      {
+                        address.street
+                      }
+                      ,{" "}
+                      {
+                        address.number
+                      }
+                    </p>
+
+                    <p>
+                      {
+                        address.neighborhood
+                      }
+                    </p>
 
                     <p>
                       CEP:{" "}
-                      {maskZipCode(
-                        formatZipCode(
-                          address.zipCode
-                        )
-                      )}
+                      {
+                        address.zipCode
+                      }
                     </p>
                   </div>
                 ) : (

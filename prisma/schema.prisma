@@ -88,6 +88,7 @@ model ProductImage {
 model Order {
   id                           Int           @id @default(autoincrement())
   publicId                     String        @unique @map("public_id")
+  idempotencyKey               String        @unique @map("idempotency_key")
   customerName                 String        @map("customer_name")
   customerEmail                String        @map("customer_email")
   customerPhone                String?       @map("customer_phone")
@@ -111,6 +112,7 @@ model Order {
   mercadopagoPreferenceId      String?       @map("mercadopago_preference_id")
   mercadopagoExternalReference String?       @unique @map("mercadopago_external_reference")
   sourceChannel                String        @default("site") @map("source_channel")
+  creationEmailStatus String @default("pending") @map("creation_email_status")
   createdAt                    DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt                    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -237,6 +239,7 @@ model AdminUser {
   passwordHash String   @map("password_hash")
   role         String   @default("admin")
   active       Boolean  @default(true)
+  sessionVersion Int @default(1) @map("session_version")
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 

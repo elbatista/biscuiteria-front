@@ -1,5 +1,6 @@
 import { formatBRLFromCents } from "@/lib/format-price";
 import { sendEmail } from "@/lib/server/email";
+import { getSiteUrl } from "@/lib/server/site-url";
 
 export type OrderWorkflowEmailEvent =
   | "shipping_updated"
@@ -26,13 +27,6 @@ export type OrderWorkflowEmailData = {
 
   status: string;
 };
-
-function getSiteUrl() {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "http://localhost:3000"
-  );
-}
 
 function escapeHtml(value: string) {
   return value

@@ -18,6 +18,36 @@ import {
   type FieldErrors,
 } from "@/lib/checkout/validators";
 
+const CHECKOUT_IDEMPOTENCY_KEY_STORAGE =
+  "biscuiteria_checkout_idempotency_key";
+
+function getCheckoutIdempotencyKey() {
+  const existingKey =
+    window.sessionStorage.getItem(
+      CHECKOUT_IDEMPOTENCY_KEY_STORAGE
+    );
+
+  if (existingKey) {
+    return existingKey;
+  }
+
+  const newKey =
+    crypto.randomUUID();
+
+  window.sessionStorage.setItem(
+    CHECKOUT_IDEMPOTENCY_KEY_STORAGE,
+    newKey
+  );
+
+  return newKey;
+}
+
+function clearCheckoutIdempotencyKey() {
+  window.sessionStorage.removeItem(
+    CHECKOUT_IDEMPOTENCY_KEY_STORAGE
+  );
+}
+
 type ViaCepResponse = {
   cep?: string;
   logradouro?: string;
@@ -383,12 +413,22 @@ export default function CheckoutForm({
     onErrorChange(null);
 
     try {
+      /**
+       * A chave fica salva no sessionStorage.
+       *
+       * Portanto um refresh ou retry continuará
+       * representando a mesma tentativa de compra.
+       */
+      const idempotencyKey =
+        getCheckoutIdempotencyKey();
+
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          idempotencyKey,
           customer: {
             name: form.name.trim(),
             email: form.email.trim(),
@@ -422,6 +462,14 @@ export default function CheckoutForm({
       if (!response.ok) {
         throw new Error(result?.error || "Não foi possível enviar seu pedido.");
       }
+
+      /**
+       * Agora temos confirmação do servidor de que
+       * essa tentativa corresponde a um pedido.
+       *
+       * A próxima compra deverá receber uma nova chave.
+       */
+      clearCheckoutIdempotencyKey();
 
       setSubmitting(false);
       setRedirecting(true);

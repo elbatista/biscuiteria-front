@@ -8,6 +8,8 @@ import {
   Layers3,
   Settings,
   Store,
+  UserRound,
+
 } from "lucide-react";
 
 export const adminNavItems = [
@@ -40,6 +42,11 @@ export const adminNavItems = [
     label: "FAQ",
     href: "/admin/settings/faq",
     icon: HelpCircle,
+  },
+  {
+    label: "Conta",
+    href: "/admin/conta",
+    icon: UserRound,
   },
   {
     label: "Configurações",

@@ -3,7 +3,15 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { sendManualOrderEmails } from "@/lib/server/manual-order-emails";
-import { assertStoreCanAcceptOrders } from "@/lib/server/store-settings";
+import { getStoreSettings } from "@/lib/server/store-settings";
+
+export class CheckoutBusinessError extends Error {
+  constructor(message: string) {
+    super(message);
+
+    this.name = "CheckoutBusinessError";
+  }
+}
 
 export const checkoutSchema = z.object({
   customer: z.object({
@@ -94,6 +102,16 @@ export const checkoutSchema = z.object({
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
+export const publicCheckoutSchema = checkoutSchema.extend({
+  idempotencyKey: z
+    .string()
+    .uuid("Identificador de checkout inválido."),
+});
+
+export type PublicCheckoutInput = z.infer<
+  typeof publicCheckoutSchema
+>;
+
 function generatePublicIdCandidate() {
   return `PEDIDO-${randomUUID()
     .replace(/-/g, "")
@@ -135,6 +153,7 @@ type OrderCreationOptions = {
   creationReason: string;
   checkStoreAvailability: boolean;
   sendCreationEmails: boolean;
+  idempotencyKey: string;
 };
 
 async function createOrder(
@@ -142,7 +161,14 @@ async function createOrder(
   options: OrderCreationOptions
 ) {
   if (options.checkStoreAvailability) {
-    await assertStoreCanAcceptOrders();
+    const settings = await getStoreSettings();
+
+    if (settings.storeStatus === "closed") {
+      throw new CheckoutBusinessError(
+        settings.storeClosedMessage ||
+          "A loja não está aceitando pedidos no momento."
+      );
+    }
   }
 
   const uniqueProductIds = [
@@ -191,7 +217,7 @@ async function createOrder(
     products.length !==
     uniqueProductIds.length
   ) {
-    throw new Error(
+    throw new CheckoutBusinessError(
       "Um ou mais produtos do carrinho não estão mais disponíveis. Atualize o carrinho e tente novamente."
     );
   }
@@ -210,7 +236,7 @@ async function createOrder(
       );
 
       if (!product) {
-        throw new Error(
+        throw new CheckoutBusinessError(
           "Produto não encontrado."
         );
       }
@@ -225,7 +251,7 @@ async function createOrder(
         productHasColors &&
         !selectedColorId
       ) {
-        throw new Error(
+        throw new CheckoutBusinessError(
           `Escolha uma cor para o produto "${product.name}" antes de finalizar o pedido.`
         );
       }
@@ -234,7 +260,7 @@ async function createOrder(
         !productHasColors &&
         selectedColorId
       ) {
-        throw new Error(
+        throw new CheckoutBusinessError(
           `O produto "${product.name}" não possui opções de cor. Remova e adicione novamente ao carrinho.`
         );
       }
@@ -252,7 +278,7 @@ async function createOrder(
         selectedColorId &&
         !selectedColor
       ) {
-        throw new Error(
+        throw new CheckoutBusinessError(
           `A cor selecionada para "${product.name}" não está mais disponível. Remova e adicione novamente ao carrinho.`
         );
       }
@@ -331,6 +357,9 @@ async function createOrder(
             data: {
               publicId,
 
+              idempotencyKey:
+                options.idempotencyKey,
+
               customerName:
                 data.customer.name.trim(),
 
@@ -383,6 +412,11 @@ async function createOrder(
 
               sourceChannel:
                 options.sourceChannel,
+
+              creationEmailStatus:
+                options.sendCreationEmails
+                  ? "pending"
+                  : "skipped",
             },
 
             include: {
@@ -577,7 +611,7 @@ async function createOrder(
    * das ações do workflow.
    */
   try {
-    await sendManualOrderEmails({
+    const emailResult = await sendManualOrderEmails({
       publicId:
         orderForEmail.publicId,
 
@@ -684,19 +718,107 @@ async function createOrder(
             }
           : null,
     });
+
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+
+      data: {
+        creationEmailStatus:
+          emailResult.customerEmailSent
+            ? "sent"
+            : "failed",
+      },
+    });
+
+    const hasEmailFailure =
+      !emailResult.customerEmailSent ||
+      !emailResult.sellerEmailSent;
+
+    if (hasEmailFailure) {
+      console.error(
+        "ORDER_CREATION_EMAIL_ERROR",
+        {
+          orderId:
+            order.id,
+
+          publicId:
+            order.publicId,
+
+          customerEmailSent:
+            emailResult.customerEmailSent,
+
+          sellerEmailSent:
+            emailResult.sellerEmailSent,
+
+          customerEmailError:
+            emailResult.customerEmailError,
+
+          sellerEmailError:
+            emailResult.sellerEmailError,
+        }
+      );
+
+      await prisma.orderStatusHistory.create({
+        data: {
+          orderId:
+            order.id,
+
+          fromStatus:
+            "created",
+
+          toStatus:
+            "created",
+
+          reason:
+            "Pedido criado, mas houve erro ao enviar um ou mais e-mails automáticos.",
+
+          source:
+            "system",
+
+          metadataJson: {
+            event:
+              "order_created_email_failed",
+
+            customerEmailSent:
+              emailResult.customerEmailSent,
+
+            sellerEmailSent:
+              emailResult.sellerEmailSent,
+
+            customerEmailError:
+              emailResult.customerEmailError,
+
+            sellerEmailError:
+              emailResult.sellerEmailError,
+          },
+        },
+      });
+    }
+
   } catch (error) {
     console.error(
-      "MANUAL_ORDER_EMAIL_ERROR",
+      "ORDER_CREATION_EMAIL_ERROR",
       error
     );
 
     /**
-     * Uma falha de e-mail não desfaz
-     * a criação do pedido.
-     *
-     * Registramos apenas o ocorrido
-     * no histórico.
+     * Se houve uma falha inesperada no mecanismo
+     * de envio, consideramos que não conseguimos
+     * confirmar o envio ao cliente.
      */
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+
+      data: {
+        creationEmailStatus:
+          "failed",
+      },
+    });
+
     await prisma.orderStatusHistory.create({
       data: {
         orderId:
@@ -735,16 +857,83 @@ async function createOrder(
 }
 
 export async function createCheckoutOrder(
-  data: CheckoutInput
+  data: PublicCheckoutInput
 ) {
-  return createOrder(data, {
-    sourceChannel: "site",
-    historySource: "system",
-    creationReason:
-      "Pedido criado pelo cliente. Aguardando revisão e definição do frete.",
-    checkStoreAvailability: true,
-    sendCreationEmails: true,
-  });
+  const idempotencyKey =
+    `site:${data.idempotencyKey}`;
+
+  /**
+   * Primeira proteção.
+   *
+   * Se esse checkout já criou um pedido,
+   * simplesmente devolvemos o pedido existente.
+   *
+   * Isso cobre:
+   * - refresh da página;
+   * - retry após timeout;
+   * - segundo clique/requisição posterior;
+   * - perda da resposta HTTP.
+   */
+  const existingOrder =
+    await prisma.order.findUnique({
+      where: {
+        idempotencyKey,
+      },
+
+      select: {
+        id: true,
+        publicId: true,
+      },
+    });
+
+  if (existingOrder) {
+    return existingOrder;
+  }
+
+  try {
+    return await createOrder(data, {
+      sourceChannel: "site",
+      historySource: "system",
+      creationReason:
+        "Pedido criado pelo cliente. Aguardando revisão e definição do frete.",
+      checkStoreAvailability: true,
+      sendCreationEmails: true,
+      idempotencyKey,
+    });
+  } catch (error) {
+    /**
+     * Segunda proteção.
+     *
+     * Duas requisições podem chegar praticamente
+     * ao mesmo tempo e ambas passarem pelo
+     * findUnique acima antes de qualquer uma
+     * terminar a criação.
+     *
+     * O UNIQUE do PostgreSQL permitirá que
+     * somente uma delas crie o pedido.
+     *
+     * Depois de qualquer erro durante essa
+     * tentativa, verificamos se a outra requisição
+     * conseguiu criar o pedido.
+     */
+    const orderCreatedByConcurrentRequest =
+      await prisma.order.findUnique({
+        where: {
+          idempotencyKey,
+        },
+
+        select: {
+          id: true,
+          publicId: true,
+        },
+      });
+
+    if (orderCreatedByConcurrentRequest) {
+      return orderCreatedByConcurrentRequest;
+    }
+
+    throw error;
+  }
 }
 
 export async function createAdminOrder(
@@ -761,5 +950,8 @@ export async function createAdminOrder(
     checkStoreAvailability: false,
     sendCreationEmails:
       options?.sendCreationEmails ?? true,
+
+    idempotencyKey:
+      `admin:${randomUUID()}`,
   });
 }

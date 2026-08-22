@@ -169,12 +169,6 @@ export async function POST(
       adminId:
         adminUser.id,
 
-      adminEmail:
-        adminUser.email,
-
-      customerEmail:
-        payload.customer.email,
-
       itemsCount:
         payload.items.length,
 
@@ -248,9 +242,6 @@ export async function POST(
       {
         adminId:
           adminUser.id,
-
-        adminEmail:
-          adminUser.email,
 
         error:
           getErrorMessage(

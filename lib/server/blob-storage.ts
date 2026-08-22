@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 
 const DEFAULT_ALLOWED_TYPES = [
   "image/jpeg",
@@ -16,6 +16,31 @@ const DEFAULT_OPTIMIZED_INITIAL_QUALITY = 85;
 const DEFAULT_OPTIMIZED_MIN_QUALITY = 50;
 const DEFAULT_OPTIMIZED_QUALITY_STEP = 5;
 const DEFAULT_OPTIMIZED_MIN_DIMENSION = 900;
+
+async function safeDeleteBlob(
+  url: string | null | undefined
+) {
+  if (!url) {
+    return;
+  }
+
+  try {
+    await del(url);
+  } catch (error) {
+    /**
+     * Se a limpeza também falhar, não queremos
+     * esconder o erro original que provocou
+     * o rollback.
+     */
+    console.error(
+      "BLOB_ROLLBACK_DELETE_ERROR",
+      {
+        url,
+        error,
+      }
+    );
+  }
+}
 
 export type ImageStorageDirectory =
   | "products"
@@ -180,7 +205,10 @@ async function optimizeImageNearTarget(
       targetFileSize / bestBuffer.length
     );
 
-    const nextScale = Math.min(0.9, Math.max(0.7, scaleFromSize * 0.95));
+    const nextScale = Math.min(
+      0.9,
+      Math.max(0.7, scaleFromSize * 0.95)
+    );
 
     const nextWidth = Math.max(
       minDimension,
@@ -237,6 +265,7 @@ export async function uploadImageWithThumb({
         inputBuffer,
         optimizeOriginal
       );
+
       originalContentType = "image/webp";
       originalExtension = "webp";
     } catch (error) {
@@ -257,52 +286,104 @@ export async function uploadImageWithThumb({
   const thumbPathname =
     `${directory}/thumbs/${baseName}.webp`;
 
-  const originalBlob = await put(
-    originalPathname,
-    originalBuffer,
-    {
-      access: "public",
-      contentType: originalContentType,
-      addRandomSuffix: false,
-    }
-  );
-
-  let thumbBuffer: Buffer;
+  /**
+   * Guardamos as URLs somente depois que cada
+   * upload realmente foi concluído.
+   *
+   * Assim sabemos exatamente quais arquivos
+   * precisam ser removidos em caso de falha.
+   */
+  let originalBlobUrl: string | null = null;
+  let thumbBlobUrl: string | null = null;
 
   try {
-    thumbBuffer = await sharp(inputBuffer, {
-      limitInputPixels: 40_000_000,
-    })
-      .rotate()
-      .resize({
-        width: thumb?.width ?? 400,
-        height: thumb?.height ?? 400,
-        fit: thumb?.fit ?? "cover",
-      })
-      .webp({
-        quality: thumb?.quality ?? 82,
-      })
-      .toBuffer();
-  } catch {
-    throw new Error("INVALID_IMAGE_CONTENT");
-  }
+    /**
+     * Primeiro enviamos a imagem principal.
+     */
+    const originalBlob = await put(
+      originalPathname,
+      originalBuffer,
+      {
+        access: "public",
+        contentType: originalContentType,
+        addRandomSuffix: false,
+      }
+    );
 
-  const thumbBlob = await put(
-    thumbPathname,
-    thumbBuffer,
-    {
-      access: "public",
-      contentType: "image/webp",
-      addRandomSuffix: false,
+    originalBlobUrl = originalBlob.url;
+
+    /**
+     * Depois geramos a thumbnail.
+     *
+     * Se o Sharp falhar aqui, o catch externo
+     * removerá a imagem principal já enviada.
+     */
+    let thumbBuffer: Buffer;
+
+    try {
+      thumbBuffer = await sharp(inputBuffer, {
+        limitInputPixels: 40_000_000,
+      })
+        .rotate()
+        .resize({
+          width: thumb?.width ?? 400,
+          height: thumb?.height ?? 400,
+          fit: thumb?.fit ?? "cover",
+        })
+        .webp({
+          quality: thumb?.quality ?? 82,
+        })
+        .toBuffer();
+    } catch {
+      throw new Error("INVALID_IMAGE_CONTENT");
     }
-  );
 
-  return {
-    url: originalBlob.url,
-    thumbUrl: thumbBlob.url,
-    pathname: originalPathname,
-    thumbPathname,
-  };
+    /**
+     * Agora enviamos a thumbnail.
+     *
+     * Caso este upload falhe, a imagem principal
+     * será removida pelo rollback abaixo.
+     */
+    const thumbBlob = await put(
+      thumbPathname,
+      thumbBuffer,
+      {
+        access: "public",
+        contentType: "image/webp",
+        addRandomSuffix: false,
+      }
+    );
+
+    thumbBlobUrl = thumbBlob.url;
+
+    return {
+      url: originalBlob.url,
+      thumbUrl: thumbBlob.url,
+      pathname: originalPathname,
+      thumbPathname,
+    };
+  } catch (error) {
+    /**
+     * Se não conseguimos concluir o conjunto
+     * original + thumbnail, qualquer arquivo
+     * criado durante esta tentativa deve ser
+     * removido.
+     *
+     * Promise.all é seguro aqui porque
+     * safeDeleteBlob nunca relança o erro.
+     */
+    await Promise.all([
+      safeDeleteBlob(
+        originalBlobUrl
+      ),
+
+      safeDeleteBlob(
+        thumbBlobUrl
+      ),
+    ]);
+
+    throw error;
+  }
 }
 
 /**
